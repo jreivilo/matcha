@@ -14,5 +14,5 @@ v20.14.0
 - then just run make up
 - frontend is at localhost:4000
 - to look into the database, open adminer at localhost:8080 and enter db credentials
-- to check db routes and test them, localhost:3000/docs
+- to check backend routes and test them, localhost:3000/docs
 - to enter a container, for example frontend, run `docker exec -it matcha-frontend sh` and you'll have a shell within the container
