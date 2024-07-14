@@ -89,7 +89,6 @@ module.exports = async function (fastify, opts) {
 			} finally {
 			connection.release();
 		}
-		//TODO generate jwt token and send it back
 		}
   });
 }

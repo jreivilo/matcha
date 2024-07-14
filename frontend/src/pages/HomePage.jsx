@@ -5,11 +5,11 @@ import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { Link } from 'react-router-dom';
 // homemade components
-import MatchaLayout from '../components/MatchaLayout';
+import CustomLayout from '../components/MatchaLayout';
 
 const HomePage = () => {
   return (
-    <MatchaLayout>
+    <CustomLayout>
       <main className="container mx-auto mt-10 p-5">
         <section className="text-center mb-20">
           <h2 className="text-5xl font-bold text-text-light mb-4">Find Your Perfect Blend</h2>
@@ -45,7 +45,7 @@ const HomePage = () => {
           </Card>
         </section>
       </main>
-    </MatchaLayout>
+    </CustomLayout>
   );
 };
 

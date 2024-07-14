@@ -1,17 +1,17 @@
 import React from 'react';
 // components
 import AuthForm from '../components/AuthForm';
-import MatchaLayout from '../components/MatchaLayout';
+import CustomLayout from '@/components/MatchaLayout';
 
 const Login = () => {
   return (
-    <MatchaLayout>
+    <CustomLayout>
       <div className="flex items-center justify-center h-screen">
         <div className="w-full max-w-md">
           <AuthForm />
         </div>
       </div>
-    </MatchaLayout>
+    </CustomLayout>
   );
 };
 

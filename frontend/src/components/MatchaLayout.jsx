@@ -1,7 +1,7 @@
 import React from 'react';
 import Header from './Header';
 
-const Layout = ({ children }) => {
+const CustomLayout = ({ children }) => {
   return (
     <div className="min-h-screen min-w-screen bg-gradient-to-br from-background-start to-background-end">
       <Header />
@@ -17,4 +17,4 @@ const Layout = ({ children }) => {
   );
 };
 
-export default Layout;
+export default CustomLayout;
