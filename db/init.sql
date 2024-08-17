@@ -61,6 +61,15 @@ CREATE TABLE liked (
     PRIMARY KEY (user_id, liked_user_id)
 );
 
+CREATE TABLE blocked (
+	user_id INT NOT NULL,
+	blocked_user_id INT NOT NULL,
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	FOREIGN KEY (user_id) REFERENCES user(id),
+	FOREIGN KEY (blocked_user_id) REFERENCES user(id),
+	PRIMARY KEY (user_id, blocked_user_id)
+);
+
 CREATE TABLE matches (
     userone INT NOT NULL,
     usertwo INT NOT NULL,
@@ -69,3 +78,11 @@ CREATE TABLE matches (
     FOREIGN KEY (usertwo) REFERENCES user(id),
     PRIMARY KEY (userone, usertwo)
 );
+
+-- Insert user Patrick
+INSERT INTO users (email, username, first_name, last_name, password) 
+VALUES ('patrick@example.com', 'patrick', 'Patrick', 'Star', 'patrickpassword');
+
+-- Insert user Bob
+INSERT INTO users (email, username, first_name, last_name, password) 
+VALUES ('bob@example.com', 'bob', 'Bob', 'Smith', 'bobbob');
