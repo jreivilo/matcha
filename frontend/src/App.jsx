@@ -5,6 +5,7 @@ import HomePage from './pages/HomePage'
 import Login from './pages/Login';
 import Dashboard from './pages/member/Dashboard';
 import ProfileForm from './pages/FillInfo';
+import ProfilePage from './pages/Profile';
 
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/fill-profile" element={<ProfileForm />} />
         <Route path="/member/dashboard" element={<Dashboard />} />
+        <Route path="/member/profile" element={<ProfilePage />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>
