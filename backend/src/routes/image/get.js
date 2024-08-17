@@ -6,12 +6,12 @@ const path = require('path');
 module.exports = async function (fastify, opts) {
   fastify.route({
     url: '/get',
-    method: ['GET'],
+    method: ['POST'], // Changed to POST to accept body parameters
     schema: {
       summary: 'Get Images',
       description: 'Retrieve all images for the user',
       tags: ['Image'],
-      querystring: {
+      body: { // Updated to accept the username in the body
         type: 'object',
         required: ['username'],
         properties: {
@@ -41,7 +41,7 @@ module.exports = async function (fastify, opts) {
       }
     },
     handler: async (request, reply) => {
-      const { username } = request.query;
+      const { username } = request.body; // Changed to request.body
 
       if (!username) {
         reply.code(400).send({

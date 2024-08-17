@@ -2,30 +2,45 @@
 
 const argon2 = require('argon2');
 
-// TODO: this was a route that was used to check if a user exists,
-// but now it should return useful info, not done yet
-
 module.exports = async function (fastify, opts) {
   fastify.route({
     url: '/getinfo',
-    method: ['GET'],
+    method: ['POST'],
     schema: {
       summary: 'Get user info',
-      description: 'Return all useful user info',
+      description: 'Return specific user info',
       tags: ['User'],
-      querystring: {
+      body: {
         type: 'object',
-        required: ['email'],
+        required: ['username'],
         properties: {
-          email: { type: 'string', description: 'User email' }
+          username: { type: 'string', description: 'User username' }
         }
       },
       response: {
         200: {
-          description: 'User exists',
+          description: 'User info retrieved',
           type: 'object',
           properties: {
-            exists: { type: 'boolean' }
+            exists: { type: 'boolean' },
+            user: {
+              type: 'object',
+              properties: {
+                email: { type: 'string' },
+                first_name: { type: 'string' },
+                last_name: { type: 'string' },
+                gender: { type: 'string' },
+                sexuality: { type: 'string' },
+                biography: { type: 'string' },
+                interests: { type: 'string' },
+                coordinates: { type: 'string' },
+                famerating: { type: 'integer' },
+                picturecount: { type: 'integer' },
+                profile_completed: { type: 'boolean' },
+                active: { type: 'boolean' },
+                verified: { type: 'boolean' }
+              }
+            }
           }
         },
         400: {
@@ -35,33 +50,67 @@ module.exports = async function (fastify, opts) {
             code: { type: 'string' },
             message: { type: 'string' }
           }
+        },
+        500: {
+          description: 'Internal Server Error',
+          type: 'object',
+          properties: {
+            code: { type: 'string' },
+            message: { type: 'string' },
+            error: { type: 'string' }
+          }
         }
       }
     },
     handler: async (request, reply) => {
-      const { email } = request.query;
+      const { username } = request.body;
       const connection = await fastify.mysql.getConnection();
     
       try {
-        const [rows] = await connection.query(
-          'SELECT COUNT(*) AS count FROM user WHERE email = ?',
-          [email]
+        // Query the specific user information based on the username
+        const [userRows] = await connection.query(
+          `SELECT email, first_name, last_name, gender, sexuality, biography, 
+                  interests, coordinates, famerating, picturecount, 
+                  profile_completed, active, verified 
+           FROM user WHERE username = ?`,
+          [username]
         );
-    
-        if (rows[0].count > 0) {
+        
+        if (userRows.length === 0) {
           reply.code(200).send({
-            exists: true
+            exists: false,
+            user: null
           });
-        } else {
-          reply.code(200).send({
-            exists: false
-          });
+          return;
         }
+        
+        const user = userRows[0];
+        
+        // Send the specific user information
+        reply.code(200).send({
+          exists: true,
+          user: {
+            email: user.email,
+            first_name: user.first_name,
+            last_name: user.last_name,
+            gender: user.gender,
+            sexuality: user.sexuality,
+            biography: user.biography,
+            interests: user.interests,
+            coordinates: user.coordinates,
+            famerating: user.famerating,
+            picturecount: user.picturecount,
+            profile_completed: user.profile_completed,
+            active: user.active,
+            verified: user.verified
+          }
+        });
+        
       } catch (error) {
         reply.code(500).send({
           code: 'INTERNAL_SERVER_ERROR',
-          message: 'An error occurred while verifying the user',
-          error: error
+          message: 'An error occurred while retrieving the user information',
+          error: error.message
         });
       } finally {
         connection.release();
