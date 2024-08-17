@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const fileType = require('file-type'); // Install this package to detect file types
+const fileType = require('file-type'); // Ensure this package is installed
 
 module.exports = async function (fastify, opts) {
   fastify.route({
@@ -51,6 +51,23 @@ module.exports = async function (fastify, opts) {
         return;
       }
 
+      const imageDirectory = path.join('/usr/src/app/profile_image', username);
+
+      if (!fs.existsSync(imageDirectory)) {
+        fs.mkdirSync(imageDirectory, { recursive: true });
+      }
+
+      const userImages = fs.readdirSync(imageDirectory).filter(f => f.startsWith(username));
+
+      // Check if the user already has 5 images
+      if (userImages.length >= 5) {
+        reply.code(400).send({
+          code: 'MAX_IMAGES_REACHED',
+          message: 'User already has the maximum of 5 images'
+        });
+        return;
+      }
+
       // Convert base64 to buffer
       const fileBuffer = Buffer.from(file, 'base64');
 
@@ -61,21 +78,6 @@ module.exports = async function (fastify, opts) {
         reply.code(400).send({
           code: 'INVALID_FILE_TYPE',
           message: 'Only image files of types JPEG, PNG, GIF, WebP, and BMP are accepted'
-        });
-        return;
-      }
-
-      const imageDirectory = path.join('/usr/src/app/profile_image', username);
-
-      if (!fs.existsSync(imageDirectory)) {
-        fs.mkdirSync(imageDirectory);
-      }
-
-      const userImages = fs.readdirSync(imageDirectory).filter(f => f.startsWith(username));
-      if (userImages.length >= 5) {
-        reply.code(400).send({
-          code: 'MAX_IMAGES_REACHED',
-          message: 'User already has the maximum of 5 images'
         });
         return;
       }
@@ -100,4 +102,3 @@ module.exports = async function (fastify, opts) {
     }
   });
 };
-

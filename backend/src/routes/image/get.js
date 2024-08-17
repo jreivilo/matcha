@@ -1,0 +1,85 @@
+'use strict';
+
+const fs = require('fs');
+const path = require('path');
+
+module.exports = async function (fastify, opts) {
+  fastify.route({
+    url: '/get',
+    method: ['GET'],
+    schema: {
+      summary: 'Get Images',
+      description: 'Retrieve all images for the user',
+      tags: ['Image'],
+      querystring: {
+        type: 'object',
+        required: ['username'],
+        properties: {
+          username: { type: 'string', description: 'Username of the user' }
+        }
+      },
+      response: {
+        200: {
+          description: 'Images retrieved successfully',
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              imageName: { type: 'string' },
+              image: { type: 'string', description: 'Base64 encoded image' }
+            }
+          }
+        },
+        400: {
+          description: 'Invalid input or no images found',
+          type: 'object',
+          properties: {
+            code: { type: 'string' },
+            message: { type: 'string' }
+          }
+        }
+      }
+    },
+    handler: async (request, reply) => {
+      const { username } = request.query;
+
+      if (!username) {
+        reply.code(400).send({
+          code: 'INVALID_INPUT',
+          message: 'Username is missing'
+        });
+        return;
+      }
+
+      const imageDirectory = path.join('/usr/src/app/profile_image', username);
+
+      if (!fs.existsSync(imageDirectory)) {
+        reply.code(400).send({
+          code: 'NO_IMAGES_FOUND',
+          message: 'User has no images'
+        });
+        return;
+      }
+
+      const userImages = fs.readdirSync(imageDirectory).filter(f => f.startsWith(username));
+      if (userImages.length === 0) {
+        reply.code(400).send({
+          code: 'NO_IMAGES_FOUND',
+          message: 'User has no images'
+        });
+        return;
+      }
+
+      const imageList = userImages.map(image => {
+        const imagePath = path.join(imageDirectory, image);
+        const imageBuffer = fs.readFileSync(imagePath);
+        return {
+          imageName: image,
+          image: imageBuffer.toString('base64')
+        };
+      });
+
+      reply.code(200).send(imageList);
+    }
+  });
+};
