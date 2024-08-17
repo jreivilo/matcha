@@ -78,11 +78,3 @@ CREATE TABLE matches (
     FOREIGN KEY (usertwo) REFERENCES user(id),
     PRIMARY KEY (userone, usertwo)
 );
-
--- Insert user Patrick
-INSERT INTO users (email, username, first_name, last_name, password) 
-VALUES ('patrick@example.com', 'patrick', 'Patrick', 'Star', 'patrickpassword');
-
--- Insert user Bob
-INSERT INTO users (email, username, first_name, last_name, password) 
-VALUES ('bob@example.com', 'bob', 'Bob', 'Smith', 'bobbob');
