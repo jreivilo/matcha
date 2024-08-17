@@ -32,6 +32,7 @@
     "fastify-cli": "^6.1.1",
     "fastify-jwt": "^4.2.0",
     "fastify-plugin": "^4.5.1",
+    "file-type": "^16.5.4",
     "mailersend": "^2.2.0",
     "uuidv4": "^6.2.13"
   }

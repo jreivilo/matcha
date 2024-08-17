@@ -251,4 +251,6 @@ $RECYCLE.BIN/
 
 db/data
 
+db/profle_image
+
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,windows,linux,macos,react,node

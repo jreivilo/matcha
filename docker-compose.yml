@@ -20,6 +20,7 @@ services:
       - matcha-networks
     volumes:
       - ./backend/src:/usr/src/app/src
+      - ./db/profile_image:/usr/src/app/profile_image
     restart: unless-stopped
 
   frontend:
