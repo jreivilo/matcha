@@ -7,7 +7,7 @@ module.exports = async function (fastify, opts) {
     schema: {
       summary: 'Like a user',
       description: 'Like a specific user and update the famerating',
-      tags: ['User'],
+      tags: ['Like'],
       body: {
         type: 'object',
         required: ['username', 'liked_username'],
