@@ -24,7 +24,4 @@ clear-images:
 clear-containers:
 	docker rm $$(docker ps -aq)
 
-clear-volumes:
-	docker volume rm $$(docker volume ls -q)
-
-clean: stop-docker clear-containers clear-images clear-volumes
+clean: stop-docker clear-containers clear-images
