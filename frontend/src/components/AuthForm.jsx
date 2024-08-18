@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import { useUser } from './UserProvider';
 import { Input } from "./ui/input"
 import { Button } from "./ui/button"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "./ui/card"
@@ -9,6 +10,7 @@ const AuthForm = () => {
   const [isLogin, setIsLogin] = useState(true);
   const navigate = useNavigate();
   const { register, handleSubmit, formState: { errors } } = useForm();
+  const { setUser } = useUser();
 
   const onSubmitAuth = async (data) => {
     try {
@@ -25,6 +27,10 @@ const AuthForm = () => {
         });
       const responseData = await response.json();
       if (responseData.success) {
+        setUser(data.username);
+        console.log(data.username);
+        const { user } = useUser();
+        console.log(user);
         if (isLogin)
           navigate('/member/dashboard');
         else

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useUser } from '../components/UserProvider';
 // components
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -8,9 +9,10 @@ import { Badge } from "@/components/ui/badge";
 import { ThumbsUp, UserX, AlertTriangle, Star } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
-const ProfilePage = () => {
-  const [user, setUser] = useState(null);
-  const [isSelf, setIsSelf] = useState(false);
+const ProfilePage = ({ profileUsername}) => { 
+  // const [user, setUser] = useState(null);
+  const { user } = useUser();
+  const isSelf = profileUsername === user;
   const [isLiked, setIsLiked] = useState(false);
   const [isBlocked, setIsBlocked] = useState(false);
   const [error, setError] = useState('');
@@ -79,8 +81,11 @@ const ProfilePage = () => {
     );
   }
 
-  if (!user) {
-    return <div>Loading...</div>;
+  // if (!user) {
+  //   return <div>Loading...</div>;
+  // }
+  if (isSelf) {
+    return <div>Mirror!</div>;
   }
 
   return (
