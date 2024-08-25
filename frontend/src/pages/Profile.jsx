@@ -64,7 +64,7 @@ const ProfilePage = () => {
   };
 
   const handleBlock = async () => {
-    // Implement block functionality
+    
     setIsBlocked(!isBlocked);
   };
 
