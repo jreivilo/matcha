@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useUser } from '@/components/UserProvider';
 // components
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -7,9 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ThumbsUp, UserX, AlertTriangle, Star } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import CustomLayout from '@/components/MatchaLayout';
 
 const ProfilePage = () => {
-  const [user, setUser] = useState(null);
+  const { user } = useUser();
+  const [displayUser, setDisplayUser] = useState();
   const [isSelf, setIsSelf] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [isBlocked, setIsBlocked] = useState(false);
@@ -21,6 +24,8 @@ const ProfilePage = () => {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const usernameParam = params.get('username');
+
+    setIsSelf(usernameParam === user?.username);
     
     const fetchUser = async () => {
       try {
@@ -33,11 +38,12 @@ const ProfilePage = () => {
           credentials: 'include',
         });
         const responseData = await response.json();
-        // for now, always someone else's profile, TODO: implement self profile
         if (responseData.user) {
             responseData.user.username = usernameParam;
-          setUser(responseData.user);
-        //   setIsSelf(responseData.isSelf);
+          setDisplayUser({
+            ...responseData.user,
+          }
+          );
           setIsLiked(responseData.isLiked);
           setIsBlocked(responseData.isBlocked);
         } else {
@@ -49,11 +55,7 @@ const ProfilePage = () => {
       }
     };
 
-    if (usernameParam) {
-      fetchUser();
-    } else {
-      navigate('/member/dashboard');
-    }
+    fetchUser();
   }, [location, navigate]);
 
   const handleLike = async () => {
@@ -79,59 +81,61 @@ const ProfilePage = () => {
     );
   }
 
-  if (!user) {
+  if (!displayUser) {
     return <div>Loading...</div>;
   }
 
   return (
-    <Card className="w-[350px] mx-auto">
-      <CardHeader>
-        <CardTitle className="text-2xl font-bold text-center">{user.username}'s Profile</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex justify-center">
-          <Avatar className="w-32 h-32">
-            <AvatarImage src={user.profilePicture} alt={user.username} />
-            <AvatarFallback>{user.username.charAt(0).toUpperCase()}</AvatarFallback>
-          </Avatar>
-        </div>
-        
-        <div className="space-y-2">
-          <p><strong>Name:</strong> {user.first_name} {user.last_name}</p>
-          <p><strong>Gender:</strong> {user.gender}</p>
-          <p><strong>Sexuality:</strong> {user.sexuality}</p>
-          <p><strong>Biography:</strong> {user.biography}</p>
-          <p><strong>Interests:</strong> {user.interests.split(',').map(interest => (
-            <Badge key={interest} variant="secondary" className="mr-1">
-              {interest.trim()}
-            </Badge>
-          ))}</p>
-          <p><strong>Fame Rating:</strong> <Star className="inline" /> {user.fameRating}</p>
-          <p><strong>Last Online:</strong> {user.lastOnline}</p>
-        </div>
-
-        {!isSelf && (
-          <div className="flex justify-between mt-4">
-            <Button 
-              onClick={handleLike}
-              variant={isLiked ? "default" : "outline"}
-              disabled={!user.profilePicture}
-            >
-              <ThumbsUp className="mr-2 h-4 w-4" /> {isLiked ? 'Unlike' : 'Like'}
-            </Button>
-            <Button 
-              onClick={handleBlock}
-              variant={isBlocked ? "destructive" : "outline"}
-            >
-              <UserX className="mr-2 h-4 w-4" /> {isBlocked ? 'Unblock' : 'Block'}
-            </Button>
-            <Button onClick={handleReport} variant="outline">
-              <AlertTriangle className="mr-2 h-4 w-4" /> Report
-            </Button>
+    <CustomLayout>
+      <Card className="w-[350px] mx-auto">
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold text-center">{isSelf ? 'Your Profile' : `${displayUser.username}'s Profile`}</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex justify-center">
+            <Avatar className="w-32 h-32">
+              <AvatarImage src={displayUser.profilePicture} alt={displayUser.username} />
+              <AvatarFallback>{displayUser.username.charAt(0).toUpperCase()}</AvatarFallback>
+            </Avatar>
           </div>
-        )}
-      </CardContent>
-    </Card>
+          
+          <div className="space-y-2">
+            <p><strong>Name:</strong> {displayUser.first_name} {displayUser.last_name}</p>
+            <p><strong>Gender:</strong> {displayUser.gender}</p>
+            <p><strong>Sexuality:</strong> {displayUser.sexuality}</p>
+            <p><strong>Biography:</strong> {displayUser.biography}</p>
+            <div><strong>Interests:</strong> {displayUser.interests.split(',').map(interest => (
+              <Badge key={interest} variant="secondary" className="mr-1">
+                {interest.trim()}
+              </Badge>
+            ))}</div>
+            <p><strong>Fame Rating:</strong> <Star className="inline" /> {displayUser.fameRating}</p>
+            <p><strong>Last Online:</strong> {displayUser.lastOnline}</p>
+          </div>
+
+          {!isSelf && (
+            <div className="flex justify-between mt-4">
+              <Button 
+                onClick={handleLike}
+                variant={isLiked ? "default" : "outline"}
+                disabled={!displayUser.profilePicture}
+              >
+                <ThumbsUp className="mr-2 h-4 w-4" /> {isLiked ? 'Unlike' : 'Like'}
+              </Button>
+              <Button 
+                onClick={handleBlock}
+                variant={isBlocked ? "destructive" : "outline"}
+              >
+                <UserX className="mr-2 h-4 w-4" /> {isBlocked ? 'Unblock' : 'Block'}
+              </Button>
+              <Button onClick={handleReport} variant="outline">
+                <AlertTriangle className="mr-2 h-4 w-4" /> Report
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </CustomLayout>
   );
 };
 
