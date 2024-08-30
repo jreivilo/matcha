@@ -23,8 +23,11 @@ export const getUserInfo = async (username) => {
             body: JSON.stringify({ username }),
             credentials: 'include',
         });
-        response = await response.json();
-        userInfo = { ...userInfo, liked_by: response };
+        if (response.success === true) {
+            response = await response.json();
+            userInfo = { ...userInfo, liked_by: response };
+        }
+        console.log("No likes for this user")
 
     } catch (error) {
         console.error('Error fetching liked by:', error);
@@ -37,9 +40,11 @@ export const getUserInfo = async (username) => {
             body: JSON.stringify({ username }),
             credentials: 'include',
         });
-        response = await response.json();
-        userInfo = { ...userInfo, blocked_by: response };
-
+        if (response.success === true) {
+            response = await response.json();
+            userInfo = { ...userInfo, blocked_by: response };
+        }
+        console.log("No blocks for this user")
     } catch (error) {
         console.error('Error fetching blocked by:', error);
     }
@@ -48,22 +53,28 @@ export const getUserInfo = async (username) => {
 };
 
 export const toggleLike = async (src, dest, liked) => {
-    const apiUrl = liked? `${API_URL}/like/add` : `${API_URL}/like/delete`
+    const apiUrl = liked? `${API_URL}/like/add` : `${API_URL}/like/unlike`
     const response = await fetch(apiUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: src, liked_username: dest }),
+        headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': 'localhost:4000',
+        },
+        body: JSON({ username : src, liked_username: dest }),  
         credentials: 'include',
   });
   return response.json();
 };
 
 export const toggleBlock = async (src, dest, liked) => {
-    const apiUrl = liked? `${API_URL}/block/add` : `${API_URL}/block/delete`;  
+    const apiUrl = liked? `${API_URL}/block/add` : `${API_URL}/block/unblock`;  
     const response = await fetch(apiUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: src, blocked_username: dest }),
+        headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': 'localhost:4000',
+        },
+        body: JSON({ username : src, blocked_username: dest }),
         credentials: 'include',
   });
   return response.json();

@@ -49,7 +49,7 @@ const ProfilePage = () => {
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
 
-  const { displayUser, isLiked, isBlocked } = data;
+  const { displayUser, isLiked, isBlocked } = data ?? {};
 
   // useEffect(() => {
 
@@ -108,28 +108,35 @@ const ProfilePage = () => {
     <CustomLayout>
       <Card className="w-[350px] mx-auto">
         <CardHeader>
-          <CardTitle className="text-2xl font-bold text-center">{isSelf ? 'Your Profile' : `${displayUser.username}'s Profile`}</CardTitle>
+          <CardTitle className="text-2xl font-bold text-center">
+            {isSelf ? 'Your Profile' : `${profileUsername}'s Profile`}
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex justify-center">
             <Avatar className="w-32 h-32">
-              <AvatarImage src={displayUser.profilePicture} alt={profileUsername} />
-              <AvatarFallback>{profileUsername.charAt(0).toUpperCase()}</AvatarFallback>
+              <AvatarImage src={displayUser?.profilePicture} alt={displayUser?.username} />
+              <AvatarFallback>{displayUser?.username?.charAt(0).toUpperCase() ?? 'U'}</AvatarFallback>
             </Avatar>
           </div>
-          
+
           <div className="space-y-2">
-            <p><strong>Name:</strong> {displayUser.first_name} {displayUser.last_name}</p>
-            <p><strong>Gender:</strong> {displayUser.gender}</p>
-            <p><strong>Sexuality:</strong> {displayUser.sexuality}</p>
-            <p><strong>Biography:</strong> {displayUser.biography}</p>
-            <div><strong>Interests:</strong> {displayUser.interests.split(',').map(interest => (
-              <Badge key={interest} variant="secondary" className="mr-1">
-                {interest.trim()}
-              </Badge>
-            ))}</div>
-            <p><strong>Fame Rating:</strong> <Star className="inline" /> {displayUser.fameRating}</p>
-            <p><strong>Last Online:</strong> {displayUser.lastOnline}</p>
+            <p><strong>Name:</strong> {displayUser?.first_name ?? ''} {displayUser?.last_name ?? ''}</p>
+            <p><strong>Gender:</strong> {displayUser?.gender ?? ''}</p>
+            <p><strong>Sexuality:</strong> {displayUser?.sexuality ?? ''}</p>
+            <p><strong>Biography:</strong> {displayUser?.biography ?? ''}</p>
+            <div>
+              <strong>Interests:</strong> 
+              {displayUser?.interests ? 
+                displayUser.interests.split(',').map(interest => (
+                  <Badge key={interest} variant="secondary" className="mr-1">
+                    {interest.trim()}
+                  </Badge>
+                )) : <span></span>
+              }
+            </div>
+            <p><strong>Fame Rating:</strong> <Star className="inline" /> {displayUser?.fameRating ?? 'N/A'}</p>
+            <p><strong>Last Online:</strong> {displayUser?.lastOnline ?? 'Unknown'}</p>
           </div>
 
           {!isSelf && (
@@ -137,7 +144,7 @@ const ProfilePage = () => {
               <Button 
                 onClick={handleLike}
                 variant={isLiked ? "default" : "outline"}
-                disabled={!displayUser.profilePicture}
+                disabled={displayUser?.profilePicture}
               >
                 <ThumbsUp className="mr-2 h-4 w-4" /> {isLiked ? 'Unlike' : 'Like'}
               </Button>
