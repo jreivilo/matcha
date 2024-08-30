@@ -22,7 +22,9 @@ const ProfilePage = () => {
   const params = new URLSearchParams(location.search);
   const profileUsername = params.get('username');
 
-  setIsSelf(profileUsername === user?.username);
+  useEffect(() => {
+    setIsSelf(profileUsername === user?.username);
+  }, [profileUsername, user]);
 
   const { data, isLoading, error } = useQuery({
     queryKey: profileUsername ? ['profile', profileUsername] : null,
@@ -48,8 +50,6 @@ const ProfilePage = () => {
   if (error) return <div>Error: {error.message}</div>;
 
   const { displayUser, isLiked, isBlocked } = data;
-
-
 
   // useEffect(() => {
 
@@ -113,8 +113,8 @@ const ProfilePage = () => {
         <CardContent className="space-y-4">
           <div className="flex justify-center">
             <Avatar className="w-32 h-32">
-              <AvatarImage src={displayUser.profilePicture} alt={displayUser.username} />
-              <AvatarFallback>{displayUser.username.charAt(0).toUpperCase()}</AvatarFallback>
+              <AvatarImage src={displayUser.profilePicture} alt={profileUsername} />
+              <AvatarFallback>{profileUsername.charAt(0).toUpperCase()}</AvatarFallback>
             </Avatar>
           </div>
           
