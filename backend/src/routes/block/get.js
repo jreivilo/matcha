@@ -58,10 +58,10 @@ module.exports = async function (fastify, opts) {
         );
 
         if (userRows.length === 0) {
-          reply.code(200).send({
+          reply.code(400).send({
             code: 'INVALID_USER',
             success: false,
-            message: 'Nobody blocked this user'
+            message: "User does not exist"
           });
           return;
         }

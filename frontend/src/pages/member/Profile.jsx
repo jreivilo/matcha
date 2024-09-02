@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useUser } from '@/components/UserProvider';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 // components
@@ -16,11 +16,12 @@ const ProfilePage = () => {
   const { user } = useUser();
   const [isSelf, setIsSelf] = useState(false);
   const location = useLocation();
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
   
   const params = new URLSearchParams(location.search);
   const profileUsername = params.get('username');
+
+  console.log("user id in client state ", user?.id);
 
   useEffect(() => {
     setIsSelf(profileUsername === user?.username);
@@ -28,19 +29,43 @@ const ProfilePage = () => {
 
   const { data, isLoading, error } = useQuery({
     queryKey: profileUsername ? ['profile', profileUsername] : null,
-    queryFn: () => getUserInfo(profileUsername),
+    queryFn: () => getUserInfo(profileUsername, user?.id),
     enabled: !!profileUsername,
   });
+  
+  const { displayUser, isLiked, isBlocked } = data ?? {};
 
   const likeMutation = useMutation({
-    mutationFn: toggleLike,
+    mutationFn: toggleLike(profileUsername, user?.username, isLiked),
+    onMutate: async (variables) => { 
+      await queryClient.invalidateQueries(['profile', profileUsername]);
+      const previousData = queryClient.getQueryData(['profile', profileUsername]);
+      queryClient.setQueryData(['profile', profileUsername], old => ({
+        ...old,
+        isLiked: !old.isLiked,
+      }));
+    },
+    onError: (err, variables, context) => {
+      queryClient.setQueryData(['profile', profileUsername], previousData);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries(['profile', profileUsername]);
     },
   })
 
   const blockMutation = useMutation({
-    mutationFn: toggleBlock,
+    mutationFn: toggleBlock(profileUsername, user?.username, isBlocked),
+    onMutate: async (variables) => { 
+      await queryClient.invalidateQueries(['profile', profileUsername]);
+      const previousData = queryClient.getQueryData(['profile', profileUsername]);
+      queryClient.setQueryData(['profile', profileUsername], old => ({
+        ...old,
+        isBlocked: !old.isBlocked,
+      }));
+    },
+    onError: (err, variables, context) => {
+      queryClient.setQueryData(['profile', profileUsername], previousData);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries(['profile', profileUsername]);
     },
@@ -49,49 +74,30 @@ const ProfilePage = () => {
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
 
-  const { displayUser, isLiked, isBlocked } = data ?? {};
+  console.log(`displayUser: ${JSON.stringify(displayUser)}`);
+  // console.log(`isLiked: ${JSON.stringify(isLiked)}`);
+  // console.log(`isBlocked: ${JSON.stringify(isBlocked)}`);
 
-  // useEffect(() => {
-
-  //   setIsSelf(usernameParam === user?.username);
-    
-  //   const fetchUser = async () => {
-  //     try {
-  //       const response = await fetch(`http://localhost:3000/user/getinfo`, {
-  //         method: 'POST',
-  //         headers: {
-  //           'Content-Type': 'application/json',
-  //         },
-  //         body: JSON.stringify({ username: usernameParam }),
-  //         credentials: 'include',
-  //       });
-  //       const responseData = await response.json();
-  //       if (responseData.user) {
-  //           responseData.user.username = usernameParam;
-  //         setDisplayUser({
-  //           ...responseData.user,
-  //         }
-  //         );
-  //         setIsLiked(responseData.isLiked);
-  //         setIsBlocked(responseData.isBlocked);
-  //       } else {
-  //         setError(responseData.message || 'Failed to fetch user profile');
-  //       }
-  //     } catch (error) {
-  //       console.error('Profile fetch error:', error);
-  //       setError('An error occurred while fetching the profile');
-  //     }
-  //   };
-
-  //   fetchUser();
-  // }, [location, navigate]);
-
-  const handleLike = async () => {
-    likeMutation.mutate({ username: profileUsername, liked_username: displayUser.username });
+  const handleLike = () => {
+    console.log('handleLike called');
+    if (user && profileUsername) {
+      console.log('Attempting to like/unlike', { user: user.username, profileUsername, isLiked });
+      likeMutation.mutate({ username: user.username, liked_username: profileUsername });
+    } else {
+      console.log('Like failed: missing user or profileUsername', { user, profileUsername });
+    }
   };
-  const handleBlock = async () => {
-    blockMutation.mutate({ username: profileUsername, blocked_username: displayUser.username });
+  
+  const handleBlock = () => {
+    console.log('handleBlock called');
+    if (user && profileUsername) {
+      // console.log('Attempting to block/unblock', { src: user.username, profileUsername, isBlocked });
+      blockMutation.mutate({ username: user.username, blocked_username: profileUsername });
+    } else {
+      console.log('Block failed: missing user or profileUsername', { user, profileUsername });
+    }
   };
+
   const handleReport = async () => {
     alert('User reported as fake account');
   };
@@ -115,8 +121,8 @@ const ProfilePage = () => {
         <CardContent className="space-y-4">
           <div className="flex justify-center">
             <Avatar className="w-32 h-32">
-              <AvatarImage src={displayUser?.profilePicture} alt={displayUser?.username} />
-              <AvatarFallback>{displayUser?.username?.charAt(0).toUpperCase() ?? 'U'}</AvatarFallback>
+              <AvatarImage src={displayUser?.profilePicture} alt={profileUsername} />
+              <AvatarFallback>{profileUsername?.charAt(0).toUpperCase() ?? 'U'}</AvatarFallback>
             </Avatar>
           </div>
 
@@ -144,7 +150,6 @@ const ProfilePage = () => {
               <Button 
                 onClick={handleLike}
                 variant={isLiked ? "default" : "outline"}
-                disabled={displayUser?.profilePicture}
               >
                 <ThumbsUp className="mr-2 h-4 w-4" /> {isLiked ? 'Unlike' : 'Like'}
               </Button>
@@ -164,5 +169,7 @@ const ProfilePage = () => {
     </CustomLayout>
   );
 };
+
+// for like button, should add as prop:  disabled={displayUser?.profilePicture}
 
 export default ProfilePage;

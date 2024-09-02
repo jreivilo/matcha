@@ -19,17 +19,18 @@ module.exports = async function (fastify, opts) {
 
   // cors plugin
   fastify.register(require('@fastify/cors'), {
-    origin: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    origin: 'http://localhost:4000',
+    // only accept req from localhost:4000 (our frontend). if you set it to through it reflects any origin, allowing forgery
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Access-Control-Allow-Origin'],
     credentials: true,
+    // optionsSuccessStatus: 200,
   });
-
+  
   fastify.register(AutoLoad, {
     dir: path.join(__dirname, 'routes'),
     options: Object.assign({}, opts)
   })
-
 }
 
 module.exports.options = options
