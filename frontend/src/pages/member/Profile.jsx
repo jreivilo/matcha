@@ -15,6 +15,7 @@ import FileUpload from '@/components/FileUpload';
 const ProfilePage = () => {
   const { user } = useUser();
   const [isSelf, setIsSelf] = useState(false);
+  const [showUploader, setShowUploader] = useState(false);
   const location = useLocation();
   const queryClient = useQueryClient();
   
@@ -125,10 +126,17 @@ const ProfilePage = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex justify-center">
-            <FileUpload onSuccess={(data) => console.log("onSuccess: ", data)} />
             <Avatar className="w-32 h-32">
               <AvatarImage src={displayUser?.profilePicture} alt={profileUsername} />
-              <AvatarFallback>{profileUsername?.charAt(0).toUpperCase() ?? 'U'}</AvatarFallback>
+              <AvatarFallback>
+                {!showUploader && (
+                <Button onClick={() => setShowUploader(true)}>
+                  Add a picture
+                </Button>)}
+              </AvatarFallback> 
+              {showUploader && (
+              <FileUpload onSuccess={(data) => console.log("onSuccess: ", data)} />
+              )}
             </Avatar>
           </div>
 

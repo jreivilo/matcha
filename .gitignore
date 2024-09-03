@@ -250,6 +250,7 @@ $RECYCLE.BIN/
 *.lnk
 
 db/data
+db/profile_image
 
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,windows,linux,macos,react,node

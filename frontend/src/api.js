@@ -52,10 +52,28 @@ export const getUserInfo = async (username, viewer) => {
         }
         // console.log("Blocks for this user: ", userInfo.displayUser.blocked_by)
     } catch (error) { console.error('Error fetching blocked by:', error);}
+    
     userInfo = {
         ...userInfo,
         isLiked: userInfo.displayUser.liked_by?.includes(viewer),
         isBlocked: userInfo.displayUser.blocked_by?.includes(viewer),
+    }
+
+    try {
+        const picResponse = await fetcher(
+            `${API_URL}/image/get`, { username }, 'POST'
+        )
+        if (picResponse.length !== 0) {
+            userInfo = {
+                ...userInfo,
+                displayUser: {
+                    ...userInfo.displayUser,
+                    pfps: picResponse,
+                }
+            }
+        }
+    } catch (error) {
+        console.log("Error fetching profile pictures: ", error);
     }
     console.log("getinfo query function data:", JSON.stringify(userInfo));
     return userInfo;
