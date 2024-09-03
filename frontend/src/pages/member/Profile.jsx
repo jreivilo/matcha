@@ -21,95 +21,100 @@ const ProfilePage = () => {
   const params = new URLSearchParams(location.search);
   const profileUsername = params.get('username');
 
-  console.log("user id in client state ", user?.id);
-
   useEffect(() => {
     setIsSelf(profileUsername === user?.username);
   }, [profileUsername, user]);
 
-  const { data, isLoading, error } = useQuery({
-    queryKey: profileUsername ? ['profile', profileUsername] : null,
-    queryFn: () => getUserInfo(profileUsername, user?.id),
+  const { data : userinfo, isLoading, error } = useQuery({
+    queryKey: ['profile', profileUsername],
+    queryFn: () => getUserInfo(profileUsername, user?.username),
     enabled: !!profileUsername,
   });
-  
-  const { displayUser, isLiked, isBlocked } = data ?? {};
 
+  // console.log("userinfo: ", userinfo);
+
+  const { displayUser, isLiked, isBlocked } = userinfo ?? {};
+
+  // const { likeMutate, likeLoading, data , likeError } = useMutation({
   const likeMutation = useMutation({
-    mutationFn: toggleLike(profileUsername, user?.username, isLiked),
-    onMutate: async (variables) => { 
-      await queryClient.invalidateQueries(['profile', profileUsername]);
+    // mutationFn: ({ profileUsername, username, isLiked }) => toggleLike(profileUsername, username, isLiked),
+    mutationFn: toggleLike,
+    onError: (err, variables, context) => {
+      console.log("like error: ", err);
+      console.log("like variables: ", variables);
+      console.log("like context: ", context);
+    },
+    onMutate: async (variables) => {
+      await queryClient.cancelQueries(['profile', profileUsername]);
       const previousData = queryClient.getQueryData(['profile', profileUsername]);
       queryClient.setQueryData(['profile', profileUsername], old => ({
         ...old,
         isLiked: !old.isLiked,
       }));
+      return { previousData };
     },
-    onError: (err, variables, context) => {
-      queryClient.setQueryData(['profile', profileUsername], previousData);
+    onSuccess: (data, variables, context) => {
+      console.log("like success: ", data);
+      // isLiked = !isLiked;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['profile', profileUsername]);
-    },
-  })
+    scope: {
+      username: profileUsername,
+    }
+  });
 
+  // const { blockMutate, blockLoading, data: blockData, error: blockError } = useMutation({
   const blockMutation = useMutation({
-    mutationFn: toggleBlock(profileUsername, user?.username, isBlocked),
-    onMutate: async (variables) => { 
-      await queryClient.invalidateQueries(['profile', profileUsername]);
+    mutationFn: toggleBlock,
+    onError : async (variables) => {
+      console.log("blockMutation error: ", variables);
+    },
+    onMutate: async (variables) => {
+      console.log("block mutation started")
+      await queryClient.cancelQueries(['profile', profileUsername]);
       const previousData = queryClient.getQueryData(['profile', profileUsername]);
       queryClient.setQueryData(['profile', profileUsername], old => ({
         ...old,
         isBlocked: !old.isBlocked,
       }));
+      return { previousData };
+    },
+    onSuccess: (data, variables, context) => {
+      // console.log(`data: ${data}, variables: ${variables}, context: ${context}`);
+      // isBlocked = !isBlocked
     },
     onError: (err, variables, context) => {
-      queryClient.setQueryData(['profile', profileUsername], previousData);
+      queryClient.setQueryData(['profile', profileUsername], old =>
+        old.isBlocked
+      );
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['profile', profileUsername]);
-    },
+    scope: {
+      username: profileUsername,
+    }
   });
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
 
-  console.log(`displayUser: ${JSON.stringify(displayUser)}`);
-  // console.log(`isLiked: ${JSON.stringify(isLiked)}`);
-  // console.log(`isBlocked: ${JSON.stringify(isBlocked)}`);
-
   const handleLike = () => {
-    console.log('handleLike called');
-    if (user && profileUsername) {
-      console.log('Attempting to like/unlike', { user: user.username, profileUsername, isLiked });
-      likeMutation.mutate({ username: user.username, liked_username: profileUsername });
+    // console.log("handleLike: ", profileUsername, user?.username, user?.username != profileUsername, isLiked);
+    if (user && profileUsername && (user?.username != profileUsername)) {
+      likeMutation.mutate({ profileUsername, viewer: user?.username, isLiked });
     } else {
-      console.log('Like failed: missing user or profileUsername', { user, profileUsername });
+      console.log(`spot the undefined! ${user?.username}, ${profileUsername}, ${user?.username != profileUsername}`);
     }
   };
   
   const handleBlock = () => {
-    console.log('handleBlock called');
-    if (user && profileUsername) {
-      // console.log('Attempting to block/unblock', { src: user.username, profileUsername, isBlocked });
-      blockMutation.mutate({ username: user.username, blocked_username: profileUsername });
-    } else {
-      console.log('Block failed: missing user or profileUsername', { user, profileUsername });
+    console.log("handleBlock: ", profileUsername, user?.username, user?.username != profileUsername, isBlocked);
+    if (user && profileUsername && (user?.username != profileUsername)) {
+      blockMutation.mutate({ profileUsername, viewer: user.username, isBlocked });  
     }
   };
 
-  const handleReport = async () => {
-    alert('User reported as fake account');
+  const handleReport = () => {
+    alert("This user has been reported!");
   };
 
-  if (error) {
-    return (
-      <Alert variant="destructive">
-        <AlertDescription>{error}</AlertDescription>
-      </Alert>
-    );
-  }
-  
   return (
     <CustomLayout>
       <Card className="w-[350px] mx-auto">
@@ -155,7 +160,7 @@ const ProfilePage = () => {
               </Button>
               <Button 
                 onClick={handleBlock}
-                variant={isBlocked ? "destructive" : "outline"}
+                variant={isBlocked ? "default" : "outline"}
               >
                 <UserX className="mr-2 h-4 w-4" /> {isBlocked ? 'Unblock' : 'Block'}
               </Button>
@@ -169,7 +174,5 @@ const ProfilePage = () => {
     </CustomLayout>
   );
 };
-
-// for like button, should add as prop:  disabled={displayUser?.profilePicture}
 
 export default ProfilePage;
