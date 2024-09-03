@@ -8,9 +8,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ThumbsUp, UserX, AlertTriangle, Star } from "lucide-react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import CustomLayout from '@/components/MatchaLayout';
 import { getUserInfo, toggleLike, toggleBlock } from '@/api';
+import FileUpload from '@/components/FileUpload';
 
 const ProfilePage = () => {
   const { user } = useUser();
@@ -125,6 +125,7 @@ const ProfilePage = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex justify-center">
+            <FileUpload onSuccess={(data) => console.log("onSuccess: ", data)} />
             <Avatar className="w-32 h-32">
               <AvatarImage src={displayUser?.profilePicture} alt={profileUsername} />
               <AvatarFallback>{profileUsername?.charAt(0).toUpperCase() ?? 'U'}</AvatarFallback>
@@ -146,20 +147,22 @@ const ProfilePage = () => {
                 )) : <span></span>
               }
             </div>
-            <p><strong>Fame Rating:</strong> <Star className="inline" /> {displayUser?.fameRating ?? 'N/A'}</p>
+            <p>
+              <strong>Fame Rating:</strong>
+              <Star className="inline" /> {displayUser?.fameRating ?? 'N/A'}
+            </p>
             <p><strong>Last Online:</strong> {displayUser?.lastOnline ?? 'Unknown'}</p>
           </div>
 
           {!isSelf && (
             <div className="flex justify-between mt-4">
-              <Button 
-                onClick={handleLike}
+              <Button onClick={handleLike}
                 variant={isLiked ? "default" : "outline"}
+                disabled={isBlocked}
               >
                 <ThumbsUp className="mr-2 h-4 w-4" /> {isLiked ? 'Unlike' : 'Like'}
               </Button>
-              <Button 
-                onClick={handleBlock}
+              <Button onClick={handleBlock}
                 variant={isBlocked ? "default" : "outline"}
               >
                 <UserX className="mr-2 h-4 w-4" /> {isBlocked ? 'Unblock' : 'Block'}
