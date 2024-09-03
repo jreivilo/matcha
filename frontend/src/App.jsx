@@ -5,7 +5,7 @@ import HomePage from './pages/HomePage'
 import Login from './pages/Login';
 import Dashboard from './pages/member/Dashboard';
 import ProfileForm from './pages/FillInfo';
-import ProfilePage from './pages/Profile';
+import ProfilePage from './pages/member/Profile';
 
 
 function App() {

@@ -60,7 +60,8 @@ module.exports = async function (fastify, opts) {
         if (userRows.length === 0) {
           reply.code(400).send({
             code: 'INVALID_USER',
-            message: 'User does not exist'
+            success: false,
+            message: "User does not exist"
           });
           return;
         }
