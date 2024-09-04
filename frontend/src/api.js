@@ -88,14 +88,6 @@ export const toggleLike = async (data) => {
         let response = await fetcher(
             apiUrl, { username : viewer, liked_username: profileUsername }, 'POST'
         )
-        // const response = await fetch(apiUrl, {
-        //     method: 'POST',
-        //     headers: {
-        //         'Content-Type': 'application/json',
-        //     },
-        //     body: JSON.stringify({ username : viewer, liked_username: profileUsername }),  
-        //     credentials: 'include',
-        // });
         return response;
     } catch (error) {
         console.error('Error fetching user info:', error);
@@ -114,15 +106,6 @@ export const toggleBlock = async (data) => {
         let response = await fetcher(
             apiUrl, { username : viewer, blocked_username: profileUsername }, 'POST'
         )
-        // let response = await fetch(apiUrl, {
-        //     method: 'POST',
-        //     headers: {
-        //         'accept' : 'application/json',
-        //         'Content-Type': 'application/json',
-        //     },
-        //     body: JSON.stringify({ username : viewer, blocked_username: profileUsername }),
-        //     credentials: 'include',
-        // });
         return response;
     } catch (error) {
         console.error('Error fetching user info:', error);
