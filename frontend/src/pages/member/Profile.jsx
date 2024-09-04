@@ -15,7 +15,7 @@ import FileUpload from '@/components/FileUpload';
 const ProfilePage = () => {
   const { user } = useUser();
   const [isSelf, setIsSelf] = useState(false);
-  const [showUploader, setShowUploader] = useState(false);
+  const [hasPics, setHasPics] = useState(false);
   const location = useLocation();
   const queryClient = useQueryClient();
   
@@ -32,9 +32,14 @@ const ProfilePage = () => {
     enabled: !!profileUsername,
   });
 
-  // console.log("userinfo: ", userinfo);
-
   const { displayUser, isLiked, isBlocked } = userinfo ?? {};
+
+  useEffect(() => {
+    if (userinfo?.displayUser?.pfps) {
+      setHasPics(true);
+      console.log("has pics: ", userinfo?.displayUser?.pfps);
+    }
+  }, [userinfo]);
 
   // const { likeMutate, likeLoading, data , likeError } = useMutation({
   const likeMutation = useMutation({
@@ -128,15 +133,12 @@ const ProfilePage = () => {
           <div className="flex justify-center">
             <Avatar className="w-32 h-32">
               <AvatarImage src={displayUser?.profilePicture} alt={profileUsername} />
-              <AvatarFallback>
-                {!showUploader && (
-                <Button onClick={() => setShowUploader(true)}>
-                  Add a picture
-                </Button>)}
+              <AvatarFallback >
+                {!hasPics && ( <p>no pics</p>)}
+                {isSelf && (
+                <FileUpload onSuccess={(data) => console.log("onSuccess: ", data)} />
+                )}
               </AvatarFallback> 
-              {showUploader && (
-              <FileUpload onSuccess={(data) => console.log("onSuccess: ", data)} />
-              )}
             </Avatar>
           </div>
 
@@ -166,7 +168,7 @@ const ProfilePage = () => {
             <div className="flex justify-between mt-4">
               <Button onClick={handleLike}
                 variant={isLiked ? "default" : "outline"}
-                disabled={isBlocked}
+                disabled={isBlocked || !hasPics}
               >
                 <ThumbsUp className="mr-2 h-4 w-4" /> {isLiked ? 'Unlike' : 'Like'}
               </Button>
