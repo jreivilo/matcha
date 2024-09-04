@@ -34,7 +34,6 @@ const ProfilePage = () => {
   
   const { displayUser, isLiked, isBlocked } = userinfo ?? {};
   
-  
   useEffect(() => {
     if (userinfo?.displayUser?.pics) {
       setHasPics(true);
@@ -131,7 +130,7 @@ const ProfilePage = () => {
 
   return (
     <CustomLayout>
-      <Card className="w-[350px] mx-auto">
+      <Card className="w-auto mx-auto">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-center">
             {isSelf ? 'Your Profile' : `${profileUsername}'s Profile`}

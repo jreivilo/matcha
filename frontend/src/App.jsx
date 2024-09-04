@@ -7,7 +7,6 @@ import Dashboard from './pages/member/Dashboard';
 import ProfileForm from './pages/FillInfo';
 import ProfilePage from './pages/member/Profile';
 
-
 function App() {
   return (
     <Router>
