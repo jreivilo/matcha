@@ -25,22 +25,25 @@ const ProfilePage = () => {
   useEffect(() => {
     setIsSelf(profileUsername === user?.username);
   }, [profileUsername, user]);
-
+  
   const { data : userinfo, isLoading, error } = useQuery({
     queryKey: ['profile', profileUsername],
     queryFn: () => getUserInfo(profileUsername, user?.username),
     enabled: !!profileUsername,
   });
-
+  
   const { displayUser, isLiked, isBlocked } = userinfo ?? {};
-
+  
+  
   useEffect(() => {
     if (userinfo?.displayUser?.pfps) {
       setHasPics(true);
-      console.log("has pics: ", userinfo?.displayUser?.pfps);
+      // console.log("pfp", pfp);
     }
   }, [userinfo]);
-
+  
+  let pfp = `data:image/jpeg;base64,${userinfo?.displayUser?.pfps[0].image}`;
+  
   // const { likeMutate, likeLoading, data , likeError } = useMutation({
   const likeMutation = useMutation({
     // mutationFn: ({ profileUsername, username, isLiked }) => toggleLike(profileUsername, username, isLiked),
@@ -123,6 +126,13 @@ const ProfilePage = () => {
 
   return (
     <CustomLayout>
+      {/* <ul>
+        {displayUser?.pfps?.map((pfp, index) => (
+          <li key={index}>
+            <img src={`data:image/jpeg;base64,${pfp.image}`} alt={pfp.imageName} />
+          </li>
+        ))}
+      </ul> */}
       <Card className="w-[350px] mx-auto">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-center">
@@ -131,15 +141,11 @@ const ProfilePage = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex justify-center">
-            <Avatar className="w-32 h-32">
-              <AvatarImage src={displayUser?.profilePicture} alt={profileUsername} />
-              <AvatarFallback >
-                {!hasPics && ( <p>no pics</p>)}
-                {isSelf && (
+              <img src={pfp} alt={profileUsername} />
+              {!hasPics && ( <p>no pics</p>)}
+              {isSelf && (
                 <FileUpload onSuccess={(data) => console.log("onSuccess: ", data)} />
-                )}
-              </AvatarFallback> 
-            </Avatar>
+              )}
           </div>
 
           <div className="space-y-2">
@@ -157,10 +163,7 @@ const ProfilePage = () => {
                 )) : <span></span>
               }
             </div>
-            <p>
-              <strong>Fame Rating:</strong>
-              <Star className="inline" /> {displayUser?.fameRating ?? 'N/A'}
-            </p>
+            <p> <strong>Fame Rating:</strong> {displayUser?.famerating ?? 'N/A'}</p>
             <p><strong>Last Online:</strong> {displayUser?.lastOnline ?? 'Unknown'}</p>
           </div>
 
