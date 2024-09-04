@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { ThumbsUp, UserX, AlertTriangle, Star } from "lucide-react";
 import CustomLayout from '@/components/MatchaLayout';
 import { getUserInfo, toggleLike, toggleBlock } from '@/api';
-import FileUpload from '@/components/FileUpload';
+import PicGallery from '@/components/PicGallery';
 
 const ProfilePage = () => {
   const { user } = useUser();
@@ -36,24 +36,27 @@ const ProfilePage = () => {
   
   
   useEffect(() => {
-    if (userinfo?.displayUser?.pfps) {
+    if (userinfo?.displayUser?.pics) {
       setHasPics(true);
       // console.log("pfp", pfp);
+    } else {
+      console.log("no pfps");
     }
   }, [userinfo]);
   
-  let pfp = `data:image/jpeg;base64,${userinfo?.displayUser?.pfps[0].image}`;
+  let pfp;
+  if (hasPics) {
+    pfp = `data:image/jpeg;base64,${userinfo?.displayUser?.pics[0]?.image}`;
+  }
   
-  // const { likeMutate, likeLoading, data , likeError } = useMutation({
   const likeMutation = useMutation({
-    // mutationFn: ({ profileUsername, username, isLiked }) => toggleLike(profileUsername, username, isLiked),
     mutationFn: toggleLike,
     onError: (err, variables, context) => {
       console.log("like error: ", err);
       console.log("like variables: ", variables);
       console.log("like context: ", context);
     },
-    onMutate: async (variables) => {
+    onMutate: async () => {
       await queryClient.cancelQueries(['profile', profileUsername]);
       const previousData = queryClient.getQueryData(['profile', profileUsername]);
       queryClient.setQueryData(['profile', profileUsername], old => ({
@@ -62,9 +65,13 @@ const ProfilePage = () => {
       }));
       return { previousData };
     },
-    onSuccess: (data, variables, context) => {
+    onSuccess: (data) => {
       console.log("like success: ", data);
-      // isLiked = !isLiked;
+    },
+    onError: (err) => {
+      queryClient.setQueryData(['profile', profileUsername], old =>
+        old.isLiked
+      );
     },
     scope: {
       username: profileUsername,
@@ -91,10 +98,8 @@ const ProfilePage = () => {
       // console.log(`data: ${data}, variables: ${variables}, context: ${context}`);
       // isBlocked = !isBlocked
     },
-    onError: (err, variables, context) => {
-      queryClient.setQueryData(['profile', profileUsername], old =>
-        old.isBlocked
-      );
+    onError: (err) => {
+      console.log("blockMutation error: ", err);
     },
     scope: {
       username: profileUsername,
@@ -126,13 +131,6 @@ const ProfilePage = () => {
 
   return (
     <CustomLayout>
-      {/* <ul>
-        {displayUser?.pfps?.map((pfp, index) => (
-          <li key={index}>
-            <img src={`data:image/jpeg;base64,${pfp.image}`} alt={pfp.imageName} />
-          </li>
-        ))}
-      </ul> */}
       <Card className="w-[350px] mx-auto">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-center">
@@ -141,10 +139,10 @@ const ProfilePage = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex justify-center">
-              <img src={pfp} alt={profileUsername} />
+              {hasPics && pfp && !isSelf && <img src={pfp} alt={profileUsername} />}
               {!hasPics && ( <p>no pics</p>)}
               {isSelf && (
-                <FileUpload onSuccess={(data) => console.log("onSuccess: ", data)} />
+                <PicGallery profileUsername={profileUsername} userinfo={userinfo}/>
               )}
           </div>
 

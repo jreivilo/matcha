@@ -1,11 +1,12 @@
 const API_URL = 'http://localhost:3000';
 
-const fetcher = async (url, body, method) => {
+const fetcher = async (url, body, method, headers = 'default') => {
+    if (headers === 'default') {
+        headers = { 'Content-Type': 'application/json',};
+    }
     const response = await fetch(url, {
         method,
-        headers: {
-            'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify(body),
         credentials: 'include',
     });
@@ -50,7 +51,6 @@ export const getUserInfo = async (username, viewer) => {
                 },
             };
         }
-        // console.log("Blocks for this user: ", userInfo.displayUser.blocked_by)
     } catch (error) { console.error('Error fetching blocked by:', error);}
     
     userInfo = {
@@ -68,7 +68,7 @@ export const getUserInfo = async (username, viewer) => {
                 ...userInfo,
                 displayUser: {
                     ...userInfo.displayUser,
-                    pfps: picResponse,
+                    pics: picResponse,
                 }
             }
         }
@@ -100,7 +100,7 @@ export const toggleBlock = async (data) => {
     if (profileUsername === viewer) { throw new Error('You cannot block yourself!'); }
     console.log("toggleblock profileusername: ", profileUsername);
     console.log("toogleblock viewer: ", viewer);
-    const apiUrl = isBlocked? `${API_URL}/block/unblock` : `${API_URL}/block/block`;  
+    const apiUrl = isBlocked? `${API_URL}/block/unblock` : `${API_URL}/block/block`;
     console.log("about to send: ", apiUrl);
     try {
         let response = await fetcher(
@@ -111,4 +111,11 @@ export const toggleBlock = async (data) => {
         console.error('Error fetching user info:', error);
         throw new Error('Failed to toggle block');
     }
+};
+
+export const uploadProfilePicture = async ( { username, file}) => {
+    console.log(`username: ${username}, file: ${file}`);
+    const apiUrl = `${API_URL}/image/add`;
+    const response = await fetcher(apiUrl, { username, file}, 'POST')
+    return response.data;
 };

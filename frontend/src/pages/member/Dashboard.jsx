@@ -4,6 +4,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 // homemade components
 import { useUser } from '@/components/UserProvider';
+import PicGallery from '@/components/PicGallery';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -22,7 +23,7 @@ const Dashboard = () => {
           <button onClick={goToProfile} className="bg-primary text-text-light font-bold rounded-lg px-4 py-2 hover:bg-primary-light">
             See my Profile
           </button>
-
+          <PicGallery profileUsername={user?.username}/>
         </section>
       </div>
     </CustomLayout>

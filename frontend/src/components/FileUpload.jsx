@@ -2,49 +2,47 @@ import React, { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { uploadProfilePicture } from '@/api';
 
-const uploadProfilePicture = async (file) => {
-    const formData = new FormData();
-    formData.append('profilePicture', file);
-    
-    const response = await fetch(`${API_URL}/upload`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'multipart/form-data',
-        },
-        body: formData,
-        credentials: 'include',
-        })
-    return response.data;
+const encodeImageAsBase64 = (file) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = (error) => reject(error);
+  });
 };
 
-const FileUpload = ({ onSuccess }) => {
+const FileUpload = ({ username, userinfo }) => {
   const queryClient = useQueryClient();
   const [selectedFile, setSelectedFile] = useState(null);
+  const { displayUser } = userinfo ?? {};
 
-  const mutation = useMutation({
+  const picsMutation = useMutation({
     mutationFn: uploadProfilePicture,
-    onMutate: async (file) => {
+    onMutate: async ({ username, file}) => {
       await queryClient.cancelQueries(['profile']);
-      const previousProfile = queryClient.getQueryData(['profile']);
-      
+
+      const newPics = [
+        ...(displayUser?.pics ?? []),
+        { image: file, imageName: `${username}_${(displayUser.pics ?? []).length + 1}.png` },
+      ]
+
       queryClient.setQueryData(['profile'], old => ({
-        ...old,
+        ...userinfo,
         displayUser: {
-          ...old.displayUser,
-          profilePicture: URL.createObjectURL(file),
+          ...displayUser,
+          pics: newPics,
         },
       }));
-
-      return { previousProfile };
+      return { userinfo };
     },
-    onError: (error, file, context) => {
-      queryClient.setQueryData(['profile'], context.previousProfile);
-      console.error("Upload error: ", error);
+    onSuccess: () => {
+      queryClient.invalidateQueries(['profile', username]);
     },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries(['profile']);
-      if (onSuccess) onSuccess(data);
+    onError: (error, variables, context) => {
+      queryClient.setQueryData(['profile', username], userinfo);
+      console.log("onError: ", error);
     },
   });
 
@@ -52,18 +50,21 @@ const FileUpload = ({ onSuccess }) => {
     setSelectedFile(event.target.files[0]);
   };
 
-  const handleUpload = () => {
+  const handleUpload = async () => {
+    let imagestring = (await encodeImageAsBase64(selectedFile)).split(',')[1];
     if (selectedFile) {
-      mutation.mutate(selectedFile);
+      picsMutation.mutate({ username, file: imagestring });
     }
   };
 
   return (
     <div className="flex flex-col items-center space-y-4">
       <Input type="file" onChange={handleFileChange} />
-      <Button onClick={handleUpload} disabled={mutation.isLoading}>
-        {mutation.isLoading ? 'Uploading...' : 'Upload'}
-      </Button>
+      {selectedFile && (
+        <Button onClick={handleUpload} disabled={picsMutation.isLoading}>
+          {picsMutation.isLoading ? 'Uploading...' : 'Upload file'}
+        </Button>
+      )}
     </div>
   );
 };
