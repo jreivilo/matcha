@@ -6,14 +6,42 @@ import { getUserInfo } from '@/api';
 import { Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import FileUpload from '@/components/FileUpload';
+import { deleteProfilePicture } from '@/api';
 
 const PicGallery = ({ profileUsername, userinfo }) => {
   const { displayUser } = userinfo ?? {};
 
+  const queryClient = useQueryClient();
+
+  const deletePicMutation = useMutation({
+    mutationFn: deleteProfilePicture,
+    onMutate: async (imageName) => {
+      await queryClient.cancelQueries(['profile', profileUsername]);
+      const previousData = queryClient.getQueryData(['profile', profileUsername]);
+      queryClient.setQueryData(['profile', profileUsername], old => ({
+        ...old,
+        displayUser: {
+          ...old.displayUser,
+          pics: old.displayUser.pics.filter(pic => pic.imageName !== imageName),
+        },
+      }));
+      return { previousData };
+    },
+    onSuccess: (data) => {
+      console.log("deletePicMutation success: ", data);
+    },
+    onError: (err) => {
+      queryClient.setQueryData(['profile', profileUsername], old =>
+        old
+      );
+    },
+    scope: {
+      username: profileUsername,
+    }
+  });
+
   const handleDeletePic = async (imageName) => {
-    const apiUrl = `${API_URL}/image/delete`;
-    const response = await fetcher(apiUrl, { username: profileUsername, imageName }, 'POST');
-    console.log("handleDeletePic response: ", response);
+    deletePicMutation.mutate({ username : profileUsername, imageName });
   };
 
   const handleMakePrincipal = async (imageName) => {
