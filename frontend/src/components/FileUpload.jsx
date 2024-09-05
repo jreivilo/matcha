@@ -22,7 +22,7 @@ const FileUpload = ({ username, userinfo }) => {
     mutationFn: uploadProfilePicture,
     onMutate: async ({ username, file}) => {
       await queryClient.cancelQueries(['profile']);
-      if (displayUser.pics.length >= 5) {
+      if (displayUser?.pics?.length >= 5) {
         throw new Error('Maximum number of images reached');
       }
 
