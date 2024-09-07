@@ -134,8 +134,8 @@ const ProfilePage = () => {
           <div className="flex justify-center">
               {hasPics && pfp && !isSelf && <img src={pfp} alt={profileUsername} />}
               {!hasPics && ( <p>no pics</p>)}
-              {isSelf && (
-                <PicGallery profileUsername={profileUsername} userinfo={userinfo}/>
+              {isSelf && !isLoading && !error && (
+                <PicGallery profileUsername={profileUsername}/>
               )}
           </div>
 

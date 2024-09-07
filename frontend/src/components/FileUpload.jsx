@@ -16,13 +16,13 @@ const encodeImageAsBase64 = (file) => {
 const FileUpload = ({ username, userinfo }) => {
   const queryClient = useQueryClient();
   const [selectedFile, setSelectedFile] = useState(null);
-  const { displayUser } = userinfo ?? {};
 
   const picsMutation = useMutation({
     mutationFn: uploadProfilePicture,
     onMutate: async ({ username, file}) => {
-      await queryClient.cancelQueries(['profile'], username);
+      await queryClient.cancelQueries(['profile', username]);
       const previousData = queryClient.getQueryData(['profile', username]);
+      console.log("previousData in picsMutation: ", previousData);
       if (previousData?.displayUser?.pics?.length >= 5) {
         throw new Error('Maximum number of images reached');
       }
@@ -42,15 +42,12 @@ const FileUpload = ({ username, userinfo }) => {
       return { userinfo };
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['profile'], username);
+      queryClient.invalidateQueries(['profile', username]);
     },
     onError: (error, variables, context) => {
-      queryClient.setQueryData(['profile', username], userinfo);
+      queryClient.setQueryData(['profile', username], context.previousData);
       console.log("onError: ", error);
     },
-    scope: {
-      username,
-    }
   });
 
   const handleFileChange = (event) => {

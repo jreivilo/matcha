@@ -120,6 +120,6 @@ export const uploadProfilePicture = async ( { username, file}) => {
 export const deleteProfilePicture = async ({ username, imageName }) => {
     const apiUrl = `${API_URL}/image/delete`;
     const imageNumber = imageName.split('_')[1].split('.')[0];
-    const response = await fetcher( apiUrl, { username, imageNumber, }, 'DELETE')
+    const response = await fetcher(apiUrl, { username, imageNumber }, 'DELETE')
     return response.data;
 };
