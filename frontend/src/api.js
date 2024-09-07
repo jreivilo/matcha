@@ -14,7 +14,6 @@ const fetcher = async (url, body, method, headers = 'default') => {
 }
 
 export const getUserInfo = async (username, viewer) => {
-    // console.log("profileUsername", username);
     let userInfo = {};
     try {
         const userResponse = await fetcher(
@@ -75,7 +74,6 @@ export const getUserInfo = async (username, viewer) => {
     } catch (error) {
         console.log("Error fetching profile pictures: ", error);
     }
-    console.log("getinfo query function data:", JSON.stringify(userInfo));
     return userInfo;
 };
 
@@ -114,18 +112,14 @@ export const toggleBlock = async (data) => {
 };
 
 export const uploadProfilePicture = async ( { username, file}) => {
-    console.log(`username: ${username}, file: ${file}`);
     const apiUrl = `${API_URL}/image/add`;
     const response = await fetcher(apiUrl, { username, file}, 'POST')
     return response.data;
 };
 
 export const deleteProfilePicture = async ({ username, imageName }) => {
-    console.log(`username: ${username}, imageName: ${imageName}`);
     const apiUrl = `${API_URL}/image/delete`;
-    // image format is username_0.png
     const imageNumber = imageName.split('_')[1].split('.')[0];
-    console.log("imageNumber: ", imageNumber);
-    const response = await fetcher(apiUrl, { username, imageNumber }, 'DELETE')
+    const response = await fetcher( apiUrl, { username, imageNumber, }, 'DELETE')
     return response.data;
 };

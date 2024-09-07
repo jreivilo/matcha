@@ -10,7 +10,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import CustomLayout from "../components/MatchaLayout";
 import { useLocation, useNavigate } from "react-router-dom";
 import PicGallery from '@/components/PicGallery';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery} from '@tanstack/react-query';
 import { getUserInfo } from '@/api';
 
 const ProfileForm = () => {

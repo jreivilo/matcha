@@ -28,18 +28,13 @@ const ProfilePage = () => {
   const { data : userinfo, isLoading, error } = useQuery({
     queryKey: ['profile', profileUsername],
     queryFn: () => getUserInfo(profileUsername, user?.username),
-    enabled: !!profileUsername,
-  });
+    enabled: !!profileUsername
+  })
   
   const { displayUser, isLiked, isBlocked } = userinfo ?? {};
   
   useEffect(() => {
-    if (userinfo?.displayUser?.pics) {
-      setHasPics(true);
-      // console.log("pfp", pfp);
-    } else {
-      console.log("no pfps");
-    }
+    if (userinfo?.displayUser?.pics) { setHasPics(true);}
   }, [userinfo]);
   
   let pfp;
