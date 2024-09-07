@@ -9,6 +9,9 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import CustomLayout from "../components/MatchaLayout";
 import { useLocation, useNavigate } from "react-router-dom";
+import PicGallery from '@/components/PicGallery';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { getUserInfo } from '@/api';
 
 const ProfileForm = () => {
   const { register, handleSubmit, formState: { errors }, setValue } = useForm();
@@ -21,7 +24,7 @@ const ProfileForm = () => {
 
   const location = useLocation();
   const navigate = useNavigate();
-
+  
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const usernameParam = params.get('username');
@@ -31,8 +34,14 @@ const ProfileForm = () => {
       navigate('/member/dashboard');
     }
   }, [location, navigate]);
-
-
+  
+  
+  const { data : userinfo } = useQuery({
+    queryKey: ['profile', username],
+    queryFn: () => getUserInfo(username, username),
+    enabled: !!username,
+  });
+  
   const onSubmit = async (data) => {
     const profileData = {
       ...data,
@@ -83,6 +92,7 @@ const ProfileForm = () => {
           <CardTitle>Fill Your Profile</CardTitle>
         </CardHeader>
         <CardContent>
+          <PicGallery profileUsername={username} userinfo={userinfo}/>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
               <Label>Gender</Label>

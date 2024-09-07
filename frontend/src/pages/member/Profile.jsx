@@ -4,17 +4,17 @@ import { useUser } from '@/components/UserProvider';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 // components
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ThumbsUp, UserX, AlertTriangle, Star } from "lucide-react";
 import CustomLayout from '@/components/MatchaLayout';
 import { getUserInfo, toggleLike, toggleBlock } from '@/api';
-import FileUpload from '@/components/FileUpload';
+import PicGallery from '@/components/PicGallery';
 
 const ProfilePage = () => {
   const { user } = useUser();
   const [isSelf, setIsSelf] = useState(false);
+  const [hasPics, setHasPics] = useState(false);
   const location = useLocation();
   const queryClient = useQueryClient();
   
@@ -24,27 +24,37 @@ const ProfilePage = () => {
   useEffect(() => {
     setIsSelf(profileUsername === user?.username);
   }, [profileUsername, user]);
-
+  
   const { data : userinfo, isLoading, error } = useQuery({
     queryKey: ['profile', profileUsername],
     queryFn: () => getUserInfo(profileUsername, user?.username),
     enabled: !!profileUsername,
   });
-
-  // console.log("userinfo: ", userinfo);
-
+  
   const { displayUser, isLiked, isBlocked } = userinfo ?? {};
-
-  // const { likeMutate, likeLoading, data , likeError } = useMutation({
+  
+  useEffect(() => {
+    if (userinfo?.displayUser?.pics) {
+      setHasPics(true);
+      // console.log("pfp", pfp);
+    } else {
+      console.log("no pfps");
+    }
+  }, [userinfo]);
+  
+  let pfp;
+  if (hasPics) {
+    pfp = `data:image/jpeg;base64,${userinfo?.displayUser?.pics[0]?.image}`;
+  }
+  
   const likeMutation = useMutation({
-    // mutationFn: ({ profileUsername, username, isLiked }) => toggleLike(profileUsername, username, isLiked),
     mutationFn: toggleLike,
     onError: (err, variables, context) => {
       console.log("like error: ", err);
       console.log("like variables: ", variables);
       console.log("like context: ", context);
     },
-    onMutate: async (variables) => {
+    onMutate: async () => {
       await queryClient.cancelQueries(['profile', profileUsername]);
       const previousData = queryClient.getQueryData(['profile', profileUsername]);
       queryClient.setQueryData(['profile', profileUsername], old => ({
@@ -53,9 +63,13 @@ const ProfilePage = () => {
       }));
       return { previousData };
     },
-    onSuccess: (data, variables, context) => {
+    onSuccess: (data) => {
       console.log("like success: ", data);
-      // isLiked = !isLiked;
+    },
+    onError: (err) => {
+      queryClient.setQueryData(['profile', profileUsername], old =>
+        old.isLiked
+      );
     },
     scope: {
       username: profileUsername,
@@ -82,17 +96,15 @@ const ProfilePage = () => {
       // console.log(`data: ${data}, variables: ${variables}, context: ${context}`);
       // isBlocked = !isBlocked
     },
-    onError: (err, variables, context) => {
-      queryClient.setQueryData(['profile', profileUsername], old =>
-        old.isBlocked
-      );
+    onError: (err) => {
+      console.log("blockMutation error: ", err);
     },
     scope: {
       username: profileUsername,
     }
   });
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <div><CustomLayout><h1>Loading...</h1></CustomLayout></div>;
   if (error) return <div>Error: {error.message}</div>;
 
   const handleLike = () => {
@@ -117,7 +129,7 @@ const ProfilePage = () => {
 
   return (
     <CustomLayout>
-      <Card className="w-[350px] mx-auto">
+      <Card className="w-auto mx-auto">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-center">
             {isSelf ? 'Your Profile' : `${profileUsername}'s Profile`}
@@ -125,15 +137,16 @@ const ProfilePage = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex justify-center">
-            <FileUpload onSuccess={(data) => console.log("onSuccess: ", data)} />
-            <Avatar className="w-32 h-32">
-              <AvatarImage src={displayUser?.profilePicture} alt={profileUsername} />
-              <AvatarFallback>{profileUsername?.charAt(0).toUpperCase() ?? 'U'}</AvatarFallback>
-            </Avatar>
+              {hasPics && pfp && !isSelf && <img src={pfp} alt={profileUsername} />}
+              {!hasPics && ( <p>no pics</p>)}
+              {isSelf && (
+                <PicGallery profileUsername={profileUsername} userinfo={userinfo}/>
+              )}
           </div>
 
           <div className="space-y-2">
-            <p><strong>Name:</strong> {displayUser?.first_name ?? ''} {displayUser?.last_name ?? ''}</p>
+            <p><strong>First Name:</strong> {displayUser?.first_name ?? ''}</p>
+            <p><strong>Last Name:</strong> {displayUser?.last_name ?? ''}</p>
             <p><strong>Gender:</strong> {displayUser?.gender ?? ''}</p>
             <p><strong>Sexuality:</strong> {displayUser?.sexuality ?? ''}</p>
             <p><strong>Biography:</strong> {displayUser?.biography ?? ''}</p>
@@ -147,10 +160,7 @@ const ProfilePage = () => {
                 )) : <span></span>
               }
             </div>
-            <p>
-              <strong>Fame Rating:</strong>
-              <Star className="inline" /> {displayUser?.fameRating ?? 'N/A'}
-            </p>
+            <p> <strong>Fame Rating:</strong> {displayUser?.famerating ?? 'N/A'}</p>
             <p><strong>Last Online:</strong> {displayUser?.lastOnline ?? 'Unknown'}</p>
           </div>
 
@@ -158,7 +168,7 @@ const ProfilePage = () => {
             <div className="flex justify-between mt-4">
               <Button onClick={handleLike}
                 variant={isLiked ? "default" : "outline"}
-                disabled={isBlocked}
+                disabled={isBlocked || !hasPics}
               >
                 <ThumbsUp className="mr-2 h-4 w-4" /> {isLiked ? 'Unlike' : 'Like'}
               </Button>

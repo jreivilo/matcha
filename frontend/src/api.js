@@ -1,11 +1,12 @@
 const API_URL = 'http://localhost:3000';
 
-const fetcher = async (url, body, method) => {
+const fetcher = async (url, body, method, headers = 'default') => {
+    if (headers === 'default') {
+        headers = { 'Content-Type': 'application/json',};
+    }
     const response = await fetch(url, {
         method,
-        headers: {
-            'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify(body),
         credentials: 'include',
     });
@@ -50,12 +51,29 @@ export const getUserInfo = async (username, viewer) => {
                 },
             };
         }
-        // console.log("Blocks for this user: ", userInfo.displayUser.blocked_by)
     } catch (error) { console.error('Error fetching blocked by:', error);}
+    
     userInfo = {
         ...userInfo,
         isLiked: userInfo.displayUser.liked_by?.includes(viewer),
         isBlocked: userInfo.displayUser.blocked_by?.includes(viewer),
+    }
+
+    try {
+        const picResponse = await fetcher(
+            `${API_URL}/image/get`, { username }, 'POST'
+        )
+        if (!picResponse.code) {
+            userInfo = {
+                ...userInfo,
+                displayUser: {
+                    ...userInfo.displayUser,
+                    pics: picResponse,
+                }
+            }
+        }
+    } catch (error) {
+        console.log("Error fetching profile pictures: ", error);
     }
     console.log("getinfo query function data:", JSON.stringify(userInfo));
     return userInfo;
@@ -70,14 +88,6 @@ export const toggleLike = async (data) => {
         let response = await fetcher(
             apiUrl, { username : viewer, liked_username: profileUsername }, 'POST'
         )
-        // const response = await fetch(apiUrl, {
-        //     method: 'POST',
-        //     headers: {
-        //         'Content-Type': 'application/json',
-        //     },
-        //     body: JSON.stringify({ username : viewer, liked_username: profileUsername }),  
-        //     credentials: 'include',
-        // });
         return response;
     } catch (error) {
         console.error('Error fetching user info:', error);
@@ -90,24 +100,32 @@ export const toggleBlock = async (data) => {
     if (profileUsername === viewer) { throw new Error('You cannot block yourself!'); }
     console.log("toggleblock profileusername: ", profileUsername);
     console.log("toogleblock viewer: ", viewer);
-    const apiUrl = isBlocked? `${API_URL}/block/unblock` : `${API_URL}/block/block`;  
+    const apiUrl = isBlocked? `${API_URL}/block/unblock` : `${API_URL}/block/block`;
     console.log("about to send: ", apiUrl);
     try {
         let response = await fetcher(
             apiUrl, { username : viewer, blocked_username: profileUsername }, 'POST'
         )
-        // let response = await fetch(apiUrl, {
-        //     method: 'POST',
-        //     headers: {
-        //         'accept' : 'application/json',
-        //         'Content-Type': 'application/json',
-        //     },
-        //     body: JSON.stringify({ username : viewer, blocked_username: profileUsername }),
-        //     credentials: 'include',
-        // });
         return response;
     } catch (error) {
         console.error('Error fetching user info:', error);
         throw new Error('Failed to toggle block');
     }
+};
+
+export const uploadProfilePicture = async ( { username, file}) => {
+    console.log(`username: ${username}, file: ${file}`);
+    const apiUrl = `${API_URL}/image/add`;
+    const response = await fetcher(apiUrl, { username, file}, 'POST')
+    return response.data;
+};
+
+export const deleteProfilePicture = async ({ username, imageName }) => {
+    console.log(`username: ${username}, imageName: ${imageName}`);
+    const apiUrl = `${API_URL}/image/delete`;
+    // image format is username_0.png
+    const imageNumber = imageName.split('_')[1].split('.')[0];
+    console.log("imageNumber: ", imageNumber);
+    const response = await fetcher(apiUrl, { username, imageNumber }, 'DELETE')
+    return response.data;
 };
