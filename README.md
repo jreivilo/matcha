@@ -16,3 +16,10 @@ v20.14.0
 - to look into the database, open adminer at localhost:8080 and enter db credentials
 - to check backend routes and test them, localhost:3000/docs
 - to enter a container, for example frontend, run `docker exec -it matcha-frontend sh` and you'll have a shell within the container
+
+
+Run the init script in test to generate user data
+```bash
+$ cd test
+$ ./init_basic_user.sh
+```
