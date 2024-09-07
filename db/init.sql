@@ -21,6 +21,7 @@ CREATE TABLE user (
     coordinates VARCHAR(100),
     famerating INT DEFAULT 0,
     picturecount INT DEFAULT 0,
+	picture_path VARCHAR(255),
     -- Metadata
     profile_completed BOOLEAN DEFAULT false,
     active BOOLEAN DEFAULT true,
