@@ -4,7 +4,6 @@ import { useUser } from '@/components/UserProvider';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 // components
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ThumbsUp, UserX, AlertTriangle, Star } from "lucide-react";
@@ -105,7 +104,7 @@ const ProfilePage = () => {
     }
   });
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <div><CustomLayout><h1>Loading...</h1></CustomLayout></div>;
   if (error) return <div>Error: {error.message}</div>;
 
   const handleLike = () => {
@@ -146,7 +145,8 @@ const ProfilePage = () => {
           </div>
 
           <div className="space-y-2">
-            <p><strong>Name:</strong> {displayUser?.first_name ?? ''} {displayUser?.last_name ?? ''}</p>
+            <p><strong>First Name:</strong> {displayUser?.first_name ?? ''}</p>
+            <p><strong>Last Name:</strong> {displayUser?.last_name ?? ''}</p>
             <p><strong>Gender:</strong> {displayUser?.gender ?? ''}</p>
             <p><strong>Sexuality:</strong> {displayUser?.sexuality ?? ''}</p>
             <p><strong>Biography:</strong> {displayUser?.biography ?? ''}</p>

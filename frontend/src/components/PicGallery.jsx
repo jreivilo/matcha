@@ -15,20 +15,21 @@ const PicGallery = ({ profileUsername, userinfo }) => {
 
   const deletePicMutation = useMutation({
     mutationFn: deleteProfilePicture,
-    onMutate: async (imageName) => {
+    onMutate: async ( { username, imageName }) => {
       await queryClient.cancelQueries(['profile', profileUsername]);
       const previousData = queryClient.getQueryData(['profile', profileUsername]);
+      const newPics = previousData.displayUser.pics.filter(pic => pic.imageName !== imageName);
       queryClient.setQueryData(['profile', profileUsername], old => ({
         ...old,
         displayUser: {
           ...old.displayUser,
-          pics: old.displayUser.pics.filter(pic => pic.imageName !== imageName),
+          pics: newPics,
         },
       }));
       return { previousData };
     },
     onSuccess: (data) => {
-      console.log("deletePicMutation success: ", data);
+      queryClient.invalidateQueries(['profile', profileUsername]);
     },
     onError: (err) => {
       queryClient.setQueryData(['profile', profileUsername], old =>
@@ -44,11 +45,11 @@ const PicGallery = ({ profileUsername, userinfo }) => {
     deletePicMutation.mutate({ username : profileUsername, imageName });
   };
 
-  const handleMakePrincipal = async (imageName) => {
-    const apiUrl = `${API_URL}/image/make-principal`;
-    const response = await fetcher(apiUrl, { username: profileUsername, imageName }, 'POST');
-    console.log("handleMakePrincipal response: ", response);
-  };
+  // const handleMakePrincipal = async (imageName) => {
+  //   const apiUrl = `${API_URL}/image/make-principal`;
+  //   const response = await fetcher(apiUrl, { username: profileUsername, imageName }, 'POST');
+  //   console.log("handleMakePrincipal: ", response);
+  // };
 
   return (
     <div className="grid grid-cols-3 gap-4 mt-4 "> 
@@ -56,7 +57,6 @@ const PicGallery = ({ profileUsername, userinfo }) => {
         <div
           key={index}
           className="relative group cursor-pointer"
-          onClick={() => setSelectedPic(pic)}
         >
           <img
             src={`data:image/jpeg;base64,${pic.image}`}
@@ -70,11 +70,11 @@ const PicGallery = ({ profileUsername, userinfo }) => {
             >
               Delete
             </Button>
-            <Button
+            {/* <Button
               onClick={() => handleMakePrincipal(pic.imageName)}
             >
               <Star className="mr-2 h-4 w-4" /> Make Default
-            </Button>
+            </Button> */}
           </div>
         </div>
       ))}

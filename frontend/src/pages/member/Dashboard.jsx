@@ -23,7 +23,6 @@ const Dashboard = () => {
           <button onClick={goToProfile} className="bg-primary text-text-light font-bold rounded-lg px-4 py-2 hover:bg-primary-light">
             See my Profile
           </button>
-          <PicGallery profileUsername={user?.username}/>
         </section>
       </div>
     </CustomLayout>
