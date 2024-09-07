@@ -27,7 +27,7 @@ response_patrick=$(curl -s -w "\nHTTP STATUS: %{http_code}\n" -X POST $BASE_URL 
     "password": "star12",
     "first_name": "Patrick",
     "last_name": "Star",
-	"picture_path": "patrick_1.png"
+	"picture_path": "patrickstar_1.png"
   }')
 
 echo "Response for Patrick Star:"
