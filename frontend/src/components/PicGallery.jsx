@@ -1,18 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
-import { useUser } from '@/components/UserProvider';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getUserInfo } from '@/api';
-import { Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import FileUpload from '@/components/FileUpload';
 import { deleteProfilePicture } from '@/api';
+import { getUserInfo } from '@/api';
 
-const PicGallery = ({ profileUsername, userinfo }) => {
-  const { displayUser } = userinfo ?? {};
-
+const PicGallery = ({ profileUsername }) => {
   const queryClient = useQueryClient();
 
+  const { data : userinfo } = useQuery({
+    queryKey: ['profile', profileUsername],
+    queryFn: () => getUserInfo(profileUsername, profileUsername),
+    enabled: !!profileUsername
+  })
+  
+  const { displayUser } = userinfo ?? {};
+  
   const deletePicMutation = useMutation({
     mutationFn: deleteProfilePicture,
     onMutate: async ( { username, imageName }) => {
@@ -78,7 +80,7 @@ const PicGallery = ({ profileUsername, userinfo }) => {
           </div>
         </div>
       ))}
-      <FileUpload username={profileUsername} userinfo={userinfo} />
+      <FileUpload username={profileUsername} />
     </div>
   );
 };

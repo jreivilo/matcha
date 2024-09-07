@@ -61,7 +61,7 @@ module.exports = async function (fastify, opts) {
       }
 
       const userImages = fs.readdirSync(imageDirectory).filter(f => f.startsWith(username)).sort();
-      const imageToDelete = `${username}_${imageNumber}.jpg`;
+      const imageToDelete = `${username}_${imageNumber}.png`;
 
       if (!userImages.includes(imageToDelete)) {
         reply.code(400).send({
