@@ -10,7 +10,8 @@ response_bob=$(curl -s -w "\nHTTP STATUS: %{http_code}\n" -X POST $BASE_URL \
     "username": "bob",
     "password": "bob123",
     "first_name": "Bob",
-    "last_name": "Builder"
+    "last_name": "Builder",
+	"picture_path": "bob_1.png"
   }')
 
 echo "Response for Bob:"
@@ -25,7 +26,8 @@ response_patrick=$(curl -s -w "\nHTTP STATUS: %{http_code}\n" -X POST $BASE_URL 
     "username": "patrickstar",
     "password": "star12",
     "first_name": "Patrick",
-    "last_name": "Star"
+    "last_name": "Star",
+	"picture_path": "patrick_1.png"
   }')
 
 echo "Response for Patrick Star:"

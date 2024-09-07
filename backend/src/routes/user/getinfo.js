@@ -36,6 +36,7 @@ module.exports = async function (fastify, opts) {
                 coordinates: { type: 'string' },
                 famerating: { type: 'integer' },
                 picturecount: { type: 'integer' },
+				picture_path: { type: 'string' },
                 profile_completed: { type: 'boolean' },
                 active: { type: 'boolean' },
                 verified: { type: 'boolean' }
@@ -70,7 +71,7 @@ module.exports = async function (fastify, opts) {
         // Query the specific user information based on the username
         const [userRows] = await connection.query(
           `SELECT email, first_name, last_name, gender, sexuality, biography, 
-                  interests, coordinates, famerating, picturecount, 
+                  interests, coordinates, famerating, picturecount, picture_path,
                   profile_completed, active, verified 
            FROM user WHERE username = ?`,
           [username]
@@ -100,6 +101,7 @@ module.exports = async function (fastify, opts) {
             coordinates: user.coordinates,
             famerating: user.famerating,
             picturecount: user.picturecount,
+			picture_path: user.picture_path,
             profile_completed: user.profile_completed,
             active: user.active,
             verified: user.verified
