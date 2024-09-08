@@ -1,142 +1,103 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useUser } from '@/components/UserProvider';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useUserData } from '@/hooks/useUserData';
+import PicGallery from '@/components/PicGallery';
 // components
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ThumbsUp, UserX, AlertTriangle, Star } from "lucide-react";
+import { ThumbsUp, UserX, AlertTriangle } from "lucide-react";
 import CustomLayout from '@/components/MatchaLayout';
-import { getUserInfo, toggleLike, toggleBlock } from '@/api';
-import PicGallery from '@/components/PicGallery';
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { toggleLike, toggleBlock } from "@/api"
 
 const ProfilePage = () => {
   const { user } = useUser();
-  const [isSelf, setIsSelf] = useState(false);
-  const [hasPics, setHasPics] = useState(false);
   const location = useLocation();
   const queryClient = useQueryClient();
   
-  const params = new URLSearchParams(location.search);
-  const profileUsername = params.get('username');
+  const profileUsername = useMemo(() => {
+    const params = new URLSearchParams(location.search);
+    return params.get('username');
+  }, [location.search]);
 
-  useEffect(() => {
-    setIsSelf(profileUsername === user?.username);
-  }, [profileUsername, user]);
-  
-  const { data : userinfo, isLoading, error } = useQuery({
-    queryKey: ['profile', profileUsername],
-    queryFn: () => getUserInfo(profileUsername, user?.username),
-    enabled: !!profileUsername
-  })
-  
-  const { displayUser, isLiked, isBlocked } = userinfo ?? {};
-  
-  useEffect(() => {
-    if (userinfo?.displayUser?.pics) { setHasPics(true);}
-  }, [userinfo]);
-  
-  let pfp;
-  if (hasPics) {
-    pfp = `data:image/jpeg;base64,${userinfo?.displayUser?.pics[0]?.image}`;
-  }
-  
+  const { data: userInfo, isLoading, error } = useUserData(profileUsername, user?.username);
+
   const likeMutation = useMutation({
     mutationFn: toggleLike,
-    onError: (err, variables, context) => {
-      console.log("like error: ", err);
-      console.log("like variables: ", variables);
-      console.log("like context: ", context);
-    },
-    onMutate: async () => {
-      await queryClient.cancelQueries(['profile', profileUsername]);
-      const previousData = queryClient.getQueryData(['profile', profileUsername]);
-      queryClient.setQueryData(['profile', profileUsername], old => ({
+    onMutate: async ({ profileUsername, viewer, isLiked }) => {
+      await queryClient.cancelQueries(['userData', profileUsername, viewer]);
+      const previousUserInfo = queryClient.getQueryData(['userData', profileUsername, viewer]);
+      queryClient.setQueryData(['userData', profileUsername, viewer], old => ({
         ...old,
-        isLiked: !old.isLiked,
+        isLiked: !isLiked
       }));
-      return { previousData };
+      return { previousUserInfo };
     },
-    onSuccess: (data) => {
-      console.log("like success: ", data);
+    onError: (err, variables, context) => {
+      queryClient.setQueryData(['userData', variables.profileUsername, variables.viewer], context.previousUserInfo);
     },
-    onError: (err) => {
-      queryClient.setQueryData(['profile', profileUsername], old =>
-        old.isLiked
-      );
-    },
-    scope: {
-      username: profileUsername,
+    onSettled: (data, error, { profileUsername, viewer }) => {
+      queryClient.invalidateQueries(['userData', profileUsername, viewer]);
     }
   });
 
-  // const { blockMutate, blockLoading, data: blockData, error: blockError } = useMutation({
   const blockMutation = useMutation({
     mutationFn: toggleBlock,
-    onError : async (variables) => {
-      console.log("blockMutation error: ", variables);
-    },
-    onMutate: async (variables) => {
-      console.log("block mutation started")
-      await queryClient.cancelQueries(['profile', profileUsername]);
-      const previousData = queryClient.getQueryData(['profile', profileUsername]);
-      queryClient.setQueryData(['profile', profileUsername], old => ({
+    onMutate: async ({ profileUsername, viewer, isBlocked }) => {
+      await queryClient.cancelQueries(['userData', profileUsername, viewer]);
+      const previousUserInfo = queryClient.getQueryData(['userData', profileUsername, viewer]);
+      queryClient.setQueryData(['userData', profileUsername, viewer], old => ({
         ...old,
-        isBlocked: !old.isBlocked,
+        isBlocked: !isBlocked,
+        isLiked: !isBlocked ? false : old.isLiked // Unlike if blocking
       }));
-      return { previousData };
+      return { previousUserInfo };
     },
-    onSuccess: (data, variables, context) => {
-      // console.log(`data: ${data}, variables: ${variables}, context: ${context}`);
-      // isBlocked = !isBlocked
+    onError: (err, variables, context) => {
+      queryClient.setQueryData(['userData', variables.profileUsername, variables.viewer], context.previousUserInfo);
     },
-    onError: (err) => {
-      console.log("blockMutation error: ", err);
-    },
-    scope: {
-      username: profileUsername,
+    onSettled: (data, error, { profileUsername, viewer }) => {
+      queryClient.invalidateQueries(['userData', profileUsername, viewer]);
     }
   });
 
-  if (isLoading) return <div><CustomLayout><h1>Loading...</h1></CustomLayout></div>;
-  if (error) return <div>Error: {error.message}</div>;
-
   const handleLike = () => {
-    // console.log("handleLike: ", profileUsername, user?.username, user?.username != profileUsername, isLiked);
-    if (user && profileUsername && (user?.username != profileUsername)) {
-      likeMutation.mutate({ profileUsername, viewer: user?.username, isLiked });
-    } else {
-      console.log(`spot the undefined! ${user?.username}, ${profileUsername}, ${user?.username != profileUsername}`);
+    if (user && profileUsername && (user?.username !== profileUsername)) {
+      likeMutation.mutate({ profileUsername, viewer: user?.username, isLiked: userInfo.isLiked });
     }
   };
   
   const handleBlock = () => {
-    console.log("handleBlock: ", profileUsername, user?.username, user?.username != profileUsername, isBlocked);
-    if (user && profileUsername && (user?.username != profileUsername)) {
-      blockMutation.mutate({ profileUsername, viewer: user.username, isBlocked });  
+    if (user && profileUsername && (user?.username !== profileUsername)) {
+      blockMutation.mutate({ profileUsername, viewer: user.username, isBlocked: userInfo.isBlocked });  
     }
   };
 
   const handleReport = () => {
-    alert("This user has been reported!");
-  };
+    alert("This user has been reported!!");
+  }
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
+
+  const { displayUser, isLiked, isBlocked } = userInfo ?? {};
+  const isSelf = user?.username === profileUsername;
+  const hasPics = displayUser?.pics?.length > 0;
 
   return (
     <CustomLayout>
       <Card className="w-auto mx-auto">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-center">
-            {isSelf ? 'Your Profile' : `${profileUsername}'s Profile`}
+            {profileUsername}'s Profile
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex justify-center">
-              {hasPics && pfp && !isSelf && <img src={pfp} alt={profileUsername} />}
-              {!hasPics && ( <p>no pics</p>)}
-              {isSelf && !isLoading && !error && (
-                <PicGallery profileUsername={profileUsername}/>
-              )}
+              {displayUser?.pics && !isSelf && <img src={`data:image/jpeg;base64,${displayUser?.pics[0]?.image}`} alt={profileUsername} />}
+              {isSelf && <PicGallery profileUsername={profileUsername} mainpic={displayUser?.picture_path} pics={displayUser?.pics} />}
           </div>
 
           <div className="space-y-2">

@@ -37,7 +37,7 @@ const ProfileForm = () => {
   
   
   const { data : userinfo } = useQuery({
-    queryKey: ['profile', username],
+    queryKey: ['userData', username],
     queryFn: () => getUserInfo(username, username),
     enabled: !!username,
   });

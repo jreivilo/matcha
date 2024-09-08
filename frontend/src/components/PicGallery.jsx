@@ -1,84 +1,114 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button } from "@/components/ui/button";
+import React, { useCallback, useEffect, useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import FileUpload from '@/components/FileUpload';
-import { deleteProfilePicture } from '@/api';
-import { getUserInfo } from '@/api';
+import { deleteProfilePicture, changeMainPicture } from '@/api';
+import { PicItem } from '@/components/PicItem';
 
-const PicGallery = ({ profileUsername }) => {
+const PicGallery = ({ profileUsername, mainpic, pics }) => {
+  const [main, setMain] = useState(mainpic); // Initialize local state with mainpic
   const queryClient = useQueryClient();
 
-  const { data : userinfo } = useQuery({
-    queryKey: ['profile', profileUsername],
-    queryFn: () => getUserInfo(profileUsername, profileUsername),
-    enabled: !!profileUsername
-  })
-  
-  const { displayUser } = userinfo ?? {};
-  
   const deletePicMutation = useMutation({
     mutationFn: deleteProfilePicture,
-    onMutate: async ( { username, imageName }) => {
-      await queryClient.cancelQueries(['profile', profileUsername]);
-      const previousData = queryClient.getQueryData(['profile', profileUsername]);
-      const newPics = previousData.displayUser.pics.filter(pic => pic.imageName !== imageName);
-      queryClient.setQueryData(['profile', profileUsername], old => ({
-        ...old,
-        displayUser: {
-          ...old.displayUser,
-          pics: newPics,
-        },
-      }));
-      return { previousData };
+    onMutate: async ({ username, imageName }) => {
+      await queryClient.cancelQueries(['userData', username, username]);
+      const previousUserData = queryClient.getQueryData(['userData', username, username]);
+
+      queryClient.setQueryData(['userData', username, username], old => {
+        const updatedPics = old.displayUser.pics.filter(pic => pic.imageName !== imageName);
+        const deletedIndex = old.displayUser.pics.findIndex(pic => pic.imageName === imageName);
+        
+        // Determine the new main picture index
+        let newMainIndex = old.displayUser.pics.findIndex(pic => pic.imageName === old.displayUser.picture_path);
+        if (newMainIndex === deletedIndex) {
+          newMainIndex = updatedPics.length > 0 ? 0 : -1; // Set to first picture or -1 if none left
+        } else if (newMainIndex > deletedIndex) {
+          newMainIndex--;
+        }
+
+        // Rename remaining pictures and update main status
+        const renamedPics = updatedPics.map((pic, index) => ({
+          ...pic,
+          imageName: `${username}_${index + 1}.png`,
+          isMain: index === newMainIndex
+        }));
+
+        return {
+          ...old,
+          displayUser: {
+            ...old.displayUser,
+            pics: renamedPics,
+            picture_path: newMainIndex !== -1 ? renamedPics[newMainIndex].imageName : null // Update picture_path
+          }
+        };
+      });
+
+      return { previousUserData };
     },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries(['profile', profileUsername]);
+    onError: (err, variables, context) => {
+      queryClient.setQueryData(['userData', variables.username, variables.username], context.previousUserData);
     },
-    onError: (err) => {
-      queryClient.setQueryData(['profile', profileUsername], old =>
-        old
-      );
+    onSettled: (data, error, { username }) => {
+      queryClient.invalidateQueries(['userData', username, username]);
     },
-    scope: {
-      username: profileUsername,
-    }
   });
 
-  const handleDeletePic = async (imageName) => {
-    deletePicMutation.mutate({ username : profileUsername, imageName });
-  };
+  const changeMainPicMutation = useMutation({
+    mutationFn: changeMainPicture,
+    onMutate: async ({ username, image }) => {
+      await queryClient.cancelQueries(['userData', username, username]);
+      const previousUserData = queryClient.getQueryData(['userData', username, username]);
 
-  // const handleMakePrincipal = async (imageName) => {
-  //   const apiUrl = `${API_URL}/image/make-principal`;
-  //   const response = await fetcher(apiUrl, { username: profileUsername, imageName }, 'POST');
-  //   console.log("handleMakePrincipal: ", response);
-  // };
+      queryClient.setQueryData(['userData', username, username], old => {
+        const updatedPics = old.displayUser.pics.map(pic => ({
+          ...pic,
+          isMain: pic.imageName === image
+        }));
+        return {
+          ...old,
+          displayUser: {
+            ...old.displayUser,
+            pics: updatedPics,
+            picture_path: image // Update picture_path to the new main picture
+          }
+        };
+      });
+
+      return { previousUserData };
+    },
+    onError: (err, variables, context) => {
+      queryClient.setQueryData(['userData', variables.username, variables.username], context.previousUserData);
+    },
+    onSettled: (data, error, { username }) => {
+      queryClient.invalidateQueries(['userData', username, username]);
+    },
+  });
+
+  const handleDeletePic = useCallback((imageName) => {
+    const imageNumber = parseInt(imageName.split('_')[1].split('.')[0], 10);
+    deletePicMutation.mutate({ username: profileUsername, imageName, imageNumber });
+  }, [deletePicMutation, profileUsername]);
+
+  const handleSetMainPic = useCallback((imageName) => {
+    setMain(imageName); // Update local state for main picture
+    changeMainPicMutation.mutate({ username: profileUsername, image: imageName });
+  }, [changeMainPicMutation, profileUsername]);
+
+  // Update local main state if the main picture prop changes
+  useEffect(() => {
+    setMain(mainpic);
+  }, [mainpic]);
 
   return (
-    <div className="grid grid-cols-3 gap-4 mt-4 "> 
-      {displayUser?.pics?.map((pic, index) => (
-        <div
-          key={index}
-          className="relative group cursor-pointer"
-        >
-          <img
-            src={`data:image/jpeg;base64,${pic.image}`}
-            alt={pic.imageName}
-            className="object-cover w-56 h-48"
-          />
-          <div className="absolute inset-0 bg-black bg-opacity-35 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-            <Button
-              onClick={() => handleDeletePic(pic.imageName)}
-              className="mr-2"
-            >
-              Delete
-            </Button>
-            {/* <Button
-              onClick={() => handleMakePrincipal(pic.imageName)}
-            >
-              <Star className="mr-2 h-4 w-4" /> Make Default
-            </Button> */}
-          </div>
-        </div>
+    <div className="grid grid-cols-3 gap-4 mt-4"> 
+      {pics?.map((pic) => (
+        <PicItem 
+          key={pic.imageName} 
+          pic={pic} 
+          onDelete={handleDeletePic} 
+          onSetMain={handleSetMainPic}
+          isMainPicture={pic.imageName === main} // Highlight the main picture
+        />
       ))}
       <FileUpload username={profileUsername} />
     </div>
