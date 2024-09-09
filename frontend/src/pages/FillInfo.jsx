@@ -57,6 +57,10 @@ const ProfileForm = () => {
   });
   
   const onSubmit = async (data) => {
+    if (!sexuality) {
+      setSexuality("Bisexual");
+    }
+
     const profileData = {
       ...data,
       interests: interests.join(','),

@@ -16,14 +16,18 @@ const fetcher = async (url, body, method, headers = {}) => {
         options.body = JSON.stringify(body);
     }
 
-    const response = await fetch(url, options);
+    try {
+        const response = await fetch(url, options);
 
-    if (!response.ok) {
-        //throw new Error(`HTTP error! status: ${response.status}`);
-//        console.log(`HTTP error! status: ${response.status}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        return response.json();
+    } catch (error) {
+        console.error('Network or CORS error:', error);
+        throw error;
     }
-
-    return response.json();
 };
 
 export const getUserInfo = async (username, viewer) => {
