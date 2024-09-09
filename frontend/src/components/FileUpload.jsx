@@ -22,7 +22,7 @@ const FileUpload = ({ username }) => {
     onMutate: async ({ username, file }) => {
       await queryClient.cancelQueries(['userData', username, username]);
       const previousUserInfo = queryClient.getQueryData(['userData', username, username]);
-      if (previousUserInfo?.displayUser?.pics.length === 5) {
+      if (previousUserInfo?.displayUser?.pics?.length === 5) {
         throw new Error("You can only upload up to 5 pictures.");
       }
       queryClient.setQueryData(['userData', username, username], old => ({

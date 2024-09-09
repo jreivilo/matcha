@@ -37,9 +37,9 @@ const ProfileForm = () => {
   
   
   const { data : userinfo } = useQuery({
-    queryKey: ['userData', username],
+    queryKey: ['userData', username, username],
     queryFn: () => getUserInfo(username, username),
-    enabled: !!username,
+    enabled: !!(username.length > 0),
   });
   
   const onSubmit = async (data) => {

@@ -18,15 +18,13 @@ const PicGallery = ({ profileUsername, mainpic, pics }) => {
         const updatedPics = old.displayUser.pics.filter(pic => pic.imageName !== imageName);
         const deletedIndex = old.displayUser.pics.findIndex(pic => pic.imageName === imageName);
         
-        // Determine the new main picture index
         let newMainIndex = old.displayUser.pics.findIndex(pic => pic.imageName === old.displayUser.picture_path);
         if (newMainIndex === deletedIndex) {
-          newMainIndex = updatedPics.length > 0 ? 0 : -1; // Set to first picture or -1 if none left
+          newMainIndex = updatedPics.length > 0 ? 0 : -1;
         } else if (newMainIndex > deletedIndex) {
           newMainIndex--;
         }
 
-        // Rename remaining pictures and update main status
         const renamedPics = updatedPics.map((pic, index) => ({
           ...pic,
           imageName: `${username}_${index + 1}.png`,
