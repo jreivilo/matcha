@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,69 +8,84 @@ const encodeImageAsBase64 = (file) => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
+    reader.onload = () => resolve(reader.result.split(',')[1]);
     reader.onerror = (error) => reject(error);
   });
 };
 
-const FileUpload = ({ username, userinfo }) => {
+const FileUpload = ({ username }) => {
   const queryClient = useQueryClient();
   const [selectedFile, setSelectedFile] = useState(null);
 
   const picsMutation = useMutation({
     mutationFn: uploadProfilePicture,
-    onMutate: async ({ username, file}) => {
-      await queryClient.cancelQueries(['profile', username]);
-      const previousData = queryClient.getQueryData(['profile', username]);
-      console.log("previousData in picsMutation: ", previousData);
-      if (previousData?.displayUser?.pics?.length >= 5) {
-        throw new Error('Maximum number of images reached');
+    onMutate: async ({ username, file }) => {
+      await queryClient.cancelQueries(['userData', username, username]);
+      const previousUserInfo = queryClient.getQueryData(['userData', username, username]);
+      if (previousUserInfo?.displayUser?.pics?.length === 5) {
+        throw new Error("You can only upload up to 5 pictures.");
       }
-
-      const newPics = [
-        ...(previousData?.displayUser?.pics ?? []),
-        { image: file, imageName: `${username}_${(previousData?.displayUser?.pics ?? []).length + 1}.png` },
-      ]
-
-      queryClient.setQueryData(['profile', username], old => ({
+      queryClient.setQueryData(['userData', username, username], old => ({
         ...old,
         displayUser: {
-          ...(old?.displayUser ?? {}),
-          pics: newPics,
+          ...old.displayUser,
+          pics: [...(old.displayUser.pics || []), { image: file, imageName: selectedFile.name }],
         },
       }));
-      return { userinfo };
+      return { previousUserInfo };
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['profile', username]);
+    onError: (err, variables, context) => {
+      queryClient.setQueryData(['userData', variables.username, variables.username], context.previousUserInfo);
+      console.error("Upload error:", err);
     },
-    onError: (error, variables, context) => {
-      queryClient.setQueryData(['profile', username], context.previousData);
-      console.log("onError: ", error);
+    onSettled: (data, error, { username }) => {
+      queryClient.invalidateQueries(['userData', username, username]);
+      setSelectedFile(null);
     },
   });
 
-  const handleFileChange = (event) => {
-    setSelectedFile(event.target.files[0]);
-  };
-
-  const handleUpload = async () => {
-    let imagestring = (await encodeImageAsBase64(selectedFile)).split(',')[1];
-    if (selectedFile) {
-      picsMutation.mutate({ username, file: imagestring });
+  const handleFileChange = useCallback((event) => {
+    const file = event.target.files[0];
+    if (file && file.type.startsWith('image/')) {
+      setSelectedFile(file);
+    } else {
+      console.error("Invalid file type. Please select an image.");
+      setSelectedFile(null);
     }
-  };
+  }, []);
+
+  const handleUpload = useCallback(async () => {
+    if (selectedFile) {
+      try {
+        const imageString = await encodeImageAsBase64(selectedFile);
+        picsMutation.mutate({ username, file: imageString });
+      } catch (error) {
+        console.error("File encoding error:", error);
+      }
+    }
+  }, [selectedFile, username, picsMutation]);
 
   return (
     <div className="flex flex-col items-center space-y-4">
-      <Input type="file" onChange={handleFileChange} />
+      <Input 
+        type="file" 
+        onChange={handleFileChange} 
+        accept="image/png" 
+        disabled={picsMutation.isLoading}
+      />
       {selectedFile && (
-        <Button onClick={handleUpload} disabled={picsMutation.isLoading}>
+        <Button 
+          onClick={handleUpload} 
+          disabled={picsMutation.isLoading}
+        >
           {picsMutation.isLoading ? 'Uploading...' : 'Upload file'}
         </Button>
+      )}
+      {picsMutation.isError && (
+        <p className="text-red-500">Upload failed. Please try again.</p>
       )}
     </div>
   );
 };
 
-export default FileUpload;
+export default React.memo(FileUpload);

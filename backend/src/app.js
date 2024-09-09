@@ -24,7 +24,7 @@ module.exports = async function (fastify, opts) {
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Access-Control-Allow-Origin'],
     credentials: true,
-    // optionsSuccessStatus: 200,
+    optionsSuccessStatus: 200,
   });
   
   fastify.register(AutoLoad, {
