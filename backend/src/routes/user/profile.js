@@ -62,6 +62,17 @@ module.exports = async function (fastify, opts) {
           return;
         }
 
+        if (coordinates === 'N/A') {
+            const response = await fetch('https://ipinfo.io/json?token=b2447bd6d4082c');
+            const resjson = await response.json();
+            if (resjson.success) {
+              coordinates = `${resjson.loc?.lat}, ${resjson.loc?.lon}`;
+            } else {
+              console.error('Error fetching IP location:', resjson);
+              res.status(402).send('Error fetching IP location');
+            }
+          }
+
         await connection.query(
           'UPDATE user SET gender = ?, sexuality = ?, biography = ?, interests = ?, coordinates = ? WHERE username = ?',
           [gender, sexuality, biography, interests, coordinates, username]
