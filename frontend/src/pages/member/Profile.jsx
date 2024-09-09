@@ -108,6 +108,8 @@ const ProfilePage = () => {
             <p><strong>Gender:</strong> {displayUser?.gender ?? ''}</p>
             <p><strong>Sexuality:</strong> {displayUser?.sexuality ?? ''}</p>
             <p><strong>Biography:</strong> {displayUser?.biography ?? ''}</p>
+            <p><strong>Location:</strong> {displayUser?.coordinates ?? ''}</p>
+
             <div>
               <strong>Interests:</strong> 
               {displayUser?.interests ? 

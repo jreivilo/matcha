@@ -10,13 +10,14 @@ module.exports = async function (fastify, opts) {
       tags: ['User'],
       body: {
         type: 'object',
-        required: ['username', 'gender', 'biography', 'sexuality', 'interests'],
+        required: ['username', 'gender', 'biography', 'sexuality', 'interests', 'coordinates'],
         properties: {
           username: { type: 'string', description: 'Username of the user' },
           gender: { type: 'string', description: 'User gender' },
           sexuality: { type: 'string', description: 'User sexuality' },
           biography: { type: 'string', description: 'User biography' },
-          interests: { type: 'string', description: 'User list of interests' }
+          interests: { type: 'string', description: 'User list of interests' },
+          coordinates: { type: 'string', description: 'User location' }
         }
       },
       response: {
@@ -29,7 +30,8 @@ module.exports = async function (fastify, opts) {
             gender: { type: 'string' },
             sexuality: { type: 'string' },
             biography: { type: 'string' },
-            interests: { type: 'string' }
+            interests: { type: 'string' },
+            coordinates: { type: 'string' }
           }
         },
         400: {
@@ -43,7 +45,7 @@ module.exports = async function (fastify, opts) {
       }
     },
     handler: async (request, reply) => {
-      const { username, gender, sexuality, biography, interests } = request.body;
+      const { username, gender, sexuality, biography, interests, coordinates } = request.body;
       const connection = await fastify.mysql.getConnection();
 
       try {
@@ -61,18 +63,19 @@ module.exports = async function (fastify, opts) {
         }
 
         await connection.query(
-          'UPDATE user SET gender = ?, sexuality = ?, biography = ?, interests = ? WHERE username = ?',
-          [gender, sexuality, biography, interests, username]
+          'UPDATE user SET gender = ?, sexuality = ?, biography = ?, interests = ?, coordinates = ? WHERE username = ?',
+          [gender, sexuality, biography, interests, coordinates, username]
         );
         fastify.log.info("Profile updated successfully");
 
         reply.code(201).send({
           insertId: user[0].id,
-          username: username,
-          gender: gender,
-          sexuality: sexuality,
-          biography: biography,
-          interests: interests
+          username,
+          gender,
+          sexuality,
+          biography,
+          interests,
+          coordinates,
         });
       } catch (error) {
         console.error(error);

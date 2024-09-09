@@ -21,6 +21,7 @@ const ProfileForm = () => {
   const [gender, setGender] = useState('');
   const [sexuality, setSexuality] = useState('');
   const [username, setUsername] = useState('');
+  const [coordinates, setCoordinates] = useState('');
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -34,6 +35,19 @@ const ProfileForm = () => {
       navigate('/member/dashboard');
     }
   }, [location, navigate]);
+
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setCoordinates(`${position.coords.latitude}, ${position.coords.longitude}`);
+      },
+      (error) => {
+        console.error('Error retrieving location:', error);
+        // try another way to get gps coordinates
+        setCoordinates('N/A');
+      }
+    );
+  }, []);
   
   
   const { data : userinfo } = useQuery({
@@ -49,6 +63,7 @@ const ProfileForm = () => {
       gender,
       sexuality,
       username,
+      coordinates,
     };
 
     try {

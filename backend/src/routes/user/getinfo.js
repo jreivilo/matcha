@@ -36,7 +36,7 @@ module.exports = async function (fastify, opts) {
                 coordinates: { type: 'string' },
                 famerating: { type: 'integer' },
                 picturecount: { type: 'integer' },
-				picture_path: { type: 'string' },
+				        picture_path: { type: 'string' },
                 profile_completed: { type: 'boolean' },
                 active: { type: 'boolean' },
                 verified: { type: 'boolean' }
@@ -101,7 +101,7 @@ module.exports = async function (fastify, opts) {
             coordinates: user.coordinates,
             famerating: user.famerating,
             picturecount: user.picturecount,
-			picture_path: user.picture_path,
+			      picture_path: user.picture_path,
             profile_completed: user.profile_completed,
             active: user.active,
             verified: user.verified

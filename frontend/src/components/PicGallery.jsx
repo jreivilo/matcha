@@ -5,7 +5,7 @@ import { deleteProfilePicture, changeMainPicture } from '@/api';
 import { PicItem } from '@/components/PicItem';
 
 const PicGallery = ({ profileUsername, mainpic, pics }) => {
-  const [main, setMain] = useState(mainpic); // Initialize local state with mainpic
+  const [main, setMain] = useState(mainpic);
   const queryClient = useQueryClient();
 
   const deletePicMutation = useMutation({
@@ -44,6 +44,7 @@ const PicGallery = ({ profileUsername, mainpic, pics }) => {
       return { previousUserData };
     },
     onError: (err, variables, context) => {
+      console.log('delete pic error vars', variables);
       queryClient.setQueryData(['userData', variables.username, variables.username], context.previousUserData);
     },
     onSettled: (data, error, { username }) => {
@@ -92,7 +93,6 @@ const PicGallery = ({ profileUsername, mainpic, pics }) => {
     changeMainPicMutation.mutate({ username: profileUsername, image: imageName });
   }, [changeMainPicMutation, profileUsername]);
 
-  // Update local main state if the main picture prop changes
   useEffect(() => {
     setMain(mainpic);
   }, [mainpic]);
@@ -105,7 +105,7 @@ const PicGallery = ({ profileUsername, mainpic, pics }) => {
           pic={pic} 
           onDelete={handleDeletePic} 
           onSetMain={handleSetMainPic}
-          isMainPicture={pic.imageName === main} // Highlight the main picture
+          isMainPicture={pic.imageName === main}
         />
       ))}
       <FileUpload username={profileUsername} />
