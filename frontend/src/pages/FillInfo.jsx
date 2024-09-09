@@ -12,6 +12,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import PicGallery from '@/components/PicGallery';
 import { useQuery} from '@tanstack/react-query';
 import { getUserInfo } from '@/api';
+import { fetcher } from '@/api';
 
 const ProfileForm = () => {
   const { register, handleSubmit, formState: { errors }, setValue } = useForm();
@@ -43,8 +44,6 @@ const ProfileForm = () => {
       },
       (error) => {
         console.error('Error retrieving location:', error);
-        // try another way to get gps coordinates
-        setCoordinates('N/A');
       }
     );
   }, []);
@@ -60,6 +59,18 @@ const ProfileForm = () => {
     if (!sexuality) {
       setSexuality("Bisexual");
     }
+    console.log("coordinates: ", coordinates);
+    let coords = coordinates;
+    if (!coordinates) {
+        try {
+            const response = await fetch("http://ip-api.com/json");
+            const geoData = await response.json();
+            coords = `${geoData.lat}, ${geoData.lon}`;
+            console.log("coords: ", coords);
+        } catch (error) {
+            console.error('Error fetching geo info:', error);
+        }
+    }
 
     const profileData = {
       ...data,
@@ -67,9 +78,8 @@ const ProfileForm = () => {
       gender,
       sexuality,
       username,
-      coordinates,
+      coordinates: coords,
     };
-
     try {
       const response = await fetch('http://localhost:3000/user/profile', {
         method: 'POST',

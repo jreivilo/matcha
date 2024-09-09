@@ -1,6 +1,6 @@
 const API_URL = 'http://localhost:3000';
 
-const fetcher = async (url, body, method, headers = {}) => {
+export const fetcher = async (url, body, method, headers = {}) => {
     const defaultHeaders = {
         'Content-Type': 'application/json',
         ...headers
@@ -20,13 +20,14 @@ const fetcher = async (url, body, method, headers = {}) => {
         const response = await fetch(url, options);
 
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            // throw new Error(`HTTP error! status: ${response.status}`);
+            console.log(response);
         }
 
         return response.json();
     } catch (error) {
         console.error('Network or CORS error:', error);
-        throw error;
+        // throw error;
     }
 };
 
