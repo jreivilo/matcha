@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useUser } from '@/components/UserProvider';
 import { useUserData } from '@/hooks/useUserData';
@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { ThumbsUp, UserX, AlertTriangle } from "lucide-react";
 import CustomLayout from '@/components/MatchaLayout';
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { toggleLike, toggleBlock } from "@/api"
+import { toggleLike, toggleBlock, markView } from "@/api"
 
 const ProfilePage = () => {
   const { user } = useUser();
@@ -21,7 +21,7 @@ const ProfilePage = () => {
     const params = new URLSearchParams(location.search);
     return params.get('username');
   }, [location.search]);
-
+  
   const { data: userInfo, isLoading, error } = useUserData(profileUsername, user?.username);
 
   const likeMutation = useMutation({
@@ -85,6 +85,9 @@ const ProfilePage = () => {
   const { displayUser, isLiked, isBlocked } = userInfo ?? {};
   const isSelf = user?.username === profileUsername;
   const hasPics = displayUser?.pics?.length > 0;
+  if (!displayUser?.viewed_by?.includes(user?.username) && !isSelf) {
+    markView({ profileUsername: params.get('username'), viewer: user?.username });
+  }
 
   return (
     <CustomLayout>
@@ -122,6 +125,9 @@ const ProfilePage = () => {
             </div>
             <p> <strong>Fame Rating:</strong> {displayUser?.famerating ?? 'N/A'}</p>
             <p><strong>Last Online:</strong> {displayUser?.lastOnline ?? 'Unknown'}</p>
+            <p><strong>Liked by:</strong> {displayUser?.liked_by ?? 'N/A'}</p>
+            <p><strong>Blocked by:</strong> {displayUser?.blocked_by ?? 'N/A'}</p>
+            <p><strong>Viewed by:</strong> {displayUser?.viewed_by ?? 'N/A'}</p>
           </div>
 
           {!isSelf && (

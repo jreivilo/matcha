@@ -52,6 +52,11 @@ export const getUserInfo = async (username, viewer) => {
             userInfo.displayUser.blocked_by = blockedResponse.blocked_by_usernames;
         }
 
+        const viewedResponse = await fetcher(`${API_URL}/view/viewed-by`, { username }, 'POST');
+        if (viewedResponse.success === true) {
+            userInfo.displayUser.viewed_by = viewedResponse.viewed_by_usernames;
+        }
+
         userInfo.isLiked = userInfo.displayUser.liked_by?.includes(viewer);
         userInfo.isBlocked = userInfo.displayUser.blocked_by?.includes(viewer);
 
@@ -92,4 +97,9 @@ export const deleteProfilePicture = async ({ username, imageName }) => {
 export const changeMainPicture = async ({ username, image }) => {
     const apiUrl = `${API_URL}/image/change-main-picture`;
     return fetcher(apiUrl, { username, image }, 'PUT');
+};
+
+export const markView = async ({ profileUsername, viewer }) => {
+    const apiUrl = `${API_URL}/view/view`;
+    return fetcher(apiUrl, { username: viewer, viewed_username: profileUsername }, 'POST');
 };
