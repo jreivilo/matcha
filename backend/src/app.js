@@ -20,7 +20,6 @@ module.exports = async function (fastify, opts) {
   // cors plugin
   fastify.register(require('@fastify/cors'), {
     origin: 'http://localhost:4000',
-    // origin: '*',
     // only accept req from localhost:4000 (our frontend). if you set it to through it reflects any origin, allowing forgery
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Access-Control-Allow-Origin'],

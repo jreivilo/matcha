@@ -64,13 +64,13 @@ const ProfilePage = () => {
   });
 
   const handleLike = () => {
-    if (user && profileUsername && (user?.username !== profileUsername)) {
+    if (user && profileUsername && (user?.username != profileUsername)) {
       likeMutation.mutate({ profileUsername, viewer: user?.username, isLiked: userInfo.isLiked });
     }
   };
   
   const handleBlock = () => {
-    if (user && profileUsername && (user?.username !== profileUsername)) {
+    if (user && profileUsername && (user?.username != profileUsername)) {
       blockMutation.mutate({ profileUsername, viewer: user.username, isBlocked: userInfo.isBlocked });  
     }
   };
@@ -97,7 +97,9 @@ const ProfilePage = () => {
         <CardContent className="space-y-4">
           <div className="flex justify-center">
               {displayUser?.pics && !isSelf && <img src={`data:image/jpeg;base64,${displayUser?.pics[0]?.image}`} alt={profileUsername} />}
-              {isSelf && <PicGallery profileUsername={profileUsername} mainpic={displayUser?.picture_path} pics={displayUser?.pics} />}
+              {isSelf && !isLoading && !error &&
+              <PicGallery profileUsername={profileUsername} mainpic={displayUser?.picture_path} pics={displayUser?.pics}
+              />}
           </div>
 
           <div className="space-y-2">
