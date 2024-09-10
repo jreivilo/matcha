@@ -47,7 +47,7 @@ const FillInfo = () => {
         </CardHeader>
         <CardContent>
           <PicGallery profileUsername={username} mainpic={displayUser?.picture_path} pics={displayUser?.pics}/>
-          <ProfileForm username={username}/>
+          <ProfileForm username={username} onSubmitComplete={ () => navigate('/member/dashboard') }/>
         </CardContent>
       </Card>
     </CustomLayout >
