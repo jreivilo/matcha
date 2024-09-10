@@ -20,6 +20,8 @@ const ProfilePage = () => {
   
   const location = useLocation();
   const queryClient = useQueryClient();
+
+  const [isEditMode, setIsEditMode] = useState(false);
   
   const [isEditMode, setIsEditMode] = useState(false);
   
@@ -68,6 +70,14 @@ const ProfilePage = () => {
       queryClient.invalidateQueries(['userData', profileUsername, viewer]);
     }
   });
+
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const newUserData = Object.fromEntries(formData.entries());
+    update
+    console.log(newUserData);
+  };
 
   const handleLike = () => {
     if (user && profileUsername && (user?.username != profileUsername)) {
