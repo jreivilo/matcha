@@ -66,14 +66,6 @@ const ProfilePage = () => {
     }
   });
 
-  const onSubmit = async (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const newUserData = Object.fromEntries(formData.entries());
-    update
-    console.log(newUserData);
-  };
-
   const handleLike = () => {
     if (user && profileUsername && (user?.username != profileUsername)) {
       likeMutation.mutate({ profileUsername, viewer: user?.username, isLiked: userInfo.isLiked });

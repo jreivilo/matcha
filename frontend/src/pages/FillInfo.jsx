@@ -49,15 +49,6 @@ const FillInfo = () => {
           <PicGallery profileUsername={username} mainpic={displayUser?.picture_path} pics={displayUser?.pics}/>
           <ProfileForm username={username}/>
         </CardContent>
-        {(Object.keys(errors).length > 0 || submitError) && (
-          <CardFooter>
-            <Alert variant="destructive">
-              <AlertDescription>
-                {Object.values(errors)[0]?.message || submitError}
-              </AlertDescription>
-            </Alert>
-          </CardFooter>
-        )}
       </Card>
     </CustomLayout >
   );

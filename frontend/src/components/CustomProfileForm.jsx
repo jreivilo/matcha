@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getUserInfo } from "@/api";
 import { updateProfile } from "@/api"
+import { CardFooter, Alert, AlertDescription } from "@/components/ui/alert";
+
 
 const ProfileForm = ({ username, setIsEditMode }) => {
   const { register, handleSubmit, formState: { errors }, setValue } = useForm();
@@ -63,6 +65,11 @@ const ProfileForm = ({ username, setIsEditMode }) => {
   });
 
   const onSubmit = async (data) => {
+    // TODO: incorporate the comments below or remove // TODO
+    // e.preventDefault();
+    // const formData = new FormData(e.target);
+    // const newUserData = Object.fromEntries(formData.entries());
+    // update
     if (!sexuality) { setSexuality("Bisexual"); }
     console.log("coordinates: ", coordinates);
     let coords = coordinates;
@@ -87,7 +94,7 @@ const ProfileForm = ({ username, setIsEditMode }) => {
     };
     try {
       updateProfileMutation.mutate({ username, newUserData: profileData });
-      setIsEditMode(false);
+      // if (setIsEditMode) { setIsEditMode(false); }
     } catch (error) {
       console.error('Error submitting profile:', error);
     }
@@ -193,6 +200,15 @@ const ProfileForm = ({ username, setIsEditMode }) => {
       <Button type="submit" className="w-full">Submit</Button>
     </form>
     )
+    {(Object.keys(errors).length > 0 || submitError) && (
+      <CardFooter>
+        <Alert variant="destructive">
+          <AlertDescription>
+            {Object.values(errors)[0]?.message || submitError}
+          </AlertDescription>
+        </Alert>
+      </CardFooter>
+    )}
 };
 
 export default ProfileForm
