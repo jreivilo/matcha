@@ -59,7 +59,6 @@ const ProfileForm = ({ username, isInitialSetup = false, onSubmitComplete }) => 
   });
   
   const onSubmit = async (data) => {
-
     if (!sexuality) { setSexuality("Bisexual"); }
 
     const profileData = {
