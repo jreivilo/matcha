@@ -78,6 +78,11 @@ const ProfileForm = ({ username, isInitialSetup = false, onSubmitComplete }) => 
     }
   };
 
+  const handleCoordinatesChange = (e) => {
+    setCoordinates(e.target.value);
+    console.log("coordinates after handler: ", coordinates);
+  };
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <GenderSelector gender={gender} setGender={setGender} />

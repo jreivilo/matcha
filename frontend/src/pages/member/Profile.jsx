@@ -20,8 +20,6 @@ const ProfilePage = () => {
   
   const location = useLocation();
   const queryClient = useQueryClient();
-
-  const [isEditMode, setIsEditMode] = useState(false);
   
   const [isEditMode, setIsEditMode] = useState(false);
   
