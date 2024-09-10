@@ -18,8 +18,6 @@ const Login = () => {
       let apiUrl = isLogin
         ? `http://localhost:3000/user/login`
         : `http://localhost:3000/user/create-user`;
-
-      console.log(`onSubmitAuth: ${JSON.stringify(data)}`);
       const response = await fetch(apiUrl, {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},

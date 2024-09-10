@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useUser } from '@/components/UserProvider';
 import { useUserData } from '@/hooks/useUserData';
@@ -11,11 +11,14 @@ import { ThumbsUp, UserX, AlertTriangle } from "lucide-react";
 import CustomLayout from '@/components/MatchaLayout';
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { toggleLike, toggleBlock, markView } from "@/api"
+import ProfileForm from '@/components/CustomProfileForm';
 
 const ProfilePage = () => {
   const { user } = useUser();
   const location = useLocation();
   const queryClient = useQueryClient();
+
+  const [isEditMode, setIsEditMode] = useState(false);
   
   const profileUsername = useMemo(() => {
     const params = new URLSearchParams(location.search);
@@ -63,6 +66,14 @@ const ProfilePage = () => {
     }
   });
 
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const newUserData = Object.fromEntries(formData.entries());
+    update
+    console.log(newUserData);
+  };
+
   const handleLike = () => {
     if (user && profileUsername && (user?.username != profileUsername)) {
       likeMutation.mutate({ profileUsername, viewer: user?.username, isLiked: userInfo.isLiked });
@@ -86,7 +97,7 @@ const ProfilePage = () => {
   const isSelf = user?.username === profileUsername;
   const hasPics = displayUser?.pics?.length > 0;
   if (!displayUser?.viewed_by?.includes(user?.username) && !isSelf) {
-    markView({ profileUsername: params.get('username'), viewer: user?.username });
+    markView({ profileUsername: profileUsername, viewer: user?.username });
   }
 
   return (
@@ -104,7 +115,7 @@ const ProfilePage = () => {
               <PicGallery profileUsername={profileUsername} mainpic={displayUser?.picture_path} pics={displayUser?.pics}
               />}
           </div>
-
+          { (isEditMode && isSelf) ? <ProfileForm username={profileUsername} setIsEditMode={setIsEditMode}/> : (
           <div className="space-y-2">
             <p><strong>First Name:</strong> {displayUser?.first_name ?? ''}</p>
             <p><strong>Last Name:</strong> {displayUser?.last_name ?? ''}</p>
@@ -123,14 +134,17 @@ const ProfilePage = () => {
                 )) : <span></span>
               }
             </div>
-            <p> <strong>Fame Rating:</strong> {displayUser?.famerating ?? 'N/A'}</p>
+          </div>
+          )}
+          <div>
+            <p><strong>Fame Rating:</strong> {displayUser?.famerating ?? 'N/A'}</p>
             <p><strong>Last Online:</strong> {displayUser?.lastOnline ?? 'Unknown'}</p>
             <p><strong>Liked by:</strong> {displayUser?.liked_by ?? 'N/A'}</p>
             <p><strong>Blocked by:</strong> {displayUser?.blocked_by ?? 'N/A'}</p>
             <p><strong>Viewed by:</strong> {displayUser?.viewed_by ?? 'N/A'}</p>
           </div>
 
-          {!isSelf && (
+          {!isSelf ? (
             <div className="flex justify-between mt-4">
               <Button onClick={handleLike}
                 variant={isLiked ? "default" : "outline"}
@@ -146,6 +160,14 @@ const ProfilePage = () => {
               <Button onClick={handleReport} variant="outline">
                 <AlertTriangle className="mr-2 h-4 w-4" /> Report
               </Button>
+            </div>
+          ) : (
+            <div className="flex justify-between mt-4">
+              { !isEditMode &&
+                <Button onClick={() => setIsEditMode(true)} variant="outline">
+                  Edit Profile
+                </Button>
+              }
             </div>
           )}
         </CardContent>

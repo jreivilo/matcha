@@ -72,6 +72,11 @@ export const getUserInfo = async (username, viewer) => {
     }
 };
 
+export const updateProfile = async ({ profileUsername, viewer, newUserData }) => {
+    const apiUrl = `${API_URL}/user/profile`;
+    return fetcher(apiUrl, { username: viewer, ...newUserData }, 'POST');
+};
+
 export const toggleLike = async ({ profileUsername, viewer, isLiked }) => {
     if (profileUsername === viewer) {
         throw new Error('You cannot like yourself!');
