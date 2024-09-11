@@ -147,7 +147,7 @@ const ProfileForm = ({ username, isInitialSetup = false, onSubmitComplete }) => 
         <Textarea
           id="biography"
           defaultValue={biography}
-          {...register('biography', { required: 'Biography is required' })}
+          {...register('biography')}
           />
       </div>
 
