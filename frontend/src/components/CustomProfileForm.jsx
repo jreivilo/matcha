@@ -190,7 +190,7 @@ const ProfileForm = ({ username, isInitialSetup = false, onSubmitComplete }) => 
               <Input
                 id="coordinates"
                 defaultValue={coordinates}
-                {...register('coordinates', { required: 'Coordinates are required' })}
+                {...register('coordinates')}
                 />
               )}
           </div>
