@@ -16,6 +16,9 @@ const encodeImageAsBase64 = (file) => {
 const FileUpload = ({ username }) => {
   const queryClient = useQueryClient();
   const [selectedFile, setSelectedFile] = useState(null);
+  const [isEditMode, setIsEditMode] = useState(false);
+
+  
 
   const picsMutation = useMutation({
     mutationFn: uploadProfilePicture,
@@ -64,6 +67,8 @@ const FileUpload = ({ username }) => {
       }
     }
   }, [selectedFile, username, picsMutation]);
+
+
 
   return (
     <div className="flex flex-col items-center space-y-4">
