@@ -23,5 +23,3 @@ Run the init script in test to generate user data
 $ cd test
 $ ./init_basic_user.sh
 ```
-
-Please
