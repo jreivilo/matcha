@@ -1,5 +1,7 @@
 'use strict';
 
+const { verifyJWT } = require('../../utils');
+
 module.exports = async function (fastify, opts) {
   fastify.route({
     url: '/unblock',
@@ -44,6 +46,7 @@ module.exports = async function (fastify, opts) {
         }
       }
     },
+    preHandler: verifyJWT,
     handler: async (request, reply) => {
       const { username, blocked_username } = request.body;
       const connection = await fastify.mysql.getConnection();

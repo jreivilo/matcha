@@ -1,5 +1,7 @@
 'use strict';
 
+const { verifyJWT } = require('../../utils');
+
 module.exports = async function (fastify, opts) {
   fastify.route({
     url: '/profile',
@@ -44,6 +46,7 @@ module.exports = async function (fastify, opts) {
         }
       }
     },
+    preHandler: verifyJWT,
     handler: async (request, reply) => {
       const { username, gender, sexuality, biography, interests, coordinates } = request.body;
       const connection = await fastify.mysql.getConnection();

@@ -1,6 +1,7 @@
 'use strict';
 
 const argon2 = require('argon2');
+const { verifyJWT } = require('../../utils');
 
 module.exports = async function (fastify, opts) {
   fastify.route({
@@ -63,6 +64,7 @@ module.exports = async function (fastify, opts) {
         }
       }
     },
+	  preHandler: verifyJWT,
     handler: async (request, reply) => {
       const { username } = request.body;
       const connection = await fastify.mysql.getConnection();
