@@ -1,6 +1,7 @@
 'use strict';
 
 const argon2 = require('argon2');
+const { generateJwt } = require('../../utils');
 
 module.exports = async function (fastify, opts) {
   fastify.route({
@@ -67,13 +68,20 @@ module.exports = async function (fastify, opts) {
 			});
 			return;
 			}
-			//TODO generate jwt token and send it back
-			console.log('success');
+
+			reply.setCookie('jwt', generateJwt(user[0].username), {
+				httpOnly: true,
+				secure: true,
+				sameSite: 'strict',
+				path: '/',
+				maxAge: 3600 // one hour
+			});
+
 			reply.code(200).send({
 				id: user[0].id,
 				code: 'USER_SUCCESS',
 				username: user[0].username,
-				token: 'blablabla',
+				// "Set-Cookie": `token=${token}; HttpOnly; Path=/`,
 				success: true
 			});
 			connection.release();

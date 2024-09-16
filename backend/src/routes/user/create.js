@@ -3,6 +3,7 @@
 const argon2 = require('argon2');
 const { Recipient, Sender, EmailParams, MailerSend } = require("mailersend");
 const { v4: uuidv4 } = require('uuid');
+const { generateJwt } = require('../../utils');
 
 module.exports = async function (fastify, opts) {
   fastify.route({
@@ -122,6 +123,14 @@ module.exports = async function (fastify, opts) {
           //   message: 'An error occurred while sending the verification email'
           // });
         }
+
+        reply.setCookie('jwt', generateJwt(username), {
+          httpOnly: true,
+          secure: true,
+          sameSite: 'strict',
+          path: '/',
+          maxAge: 3600 // one hour
+        });
 
         return reply.code(201).send({
           success: true,
