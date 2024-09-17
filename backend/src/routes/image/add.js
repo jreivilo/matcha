@@ -6,6 +6,8 @@ const fileType = require('file-type'); // Ensure this package is installed
 
 const writeFileAsync = require('util').promisify(fs.writeFile);
 
+const { verifyJWT } = require('../../utils');
+
 module.exports = async function (fastify, opts) {
   fastify.route({
     url: '/add',
@@ -42,6 +44,7 @@ module.exports = async function (fastify, opts) {
         }
       }
     },
+    preHandler: verifyJWT,
     handler: async (request, reply) => {
       const { username, file } = request.body;
 	  const connection = await fastify.mysql.getConnection();

@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { verifyJWT } = require('../../utils');
 
 module.exports = async function (fastify, opts) {
   fastify.route({
@@ -40,6 +41,7 @@ module.exports = async function (fastify, opts) {
         }
       }
     },
+    preHandler: verifyJWT,
     handler: async (request, reply) => {
       const { username } = request.body; // Changed to request.body
 
