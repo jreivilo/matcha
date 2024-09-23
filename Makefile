@@ -14,6 +14,12 @@ updetached:
 down:
 	docker-compose down
 
+stop:
+	docker-compose stop
+
+list:
+	docker-compose ps
+
 ### Clean up commands ###
 stop-docker:
 	docker stop $$(docker ps -aq)
