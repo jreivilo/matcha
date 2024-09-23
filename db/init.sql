@@ -29,10 +29,11 @@ CREATE TABLE user (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create table of unique interests
-CREATE TABLE interests (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    interest VARCHAR(100) NOT NULL UNIQUE
+CREATE TABLE user_interests (
+    user_id INT NOT NULL,
+    interest VARCHAR(100) NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
+    PRIMARY KEY (user_id, interest)
 );
 
 -- Create user verification table if needed
