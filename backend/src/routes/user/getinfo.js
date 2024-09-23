@@ -9,7 +9,7 @@ module.exports = async function (fastify, opts) {
     method: ['POST'],
     schema: {
       summary: 'Get user info',
-      description: 'Return specific user info',
+      description: 'Return specific user info including interests',
       tags: ['User'],
       body: {
         type: 'object',
@@ -33,7 +33,10 @@ module.exports = async function (fastify, opts) {
                 gender: { type: 'string' },
                 sexuality: { type: 'string' },
                 biography: { type: 'string' },
-                interests: { type: 'string' },
+                interests: { 
+                  type: 'array',
+                  items: { type: 'string' }
+                },
                 coordinates: { type: 'string' },
                 famerating: { type: 'integer' },
                 picturecount: { type: 'integer' },
@@ -72,8 +75,8 @@ module.exports = async function (fastify, opts) {
       try {
         // Query the specific user information based on the username
         const [userRows] = await connection.query(
-          `SELECT email, first_name, last_name, gender, sexuality, biography, 
-                  interests, coordinates, famerating, picturecount, picture_path,
+          `SELECT id, email, first_name, last_name, gender, sexuality, biography, 
+                  coordinates, famerating, picturecount, picture_path,
                   profile_completed, active, verified 
            FROM user WHERE username = ?`,
           [username]
@@ -89,6 +92,14 @@ module.exports = async function (fastify, opts) {
         
         const user = userRows[0];
         
+        // Query the user's interests from the user_interests table
+        const [interestRows] = await connection.query(
+          `SELECT interest FROM user_interests WHERE user_id = ?`,
+          [user.id]
+        );
+        
+        const interests = interestRows.map(row => row.interest);
+
         // Send the specific user information
         reply.code(200).send({
           exists: true,
@@ -99,11 +110,11 @@ module.exports = async function (fastify, opts) {
             gender: user.gender,
             sexuality: user.sexuality,
             biography: user.biography,
-            interests: user.interests,
+            interests: interests,
             coordinates: user.coordinates,
             famerating: user.famerating,
             picturecount: user.picturecount,
-			      picture_path: user.picture_path,
+			picture_path: user.picture_path,
             profile_completed: user.profile_completed,
             active: user.active,
             verified: user.verified
