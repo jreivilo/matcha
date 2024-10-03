@@ -33,7 +33,9 @@ const ProfileForm = ({ username, isInitialSetup = false, onSubmitComplete }) => 
       setGender(userinfo.displayUser.gender);
       setSexuality(userinfo.displayUser.sexuality);
       setBiography(userinfo.displayUser.biography);
-      setInterests(userinfo.displayUser.interests.split(','));
+      if (userinfo.displayUser.interests.length > 0) {
+        setInterests(userinfo.displayUser.interests.split(','));
+      } else { setInterests([]); }
       if (!isInitialSetup) {
         setCoordinates(userinfo.displayUser.coordinates || "");
       }

@@ -36,7 +36,9 @@ export const getUserInfo = async (username, viewer) => {
 
     try {
         const userResponse = await fetcher(`${API_URL}/user/getinfo`, { username }, 'POST');
-        userInfo = { displayUser: userResponse.user };
+        if (!userResponse.code) {
+            userInfo = { displayUser: userResponse.user };
+        }
 
         const picResponse = await fetcher(`${API_URL}/image/get`, { username }, 'POST');
         if (!picResponse.code) {

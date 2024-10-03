@@ -121,12 +121,12 @@ const ProfilePage = () => {
 
             <div>
               <strong>Interests:</strong> 
-              {displayUser?.interests ? 
-                displayUser.interests.split(',').map(interest => (
+              {displayUser?.interests &&
+                displayUser.interests.map(interest => (
                   <Badge key={interest} variant="secondary" className="mr-1">
                     {interest.trim()}
                   </Badge>
-                )) : <span></span>
+                ))
               }
             </div>
           </div>

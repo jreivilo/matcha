@@ -27,7 +27,7 @@ const Header = () => {
         </h1>
         <nav className="flex items-center">
           {!username ? (
-            <Button variant="outline" className="mr-2 text-text-light">
+            <Button variant="default" className="mr-2 text-text-light">
               <Link to="/login">Login/Register</Link>
             </Button>
           ) : (
