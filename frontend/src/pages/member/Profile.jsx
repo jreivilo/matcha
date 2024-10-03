@@ -121,8 +121,8 @@ const ProfilePage = () => {
 
             <div>
               <strong>Interests:</strong> 
-              {displayUser?.interests &&
-                displayUser.interests.map(interest => (
+              {displayUser?.interests?.length > 0 &&
+                displayUser.interests.split(',').map(interest => (
                   <Badge key={interest} variant="secondary" className="mr-1">
                     {interest.trim()}
                   </Badge>
