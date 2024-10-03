@@ -25,7 +25,7 @@ $ ./init_basic_user.sh
 
 ## How to reset the database schema quickly
 - Connect to adminer (go at localhost:8080)
-  - credentials (server: matcha-db, username: myappuser, db: myappdb)
-  - select all tables, click drop (now there is nothing at all, no data and no schema)
-  - click import on the upper left, upload the init.sql file from the repo (at db/init.sql)
-  - click execute and you're done
+- credentials (server: matcha-db, username: myappuser, db: myappdb)
+- select all tables, click drop (now there is nothing at all, no data and no schema)
+- click import on the upper left, upload the init.sql file from the repo (at db/init.sql)
+- click execute and you're done
