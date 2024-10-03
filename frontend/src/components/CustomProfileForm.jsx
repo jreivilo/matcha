@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getUserInfo } from "@/api";
 import { updateProfile } from "@/api"
+import { useGeoLocation } from "@/hooks/useGeoLocation";
 
 const ProfileForm = ({ username, isInitialSetup = false, onSubmitComplete }) => {
   const { register, handleSubmit, formState: { errors }, setValue } = useForm();
@@ -17,8 +18,6 @@ const ProfileForm = ({ username, isInitialSetup = false, onSubmitComplete }) => 
   const [gender, setGender] = useState("");
   const [sexuality, setSexuality] = useState("");
   const [biography, setBiography] = useState("");
-  const [coordinates, setCoordinates] = useState("");
-  const [isLoadingCoordinates, setIsLoadingCoordinates] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -27,6 +26,8 @@ const ProfileForm = ({ username, isInitialSetup = false, onSubmitComplete }) => 
     queryFn: () => getUserInfo(username, username),
     enabled: !!(username.length > 0) && !isInitialSetup,
   });
+
+  const { coordinates, isLoadingCoordinates, setCoordinates } = useGeoLocation(isInitialSetup);
 
   useEffect(() => {
     if (userinfo) {
@@ -38,32 +39,11 @@ const ProfileForm = ({ username, isInitialSetup = false, onSubmitComplete }) => 
       } else { setInterests([]); }
       if (!isInitialSetup) {
         setCoordinates(userinfo.displayUser.coordinates || "");
+      } else {
+
       }
     }
   }, [userinfo, isInitialSetup, setValue]);
-
-  useEffect(() => {
-    if (isInitialSetup && !coordinates) {
-      setIsLoadingCoordinates(true);
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setCoordinates(`${position.coords.latitude}, ${position.coords.longitude}`);
-          setIsLoadingCoordinates(false);
-        },
-        async (error) => {
-          console.error('Error retrieving location:', error);
-          try {
-            const response = await fetch("http://ip-api.com/json");
-            const geoData = await response.json();
-            setCoordinates(`${geoData.lat}, ${geoData.lon}`);
-          } catch (ipError) {
-            console.error('Error fetching geo info:', ipError);
-          }
-          setIsLoadingCoordinates(false);
-        }
-      );
-    }
-  }, [isInitialSetup, coordinates]);
 
   const updateProfileMutation = useMutation({
     mutationFn: updateProfile,
