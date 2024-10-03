@@ -4,7 +4,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
+import GenderSelector from "@/components/form/genderselector";
+import SexualitySelector from "@/components/form/sexualityselector";
+import InterestSelector from "@/components/form/interestselector";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getUserInfo } from "@/api";
 import { updateProfile } from "@/api"
@@ -51,7 +53,7 @@ const ProfileForm = ({ username, isInitialSetup = false, onSubmitComplete }) => 
       queryClient.invalidateQueries(['userData', username, username]);
     }
   });
-
+  
   const onSubmit = async (data) => {
 
     if (!sexuality) { setSexuality("Bisexual"); }
@@ -72,57 +74,12 @@ const ProfileForm = ({ username, isInitialSetup = false, onSubmitComplete }) => 
       console.error('Error submitting profile:', error);
     }
   };
-  
-  const handleInterestAdd = (e) => {
-    e.preventDefault();
-    if (newInterest && !interests.includes(newInterest)) {
-      setInterests([...interests, newInterest]);
-      setNewInterest('');
-    }
-  };
-
-  const removeInterest = (index) => {
-    setInterests(interests.filter((_, i) => i !== index));
-  };
-
-  const handleCoordinatesChange = (e) => {
-    setCoordinates(e.target.value);
-    console.log("coordinates after handler: ", coordinates);
-  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <div className="space-y-2">
-        <Label>Gender</Label>
-        <div className="flex space-x-2">
-          {['Male', 'Female', 'Other'].map((option) => (
-            <Button
-              key={option}
-              type="button"
-              variant={gender === option ? "default" : "outline"}
-              onClick={() => setGender(option)}
-            >
-              {option}
-            </Button>
-          ))}
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label>Sexuality</Label>
-        <div className="flex space-x-2">
-          {['Straight', 'Gay', 'Bisexual'].map((option) => (
-            <Button
-              key={option}
-              type="button"
-              variant={sexuality === option ? "default" : "outline"}
-              onClick={() => setSexuality(option)}
-            >
-              {option}
-            </Button>
-          ))}
-        </div>
-      </div>
+      <GenderSelector gender={gender} setGender={setGender} />
+      <SexualitySelector sexuality={sexuality} setSexuality={setSexuality} />
+      <InterestSelector interests={interests} />
 
       <div className="space-y-2">
         <Label htmlFor="biography">Biography</Label>
@@ -133,51 +90,20 @@ const ProfileForm = ({ username, isInitialSetup = false, onSubmitComplete }) => 
           />
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="interests">Interests</Label>
-        <div className="flex space-x-2">
-          <Input
-            id="interests"
-            value={newInterest}
-            onChange={(e) => setNewInterest(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                handleInterestAdd(e);
-              }
-            }}
-            placeholder="Add an interest"
-          />
-          <Button type="button" onClick={handleInterestAdd}>Add</Button>
+      {!isInitialSetup && (
+        <div className="space-y-2">
+          <Label htmlFor="coordinates">Coordinates</Label>
+          {isLoadingCoordinates ? (
+            <div>Loading coordinates...</div>
+          ) : (
+            <Input
+              id="coordinates"
+              defaultValue={coordinates}
+              {...register('coordinates')}
+              />
+            )}
         </div>
-        <div className="flex flex-wrap gap-2 mt-2">
-          {interests.map((interest, index) => (
-            <Badge
-              key={index}
-              variant="secondary"
-              className="cursor-pointer"
-              onClick={() => removeInterest(index)}
-            >
-              {interest} ×
-            </Badge>
-          ))}
-        </div>
-
-        {!isInitialSetup && (
-          <div className="space-y-2">
-            <Label htmlFor="coordinates">Coordinates</Label>
-            {isLoadingCoordinates ? (
-              <div>Loading coordinates...</div>
-            ) : (
-              <Input
-                id="coordinates"
-                defaultValue={coordinates}
-                {...register('coordinates')}
-                />
-              )}
-          </div>
-        )}
-    </div>
+      )}
     <Button type="submit" className="w-full">
       {isInitialSetup ? "Complete Profile" : "Save Changes"}
     </Button>
