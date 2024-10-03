@@ -36,5 +36,8 @@
     "file-type": "^16.5.4",
     "mailersend": "^2.2.0",
     "uuidv4": "^6.2.13"
+  },
+  "devDependencies": {
+    "@fastify/cookie": "^9.4.0"
   }
 }

@@ -12,12 +12,15 @@ import CustomLayout from '@/components/MatchaLayout';
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { toggleLike, toggleBlock, markView } from "@/api"
 import ProfileForm from '@/components/CustomProfileForm';
+import { useRedirectIfLoggedOut } from '@/hooks/useRedirectLogout'
 
 const ProfilePage = () => {
   const { user } = useUser();
+  useRedirectIfLoggedOut();
+  
   const location = useLocation();
   const queryClient = useQueryClient();
-
+  
   const [isEditMode, setIsEditMode] = useState(false);
   
   const profileUsername = useMemo(() => {
@@ -118,12 +121,12 @@ const ProfilePage = () => {
 
             <div>
               <strong>Interests:</strong> 
-              {displayUser?.interests ? 
+              {displayUser?.interests?.length > 0 &&
                 displayUser.interests.split(',').map(interest => (
                   <Badge key={interest} variant="secondary" className="mr-1">
                     {interest.trim()}
                   </Badge>
-                )) : <span></span>
+                ))
               }
             </div>
           </div>

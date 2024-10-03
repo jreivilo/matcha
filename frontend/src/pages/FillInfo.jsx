@@ -1,18 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import CustomLayout from "../components/MatchaLayout";
 import { useLocation, useNavigate } from "react-router-dom";
 import PicGallery from '@/components/PicGallery';
 import { useQuery} from '@tanstack/react-query';
 import { getUserInfo } from '@/api';
-import { fetcher } from '@/api';
 import ProfileForm from '@/components/CustomProfileForm';
 
 const FillInfo = () => {
@@ -47,7 +39,7 @@ const FillInfo = () => {
         </CardHeader>
         <CardContent>
           <PicGallery profileUsername={username} mainpic={displayUser?.picture_path} pics={displayUser?.pics}/>
-          <ProfileForm username={username} onSubmitComplete={ () => navigate('/member/dashboard') }/>
+          <ProfileForm username={username} isInitialSetup={true} onSubmitComplete={ () => navigate('/member/dashboard') }/>
         </CardContent>
       </Card>
     </CustomLayout >

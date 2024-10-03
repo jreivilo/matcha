@@ -16,7 +16,7 @@ function App() {
         <Route path="/fill-profile" element={<FillInfo />} />
         <Route path="/member/dashboard" element={<Dashboard />} />
         <Route path="/member/profile" element={<ProfilePage />} />
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );
