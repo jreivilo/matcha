@@ -11,7 +11,7 @@ import CustomLayout from '@/components/MatchaLayout';
 import { markView } from "@/api"
 import ProfileForm from '@/components/CustomProfileForm';
 import { useRedirectIfLoggedOut } from '@/hooks/useRedirectLogout'
-import { Interaction } from '@/components/Interaction';
+import { InteractionMenu } from '@/components/Interaction';
 
 const ProfilePage = () => {
   const { user } = useUser();
@@ -91,7 +91,7 @@ const ProfilePage = () => {
             }
           </div>
           ) : (
-            <Interaction profileUsername={profileUsername} user={user}/>
+            <InteractionMenu profileUsername={profileUsername} user={user}/>
           )}
         </CardContent>
       </Card>
