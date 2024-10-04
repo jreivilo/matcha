@@ -114,6 +114,7 @@ const ProfilePage = () => {
           <div className="space-y-2">
             <p><strong>First Name:</strong> {displayUser?.first_name ?? ''}</p>
             <p><strong>Last Name:</strong> {displayUser?.last_name ?? ''}</p>
+            {isSelf && <p><strong>Email:</strong> {displayUser?.email ?? ''}</p>}
             <p><strong>Gender:</strong> {displayUser?.gender ?? ''}</p>
             <p><strong>Sexuality:</strong> {displayUser?.sexuality ?? ''}</p>
             <p><strong>Biography:</strong> {displayUser?.biography ?? ''}</p>

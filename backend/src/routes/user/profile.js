@@ -12,9 +12,10 @@ module.exports = async function (fastify, opts) {
       tags: ['User'],
       body: {
         type: 'object',
-        required: ['username', 'gender', 'biography', 'sexuality', 'interests', 'coordinates'],
+        required: ['username', 'email', 'gender', 'sexuality', 'biography', 'interests', 'coordinates'],
         properties: {
           username: { type: 'string', description: 'Username of the user' },
+          email: { type: 'string', description: 'User email' },
           gender: { type: 'string', description: 'User gender' },
           sexuality: { type: 'string', description: 'User sexuality' },
           biography: { type: 'string', description: 'User biography' },
@@ -29,6 +30,7 @@ module.exports = async function (fastify, opts) {
           properties: {
             id: { type: 'number' },
             username: { type: 'string' },
+            email: { type: 'string' },
             gender: { type: 'string' },
             sexuality: { type: 'string' },
             biography: { type: 'string' },
@@ -48,7 +50,7 @@ module.exports = async function (fastify, opts) {
     },
     preHandler: verifyJWT,
     handler: async (request, reply) => {
-      const { username, gender, sexuality, biography, interests, coordinates } = request.body;
+      const { username, email, gender, sexuality, biography, interests, coordinates } = request.body;
       const connection = await fastify.mysql.getConnection();
 
       try {
@@ -66,14 +68,15 @@ module.exports = async function (fastify, opts) {
         }
 
         await connection.query(
-          'UPDATE user SET gender = ?, sexuality = ?, biography = ?, interests = ?, coordinates = ? WHERE username = ?',
-          [gender, sexuality, biography, interests, coordinates, username]
+          'UPDATE user SET email = ?, gender = ?, sexuality = ?, biography = ?, interests = ?, coordinates = ? WHERE username = ?',
+          [email, gender, sexuality, biography, interests, coordinates, username]
         );
         fastify.log.info("Profile updated successfully");
 
         reply.code(201).send({
           insertId: user[0].id,
           username,
+          email,
           gender,
           sexuality,
           biography,
