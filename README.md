@@ -17,9 +17,15 @@ v20.14.0
 - to check backend routes and test them, localhost:3000/docs
 - to enter a container, for example frontend, run `docker exec -it matcha-frontend sh` and you'll have a shell within the container
 
-
 Run the init script in test to generate user data
 ```bash
 $ cd test
 $ ./init_basic_user.sh
 ```
+
+## How to reset the database schema quickly
+- Connect to adminer (go at localhost:8080)
+- credentials (server: matcha-db, username: myappuser, db: myappdb)
+- select all tables, click drop (now there is nothing at all, no data and no schema)
+- click import on the upper left, upload the init.sql file from the repo (at db/init.sql)
+- click execute and you're done
