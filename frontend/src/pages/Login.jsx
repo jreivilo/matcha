@@ -38,8 +38,11 @@ const Login = () => {
         setError('root.serverError', { type: 400, message: 'Username does not exist' });
       else if (responseData.code === 'INVALID_PASSWORD')
         setError('root.serverError', { type: 400,message: 'Invalid password' });
-      else
+      else if (responseData.message === "Email or Username already exists")
+        setError('root.serverError', { type: 400, message: 'User or email already exists' });
+      else {
         setError('root.serverError', { type: 400, message: 'An error occurred while authenticating' });
+      }
     } catch (error) {
       console.error('Authentication error:', error);
     }

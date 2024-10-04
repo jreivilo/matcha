@@ -110,7 +110,7 @@ const ProfilePage = () => {
               <PicGallery profileUsername={profileUsername} mainpic={displayUser?.picture_path} pics={displayUser?.pics}
               />}
           </div>
-          { (isEditMode && isSelf) ? <ProfileForm username={profileUsername} onSubmitComplete={() => setIsEditMode(false)}/> : (
+          { (isEditMode && isSelf) ? <ProfileForm username={profileUsername} isInitialSetup={false} onSubmitComplete={() => setIsEditMode(false)}/> : (
           <div className="space-y-2">
             <p><strong>First Name:</strong> {displayUser?.first_name ?? ''}</p>
             <p><strong>Last Name:</strong> {displayUser?.last_name ?? ''}</p>
