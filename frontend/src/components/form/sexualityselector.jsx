@@ -1,4 +1,7 @@
-export const SexualitySelector = ({ sexuality, setSexuality }) => (
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+
+const SexualitySelector = ({ sexuality, setSexuality }) => (
     <div className="space-y-2">
         <Label>Sexuality</Label>
         <div className="flex space-x-2">
@@ -15,3 +18,5 @@ export const SexualitySelector = ({ sexuality, setSexuality }) => (
         </div>
     </div>
 );
+
+export default SexualitySelector;

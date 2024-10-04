@@ -1,8 +1,11 @@
+import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
 
-const InterestSelector = ({ interests, setInterests, newInterest, setNewInterest, handleInterestAdd, removeInterest }) => {
+const InterestSelector = ({ interests, setInterests, newInterest, setNewInterest }) => {
+
     const handleInterestAdd = (e) => {
         e.preventDefault();
         if (newInterest && !interests.includes(newInterest)) {

@@ -1,3 +1,6 @@
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+
 const GenderSelector = ({ gender, setGender }) => (
     <div className="space-y-2">
         <Label>Gender</Label>

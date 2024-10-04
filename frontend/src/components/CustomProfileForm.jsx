@@ -79,7 +79,7 @@ const ProfileForm = ({ username, isInitialSetup = false, onSubmitComplete }) => 
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <GenderSelector gender={gender} setGender={setGender} />
       <SexualitySelector sexuality={sexuality} setSexuality={setSexuality} />
-      <InterestSelector interests={interests} />
+      <InterestSelector interests={interests} setInterests={setInterests} newInterest={newInterest} setNewInterest={setNewInterest} />
 
       <div className="space-y-2">
         <Label htmlFor="biography">Biography</Label>
