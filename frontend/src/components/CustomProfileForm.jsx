@@ -109,15 +109,11 @@ const ProfileForm = ({ username, isInitialSetup = false, onSubmitComplete }) => 
           </div>
           <div className="space-y-2">
             <Label htmlFor="coordinates">Coordinates</Label>
-            {isLoadingCoordinates ? (
-              <div>Loading coordinates...</div>
-            ) : (
-              <Input
-                id="coordinates"
-                defaultValue={userinfo?.displayUser?.coordinates}
-                {...register('coordinates')}
-                />
-            )}
+            <Input
+              id="coordinates"
+              defaultValue={userinfo?.displayUser?.coordinates}
+              {...register('coordinates')}
+              />
           </div>
         </div>
       )}
