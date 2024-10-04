@@ -14,12 +14,11 @@ import { useGeoLocation } from "@/hooks/useGeoLocation";
 
 const ProfileForm = ({ username, isInitialSetup = false, onSubmitComplete }) => {
   const { register, handleSubmit, formState: { errors }, setValue } = useForm();
-  const [interests, setInterests] = useState([]);
   const [submitError, setSubmitError] = useState("");
+  const [interests, setInterests] = useState([]);
   const [newInterest, setNewInterest] = useState("");
   const [gender, setGender] = useState("");
   const [sexuality, setSexuality] = useState("");
-  const [biography, setBiography] = useState("");
 
   const queryClient = useQueryClient();
 
@@ -39,7 +38,6 @@ const ProfileForm = ({ username, isInitialSetup = false, onSubmitComplete }) => 
     if (userinfo) {
       setGender(userinfo.displayUser.gender);
       setSexuality(userinfo.displayUser.sexuality);
-      setBiography(userinfo.displayUser.biography);
       if (userinfo.displayUser.interests.length > 0) {
         setInterests(userinfo.displayUser.interests.split(','));
       } else { setInterests([]); }
@@ -62,12 +60,13 @@ const ProfileForm = ({ username, isInitialSetup = false, onSubmitComplete }) => 
     if (!sexuality) { setSexuality("Bisexual"); }
 
     const profileData = {
+      username,
+      email: data.email ? data.email : userinfo?.displayUser?.email,
       interests: interests.join(',') || "",
       gender,
       sexuality,
-      username,
       coordinates: data.coordinates ? data.coordinates : coordinates,
-      biography: data.biography ? data.biography : biography,
+      biography: data.biography ? data.biography : userinfo?.displayUser?.biography,
     };
 
     try {
@@ -93,25 +92,36 @@ const ProfileForm = ({ username, isInitialSetup = false, onSubmitComplete }) => 
         <Label htmlFor="biography">Biography</Label>
         <Textarea
           id="biography"
-          defaultValue={biography}
+          defaultValue={userinfo?.displayUser?.biography}
           {...register('biography')}
           />
       </div>
 
       {!isInitialSetup && (
-        <div className="space-y-2">
-          <Label htmlFor="coordinates">Coordinates</Label>
-          {isLoadingCoordinates ? (
-            <div>Loading coordinates...</div>
-          ) : (
+        <div>
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
             <Input
-              id="coordinates"
-              defaultValue={userinfo?.displayUser?.coordinates}
-              {...register('coordinates')}
+              id="email"
+              defaultValue={userinfo?.displayUser?.email}
+              {...register('email')}
               />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="coordinates">Coordinates</Label>
+            {isLoadingCoordinates ? (
+              <div>Loading coordinates...</div>
+            ) : (
+              <Input
+                id="coordinates"
+                defaultValue={userinfo?.displayUser?.coordinates}
+                {...register('coordinates')}
+                />
             )}
+          </div>
         </div>
       )}
+
     <Button type="submit" className="w-full">
       {isInitialSetup ? "Complete Profile" : "Save Changes"}
     </Button>
