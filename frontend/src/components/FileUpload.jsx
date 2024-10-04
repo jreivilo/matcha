@@ -17,8 +17,7 @@ const FileUpload = ({ username }) => {
   const queryClient = useQueryClient();
   const [selectedFile, setSelectedFile] = useState(null);
   const [isEditMode, setIsEditMode] = useState(false);
-
-  
+  const [error, setError] = useState(null);
 
   const picsMutation = useMutation({
     mutationFn: uploadProfilePicture,
@@ -39,6 +38,8 @@ const FileUpload = ({ username }) => {
     },
     onError: (err, variables, context) => {
       queryClient.setQueryData(['userData', variables.username, variables.username], context.previousUserInfo);
+      setError(err.message);
+      console.log("upload err", error)
       console.error("Upload error:", err);
     },
     onSettled: (data, error, { username }) => {
@@ -48,6 +49,7 @@ const FileUpload = ({ username }) => {
   });
 
   const handleFileChange = useCallback((event) => {
+    setError(null);
     const file = event.target.files[0];
     if (file && file.type.startsWith('image/')) {
       setSelectedFile(file);
@@ -72,6 +74,11 @@ const FileUpload = ({ username }) => {
 
   return (
     <div className="flex flex-col items-center space-y-4">
+      {error && (
+        <div className="text-red-500 bg-black p-2 rounded-lg">
+          {error}
+        </div>
+      )}
       <Input 
         type="file" 
         onChange={handleFileChange} 
