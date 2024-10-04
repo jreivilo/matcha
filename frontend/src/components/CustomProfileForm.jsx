@@ -31,6 +31,10 @@ const ProfileForm = ({ username, isInitialSetup = false, onSubmitComplete }) => 
 
   const { coordinates, isLoadingCoordinates, setCoordinates } = useGeoLocation(isInitialSetup);
 
+  useEffect(() => { 
+    if (!isInitialSetup) { setCoordinates(userinfo?.displayUser?.coordinates || ""); }
+  }, [userinfo, isInitialSetup, setCoordinates]);
+
   useEffect(() => {
     if (userinfo) {
       setGender(userinfo.displayUser.gender);
@@ -98,7 +102,7 @@ const ProfileForm = ({ username, isInitialSetup = false, onSubmitComplete }) => 
           ) : (
             <Input
               id="coordinates"
-              defaultValue={coordinates}
+              defaultValue={userinfo?.displayUser?.coordinates}
               {...register('coordinates')}
               />
             )}

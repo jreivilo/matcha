@@ -23,7 +23,7 @@ export const useGeoLocation = (isInitialSetup) => {
           setIsLoadingCoordinates(false);
         }
       );
-  }, [isInitialSetup]);
+  }, [isInitialSetup == true]);
 
   return { coordinates, isLoadingCoordinates, setCoordinates };
 };
