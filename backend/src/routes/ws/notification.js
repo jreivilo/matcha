@@ -1,67 +1,87 @@
 const fastify = require('fastify')();
 const WebSocket = require('ws');
+const userConnections = new Map();
 
-const wss = new WebSocket.Server({ server: fastify.server });
-const userConnections = {};
-
-wss.on('connection', (ws) => {
-  console.log('Client connected');
-
-  ws.on('message', (message) => {
-    console.log(`Received message: ${message}`);
-    const { type, userId } = JSON.parse(message);
-    if (type === 'IDENTIFY') {
-      userConnections[userId] = ws;
-      ws.userId = userId
-    } else {
-      
+fastify.get('/ws', { websocket: true }, async (connection, req) => {
+  const userId = req.cookies.userId;
+  if (userId) {
+    userConnections.set(userId, connection);
+    try {
+      const unreadNotifications = await db.query('SELECT * FROM notifications WHERE user_id = ? AND read_status = 0', [userId]);
+      connection.socket.send(JSON.stringify({
+        type: 'NOTIFICATIONS',
+        notifications: unreadNotifications
+      }));
+    } catch (error) {
+      console.error('Error fetching unread notifications:', error);
     }
-  });
-
-  ws.on('error', (error) => {
-    console.log(`Error occurred: ${error}`);
-  });
-
-  ws.on('close', () => {
-    Object.keys(userConnections).forEach((userId) => {
-      if (userConnections[userId] === ws) {
-        delete userConnections[userId];
-      }
+    connection.socket.on('close', () => {
+      userConnections.delete(userId);
     });
-    console.log('Client disconnected');
-  });
-});
-
-const sendNotifications = (recipient, notifications) => {
-  recipient.send(JSON.stringify({ type: 'NOTIFICATIONS', notifications }));
-};
-
-fastify.get('/notifications', async (request, reply) => {
-  const notifications = await db.query('SELECT * FROM notifications WHERE read_status = 0');
-  return notifications;
+  }
 });
 
 fastify.post('/notifications', async (request, reply) => {
-  const { notification } = request.body;
-  await db.query(`INSERT INTO notifications (content, timestamp, read_status) VALUES (?, ?, 0)`, [notification.content, notification.timestamp]);
-  // Send a notification to all connected clients
-  wss.clients.forEach((client) => {
-    if (client.readyState === WebSocket.OPEN) {
-      client.send(JSON.stringify({ type: 'NEW_NOTIFICATION', notification }));
+  const { type, authorId, targetId, content } = request.body;
+  try {
+    const result = await db.query(
+      'INSERT INTO notifications (type, author_id, target_id, content, timestamp, read_status) VALUES (?, ?, ?, ?, NOW(), 0)',
+      [type, authorId, targetId, content]
+    );
+    const newNotificationId = result.insertId;
+    
+    const userIds = type === 'MATCH' ? [authorId, targetId] : [targetId];
+    
+    for (const userId of userIds) {
+      const userConnection = userConnections.get(userId);
+      if (userConnection) {
+        userConnection.socket.send(JSON.stringify({
+          type: 'NEW_NOTIFICATION',
+          notification: {
+            id: newNotificationId,
+            type,
+            author: { id: authorId },
+            target: { id: targetId },
+            content,
+            timestamp: new Date(),
+            read_status: 0
+          }
+        }));
+      }
     }
-  });
-  return { message: 'Notification created successfully' };
+    
+    return { success: true, id: newNotificationId };
+  } catch (error) {
+    console.error('Error creating notification:', error);
+    reply.status(500).send({ success: false, error: 'Internal Server Error' });
+  }
 });
 
-fastify.put('/notifications/:id', async (request, reply) => {
-  const { id } = request.params;
-  const { read_status } = request.body;
-  await db.query(`UPDATE notifications SET read_status = ? WHERE id = ?`, [read_status, id]);
-  // Send a notification to all connected clients
-  wss.clients.forEach((client) => {
-    if (client.readyState === WebSocket.OPEN) {
-      client.send(JSON.stringify({ type: 'UPDATE_NOTIFICATION', id, read_status }));
-    }
-  });
-  return { message: 'Notification updated successfully' };
+fastify.put('/notifications/read', async (request, reply) => {
+  const { userId, notificationIds } = request.body;
+  const splitIds = notificationIds.split(',');
+  try {
+    await db.query(
+      'UPDATE notifications SET read_status = 1 WHERE id IN (?) AND user_id = ?',
+      [splitIds, userId]
+    );
+    return { success: true };
+  } catch (error) {
+    console.error('Error marking notifications as read:', error);
+    reply.status(500).send({ success: false, error: 'Internal Server Error' });
+  }
+});
+
+fastify.get('/notifications/history', async (request, reply) => {
+  const { userId } = request.query;
+  try {
+    const notifications = await db.query(
+      'SELECT * FROM notifications WHERE user_id = ? ORDER BY timestamp DESC',
+      [userId]
+    );
+    return notifications;
+  } catch (error) {
+    console.error('Error fetching notification history:', error);
+    reply.status(500).send({ success: false, error: 'Internal Server Error' });
+  }
 });

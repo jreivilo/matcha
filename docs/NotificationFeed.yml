@@ -1,0 +1,43 @@
+concept NotificationFeed [User, Notification]
+
+purpose:
+  to provide real-time updates and persistent notification history for users
+
+state:
+  activeConnections: set User
+  notifications: set Notification
+  userNotifications: User -> set Notification
+  notificationStatus: Notification -> Status
+  unreadCounts: User -> Integer
+
+actions
+  connect(u: User)
+    when u not in activeConnections
+    add u to activeConnections
+    send unread notifications to u's websocket
+
+  disconnect(u: User)
+    when u in activeConnections
+    remove u from activeConnections
+
+  createNotification(u: User, n: Notification)
+    add n to notifications
+    add n to userNotifications[u]
+    set notificationStatus[n] to unread
+    if u in activeConnections:
+      send n to u's websocket
+
+  markAsRead(u: User, notifications: set Notification)
+    for each n in notifications:
+      when n in userNotifications[u] and notificationStatus[n] is unread
+      set notificationStatus[n] to read
+      decrement unreadCounts[u]
+
+  fetchNotifications(u: User, limit: Integer, offset: Integer)
+    return subset of userNotifications[u] with limit and offset
+
+operational principle:
+  after createNotification(u, n), n is in notifications with unread status
+  after markAsRead(u, {n}), notificationStatus[n] is read
+  connect(u) ensures u receives subsequent real-time notifications
+  fetchNotifications allows paginated access to user's notification history
