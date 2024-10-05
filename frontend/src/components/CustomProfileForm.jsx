@@ -19,6 +19,7 @@ const ProfileForm = ({ username, isInitialSetup = false, onSubmitComplete }) => 
   const [newInterest, setNewInterest] = useState("");
   const [gender, setGender] = useState("");
   const [sexuality, setSexuality] = useState("");
+  const [coordinates, setCoordinates] = useState("");
 
   const queryClient = useQueryClient();
 
@@ -28,11 +29,15 @@ const ProfileForm = ({ username, isInitialSetup = false, onSubmitComplete }) => 
     enabled: !!(username.length > 0) && !isInitialSetup,
   });
 
-  const { coordinates, isLoadingCoordinates, setCoordinates } = useGeoLocation(isInitialSetup);
-
   useEffect(() => { 
-    if (!isInitialSetup) { setCoordinates(userinfo?.displayUser?.coordinates || ""); }
+    if (!isInitialSetup) {
+      setCoordinates(userinfo?.displayUser?.coordinates || "");
+    } else {
+      setCoordinates(useGeoLocation());
+    }
   }, [userinfo, isInitialSetup, setCoordinates]);
+
+  
 
   useEffect(() => {
     if (userinfo) {

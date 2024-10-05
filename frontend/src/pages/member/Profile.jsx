@@ -52,27 +52,29 @@ const ProfilePage = () => {
               <PicGallery profileUsername={profileUsername} mainpic={displayUser?.picture_path} pics={displayUser?.pics}
               />}
           </div>
-          { (isEditMode && isSelf) ? <ProfileForm username={profileUsername} isInitialSetup={false} onSubmitComplete={() => setIsEditMode(false)}/> : (
-          <div className="space-y-2">
-            <p><strong>First Name:</strong> {displayUser?.first_name ?? ''}</p>
-            <p><strong>Last Name:</strong> {displayUser?.last_name ?? ''}</p>
-            {isSelf && <p><strong>Email:</strong> {displayUser?.email ?? ''}</p>}
-            <p><strong>Gender:</strong> {displayUser?.gender ?? ''}</p>
-            <p><strong>Sexuality:</strong> {displayUser?.sexuality ?? ''}</p>
-            <p><strong>Biography:</strong> {displayUser?.biography ?? ''}</p>
-            <p><strong>Location:</strong> {displayUser?.coordinates ?? ''}</p>
+          { isEditMode ?
+          <ProfileForm username={profileUsername} isInitialSetup={false} onSubmitComplete={() => setIsEditMode(false)}/>
+          : (
+            <div className="space-y-2">
+              <p><strong>First Name:</strong> {displayUser?.first_name ?? ''}</p>
+              <p><strong>Last Name:</strong> {displayUser?.last_name ?? ''}</p>
+              {isSelf && <p><strong>Email:</strong> {displayUser?.email ?? ''}</p>}
+              <p><strong>Gender:</strong> {displayUser?.gender ?? ''}</p>
+              <p><strong>Sexuality:</strong> {displayUser?.sexuality ?? ''}</p>
+              <p><strong>Biography:</strong> {displayUser?.biography ?? ''}</p>
+              <p><strong>Location:</strong> {displayUser?.coordinates ?? ''}</p>
 
-            <div>
-              <strong>Interests:</strong> 
-              {displayUser?.interests?.length > 0 &&
-                displayUser.interests.split(',').map(interest => (
-                  <Badge key={interest} variant="secondary" className="mr-1">
-                    {interest.trim()}
-                  </Badge>
-                ))
-              }
+              <div>
+                <strong>Interests:</strong> 
+                {displayUser?.interests?.length > 0 &&
+                  displayUser.interests.split(',').map(interest => (
+                    <Badge key={interest} variant="secondary" className="mr-1">
+                      {interest.trim()}
+                    </Badge>
+                  ))
+                }
+              </div>
             </div>
-          </div>
           )}
           <div>
             <p><strong>Fame Rating:</strong> {displayUser?.famerating ?? 'N/A'}</p>
