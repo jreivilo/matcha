@@ -4,6 +4,7 @@ const path = require('node:path')
 const AutoLoad = require('@fastify/autoload')
 
 const options = {}
+const userConnections = {}
 
 module.exports = async function (fastify, opts) {
   fastify.register(require('@fastify/swagger'), {})
@@ -11,7 +12,11 @@ module.exports = async function (fastify, opts) {
     routePrefix: '/docs',
     })
   fastify.register(require('@fastify/formbody'));
+
+  // websockets setup
   fastify.register(require('@fastify/websocket'));
+  fastify.decorate('userConnections', userConnections);
+
   fastify.register(require('@fastify/cookie'), {
     secret: "super secret key",
     hook: 'onRequest',
