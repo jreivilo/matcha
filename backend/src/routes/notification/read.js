@@ -1,8 +1,10 @@
 'use strict';
 
+const { verifyJWT } = require('../../utils');
+
 module.exports = async function (fastify, opts) {
   fastify.route({
-    url: '/notifications/read',
+    url: '/read',
     method: ['PUT'],
     schema: {
       summary: 'Mark notifications as read',

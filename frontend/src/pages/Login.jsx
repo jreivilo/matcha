@@ -28,7 +28,7 @@ const Login = () => {
 
       console.log(responseData);
       if (responseData.success) {
-        setUser( {username: data.username, id: responseData.id});
+        setUser( {username: responseData.username, id: responseData.id});
         console.log("User is set to: ", JSON.stringify(user));
         if (isLogin)
           navigate('/member/dashboard');

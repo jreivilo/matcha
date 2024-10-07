@@ -103,6 +103,21 @@ module.exports = async function (fastify, opts) {
           [likedUserId]
         );
 
+        const userConnection = fastify.userConnections[userId];
+        if (userConnection && userConnection.socket) {
+          userConnection.socket.send(JSON.stringify({
+            type: 'NEW_NOTIFICATION',
+            notification: {
+              author: { username },
+              target: { liked_username},
+              type: 'liked',
+              timestamp: new Date().toISOString()
+            }
+          }))
+        } else {
+          console.log('No user connection found for user', userId);
+        }
+
         // Commit transaction
         await connection.commit();
 

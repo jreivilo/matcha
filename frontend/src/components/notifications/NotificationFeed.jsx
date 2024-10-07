@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import WebSocket from 'ws';
-import { useUser } from './UserContext';
+import { Button } from '@/components/ui/button';
+import { useUser } from '@/components/UserProvider'
+
+const APIURL = "ws://localhost:3000";
 
 const NotificationCard = ({ notification, user }) => {
   const { displayUser } = user;
@@ -34,10 +36,11 @@ export const NotificationFeed = () => {
   const { user } = useUser();
 
   useEffect(() => {
-    const socket = new WebSocket('ws://localhost:3000/ws');
+    const socket = new WebSocket(`${APIURL}/notification/ws`);
 
     socket.onopen = () => {
       console.log('Connected to the WebSocket');
+      setWs(socket);
     };
 
     socket.onmessage = (event) => {
@@ -46,21 +49,24 @@ export const NotificationFeed = () => {
         setNotifications(data.notifications);
       } else if (data.type === 'NEW_NOTIFICATION') {
         setNotifications((prevNot) => [data.notification, ...prevNot]);
+      } else if (data.type === 'PONG') {
+        console.log('Received PONG:', data.message);
+      } else {
+        console.log('Unknown message type:', JSON.stringify(data));
       }
     };
 
-    setWs(socket);
-
     socket.onerror = (event) => {
-      console.log(`Error occurred: ${event}`);
+      console.error(event);
     };
 
     socket.onclose = () => {
       console.log('Disconnected from the WebSocket');
     };
-
     return () => {
-      socket.close();
+      if (socket.readyState === WebSocket.OPEN) {
+        socket.close();
+      }
     };
   }, []);
 

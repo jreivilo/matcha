@@ -73,5 +73,5 @@ try {
 
 
 module.exports = {
-    generateJwt, verifyJWT
+    generateJwt, verifyJWT, verifyToken
 };

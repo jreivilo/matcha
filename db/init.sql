@@ -80,3 +80,12 @@ CREATE TABLE matches (
     FOREIGN KEY (usertwo) REFERENCES user(id),
     PRIMARY KEY (userone, usertwo)
 );
+
+CREATE TABLE notifications (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    author VARCHAR(50) NOT NULL,
+    target VARCHAR(50) NOT NULL,
+    message TEXT NOT NULL,
+    read_status BOOLEAN DEFAULT false,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+);
