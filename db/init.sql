@@ -17,7 +17,6 @@ CREATE TABLE user (
     gender VARCHAR(10),
     sexuality VARCHAR(10),
     biography TEXT,
-    interests TEXT,
     coordinates VARCHAR(100),
     famerating INT DEFAULT 0,
     picturecount INT DEFAULT 0,

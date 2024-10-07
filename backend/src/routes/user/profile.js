@@ -8,7 +8,7 @@ module.exports = async function (fastify, opts) {
     method: ['POST'],
     schema: {
       summary: 'Fill user profile',
-      description: 'Create/Update the profile of the user with the provided username, gender, sexuality, biography, and interest',
+      description: 'Create/Update the profile of the user with the provided username, gender, sexuality, biography, interests, and coordinates',
       tags: ['User'],
       body: {
         type: 'object',
@@ -18,9 +18,9 @@ module.exports = async function (fastify, opts) {
           gender: { type: 'string', description: 'User gender' },
           sexuality: { type: 'string', description: 'User sexuality' },
           biography: { type: 'string', description: 'User biography' },
-          interests: { type: 'string', description: 'User list of interests' },
-          coordinates: { type: 'string', description: 'User location' }
-        }
+          interests: { type: 'string', description: 'Comma-separated list of user interests' },
+          coordinates: { type: 'string', description: 'User location' },
+        },
       },
       response: {
         201: {
@@ -32,19 +32,19 @@ module.exports = async function (fastify, opts) {
             gender: { type: 'string' },
             sexuality: { type: 'string' },
             biography: { type: 'string' },
-            interests: { type: 'string' },
-            coordinates: { type: 'string' }
-          }
+            interests: { type: 'array', items: { type: 'string' } },
+            coordinates: { type: 'string' },
+          },
         },
         400: {
           description: 'Invalid input',
           type: 'object',
           properties: {
             code: { type: 'string' },
-            message: { type: 'string' }
-          }
-        }
-      }
+            message: { type: 'string' },
+          },
+        },
+      },
     },
     preHandler: verifyJWT,
     handler: async (request, reply) => {
@@ -52,44 +52,73 @@ module.exports = async function (fastify, opts) {
       const connection = await fastify.mysql.getConnection();
 
       try {
-        // simplify below logic to find user and insert more info
-        const [user] = await connection.query(
-          'SELECT id FROM user WHERE username = ?'
-        , [username]);
+        // Begin transaction
+        await connection.beginTransaction();
 
-        if (user.length === 0) {
+        // Find the user by username
+        const [userRows] = await connection.query(
+          'SELECT id FROM user WHERE username = ?',
+          [username]
+        );
+
+        if (userRows.length === 0) {
+          await connection.rollback();
           reply.code(400).send({
             code: 'USER_NOT_FOUND',
-            message: 'Username does not exist'
+            message: 'Username does not exist',
           });
           return;
         }
 
+        const userId = userRows[0].id;
+
+        // Update the user profile fields
         await connection.query(
-          'UPDATE user SET gender = ?, sexuality = ?, biography = ?, interests = ?, coordinates = ? WHERE username = ?',
-          [gender, sexuality, biography, interests, coordinates, username]
+          'UPDATE user SET gender = ?, sexuality = ?, biography = ?, coordinates = ? WHERE id = ?',
+          [gender, sexuality, biography, coordinates, userId]
         );
-        fastify.log.info("Profile updated successfully");
+
+        // Delete existing interests for the user
+        await connection.query('DELETE FROM user_interests WHERE user_id = ?', [userId]);
+
+        // Parse the interests string into an array
+        const interestsArray = interests
+          .split(',')
+          .map((interest) => interest.trim())
+          .filter(Boolean);
+
+        // Insert new interests into user_interests table
+        if (interestsArray.length > 0) {
+          const interestsValues = interestsArray.map((interest) => [userId, interest]);
+          await connection.query('INSERT INTO user_interests (user_id, interest) VALUES ?', [
+            interestsValues,
+          ]);
+        }
+
+        // Commit transaction
+        await connection.commit();
+        fastify.log.info('Profile updated successfully');
 
         reply.code(201).send({
-          insertId: user[0].id,
+          id: userId,
           username,
           gender,
           sexuality,
           biography,
-          interests,
+          interests: interestsArray,
           coordinates,
         });
       } catch (error) {
+        // Rollback transaction in case of error
+        await connection.rollback();
         console.error(error);
         reply.code(500).send({
           code: 'INTERNAL_SERVER_ERROR',
-          message: 'An error occurred while filling the profile'
+          message: 'An error occurred while filling the profile',
         });
       } finally {
-        if (connection) connection.release();
+        connection.release();
       }
-    }
+    },
   });
 };
-

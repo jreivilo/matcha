@@ -11,6 +11,7 @@ services:
       - DATABASE_PORT=${DB_PORT}
       - DATABASE_SALT=${SALT}
       - MAILERSEND_API_KEY=${MAILERSEND_API_KEY}
+      - DEV_MODE=${DEV_MODE}
     ports:
       - "3000:3000"
     depends_on:

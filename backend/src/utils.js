@@ -24,7 +24,11 @@ const generateJwt = (username) => {
 
 async function verifyJWT(request, reply) {
     const token = request.cookies.jwt;
-    
+	// if env var DEV_MODE is set to true, allow all requests
+	if (process.env.DEV_MODE === 'true') {
+		return;
+	}
+	
     if (!token) {
         reply.code(401).send({ message: 'Missing token' });
         return;
