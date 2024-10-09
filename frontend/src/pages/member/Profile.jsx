@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { useUser } from '@/components/UserProvider';
+import { useUser } from '@/components/providers/UserProvider';
 import { useUserData } from '@/hooks/useUserData';
 import PicGallery from '@/components/PicGallery';
 // components

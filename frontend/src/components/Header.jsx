@@ -1,9 +1,12 @@
 import React from 'react';
 import { Button } from './ui/button';
 import { Link } from 'react-router-dom';
+import NotificationSidebar from '@/components/notifications/NotificationSidebar';
+import { useAuthStatus } from '@/hooks/useAuthStatus'
 
 const Header = () => {
-  const user = localStorage.getItem('user');
+  const { isAuthenticated, _ } = useAuthStatus();
+  const user = localStorage.getItem('user')
   const { username, id } = JSON.parse(user) || {};
 
   const handleLogout = async () => {
@@ -19,6 +22,7 @@ const Header = () => {
     }
   };
 
+
   return (
     <header className="p-5 bg-white bg-opacity-10 backdrop-blur-md shadow-md">
       <div className="container mx-auto flex justify-between items-center">
@@ -26,6 +30,7 @@ const Header = () => {
           <Link className="text-secondary hover:underline" to="/">Matcha</Link>
         </h1>
         <nav className="flex items-center">
+          {isAuthenticated && <NotificationSidebar />}
           {!username ? (
             <Button variant="default" className="mr-2 text-text-light">
               <Link to="/login">Login/Register</Link>
