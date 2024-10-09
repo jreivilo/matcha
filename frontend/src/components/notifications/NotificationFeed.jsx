@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { useUser } from '@/components/UserProvider'
+import { useUser } from '@/components/providers/UserProvider'
 
 const APIURL = "ws://localhost:3000";
 
