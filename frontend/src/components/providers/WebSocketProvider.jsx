@@ -1,11 +1,17 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef} from 'react';
 import { useAuthStatus } from '@/hooks/useAuthStatus';
 
 const WebSocketContext = createContext(null);
 
-export const WebSocketProvider = ({ children }) => {
+const HEARTBEAT_INTERVAL = 30000;
+const RECONNECT_DELAY = 5000;
+const MAX_RECONNECT_ATTEMPTS = 5;
+
+const WebSocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const { isAuthenticated, user } = useAuthStatus();
+  const heartbeatInterval = useRef(null);
+  const [reconnectAttempts, setReconnectAttempts] = useState(0);
 
   const connectWebsocket = () => {
     if (!isAuthenticated || !user) return;
@@ -14,6 +20,7 @@ export const WebSocketProvider = ({ children }) => {
 
     ws.onopen = () => {
       console.log('Connected to the WebSocket');
+      startHeartbeat(ws);
     };
 
     ws.onmessage = (event) => {
@@ -32,10 +39,11 @@ export const WebSocketProvider = ({ children }) => {
     };
 
     ws.onclose = () => {
-      console.log('Disconnected from the WebSocket');
-      if (isAuthenticated && user && reconnectAttemps < MAX_RECONNECT_ATTEMPTS) {
+      console.log('Disconnected from the WebSocket')
+      stopHeartbeat();
+      if (isAuthenticated && user && reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
         setTimeout(() => {
-          setReconnectAttemps(prev => prev + 1);
+          setReconnectAttempts(prev => prev + 1);
           connectWebsocket();
         }, RECONNECT_DELAY);
       }
@@ -44,19 +52,37 @@ export const WebSocketProvider = ({ children }) => {
     setSocket(ws);
   }
 
+  const startHeartbeat = (ws) => {
+    heartbeatInterval.current = setInterval(() => {
+      if (ws?.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: 'PING' }));
+      }
+    }, HEARTBEAT_INTERVAL);
+  };
+
+  const stopHeartbeat = () => {
+    if (heartbeatInterval.current) {
+      clearInterval(heartbeatInterval.current);
+      heartbeatInterval.current = null;
+    }
+  };
+
   useEffect(() => {
     if (isAuthenticated && user) {
       if (socket) {
         socket.close();
       }
+      setReconnectAttempts(0);
       connectWebsocket();
     } else if (socket) {
       socket.close();
+      stopHeartbeat();
       setSocket(null);
     }
   
     return () => {
       if (socket) socket.close();
+      stopHeartbeat();
     };
   }, [isAuthenticated, user]);
 
@@ -67,10 +93,12 @@ export const WebSocketProvider = ({ children }) => {
   );
 };
 
-export function useWebSocket() {
+function useWebSocket() {
   const context = useContext(WebSocketContext)
   if (!context) {
     throw new Error('useWebSocket must be used within a websocket context')
   }
   return context
 }
+
+export { WebSocketProvider, useWebSocket };

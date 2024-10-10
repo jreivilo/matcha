@@ -6,11 +6,13 @@ import PicGallery from '@/components/PicGallery';
 import { useQuery} from '@tanstack/react-query';
 import { getUserInfo } from '@/api';
 import ProfileForm from '@/components/CustomProfileForm';
+import { useAuthStatus } from '@/hooks/useAuthStatus'
 
 const FillInfo = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
+  const { isAuthenticated } = useAuthStatus()
   
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -26,7 +28,7 @@ const FillInfo = () => {
   const { data : userinfo } = useQuery({
     queryKey: ['userData', username, username],
     queryFn: () => getUserInfo(username, username),
-    enabled: !!(username.length > 0),
+    enabled: !!(username.length > 0) && !!isAuthenticated,
   });
 
   const { displayUser} = userinfo ?? {};

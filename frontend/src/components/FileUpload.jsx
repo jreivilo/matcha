@@ -16,7 +16,6 @@ const encodeImageAsBase64 = (file) => {
 const FileUpload = ({ username }) => {
   const queryClient = useQueryClient();
   const [selectedFile, setSelectedFile] = useState(null);
-  const [isEditMode, setIsEditMode] = useState(false);
   const [error, setError] = useState(null);
 
   const picsMutation = useMutation({
