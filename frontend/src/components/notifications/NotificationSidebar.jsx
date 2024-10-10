@@ -1,9 +1,6 @@
 import React, { useState} from 'react';
 import { useNotifications } from '@/hooks/useNotifications';
-import { useUser } from '@/components/providers/UserProvider';
 import { useAuthStatus } from '@/hooks/useAuthStatus'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { Button } from '../ui/button';
 import { Table, TableCaption, TableHeader, TableRow, TableHead } from '../ui/table'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 

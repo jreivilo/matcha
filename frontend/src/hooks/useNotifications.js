@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useWebSocket } from '@/components/providers/WebSocketProvider';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { getNotificationHistory } from '@/api';
 
 const APIURL = "http://localhost:3000";
 
@@ -8,19 +9,22 @@ export const useNotifications = () => {
   const queryClient = useQueryClient()
   const { socket } = useWebSocket();
 
+  const { data: notifications, isLoading, error } = useQuery({
+    queryKey: ['notifications'],
+    queryFn: getNotificationHistory,
+    initialData: [],
+    staleTime: Infinity
+  })
+
   useEffect(() => {
     if (!socket) return;
 
     const handleMessage = (event) => {
       const data = JSON.parse(event.data);
-      if (data.type === 'NOTIFICATIONS') {
-        queryClient.setQueryData('notifications', data.notifications);
-      } else if (data.type === 'NEW_NOTIFICATION') {
-        queryClient.setQueryData('notifications', [data.notification, ...queryClient.getQueryData('notifications')]);
-      } else if (data.type === 'PONG') {
-        console.log('Received PONG:', data.message);
-      } else {
-        console.log('Unknown message type:', JSON.stringify(data));
+      if (data.type === 'NEW') {
+        queryClient.setQueryData('notifications', [
+          ...queryClient.getQueryData('notifications'),
+          data.notification])
       }
     }
 
