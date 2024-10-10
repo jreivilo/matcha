@@ -108,7 +108,12 @@ module.exports = async function (fastify, opts) {
         // Commit transaction
         await connection.commit();
 
-        notificationTransaction(username, liked_username, 'LIKE')
+        notificationTransaction(
+          {
+            author: username,
+            target: liked_username,
+            message: 'LIKE'},
+            fastify)
         
         reply.code(200).send({
           success: true,

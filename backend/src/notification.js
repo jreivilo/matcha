@@ -7,13 +7,15 @@ async function notificationTransaction({ author, target, message }, fastify) {
       [author, target, message]
     );
   
-    const targetSocket = fastify.userConnections.get(target);
-    if (targetSocket && targetSocket.readyState === WebSocket.OPEN) {
-      targetSocket.send(JSON.stringify({
-        author,
-        type: 'NEW',
-        message,
-      }));
+    if (fastify.userConnections) {
+      const targetSocket = fastify.userConnections.get(target);
+      if (targetSocket && targetSocket.readyState === WebSocket.OPEN) {
+        targetSocket.send(JSON.stringify({
+          author,
+          type: 'NEW',
+          message,
+        }));
+      }
     }
   
     database.release();

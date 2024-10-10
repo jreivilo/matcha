@@ -3,7 +3,51 @@
 const { notificationTransaction } = require("../../notification");
 
 module.exports = async function (fastify, opts) {
-    fastify.post('/notifications/create', async (request, reply) => {
+    fastify.route({
+        url: '/create',
+        method: ['POST'],
+        schema: {
+            summary: 'add notifications',
+            description: 'add notifications',
+            tags: ['Notifications'],
+            body: {
+              type: 'object',
+              required: ['author', 'target', 'type', 'message'],
+              properties: {
+                author: { type: 'string', description: 'Author'},
+                target: { type: 'string', description: 'Target'},
+                type: { type: 'string', description: 'Type'},
+                message: { type: 'string', description: 'Message'}
+              }
+            },
+            response: {
+              200: {
+                description: 'Notifications added',
+                type: 'object',
+                properties: {
+                  success: { type: 'boolean' }
+                }
+              },
+              400: {
+                description: 'Invalid input or notifications not found',
+                type: 'object',
+                properties: {
+                  code: { type: 'string' },
+                  message: { type: 'string' }
+                }
+              },
+              500: {
+                description: 'Internal Server Error',
+                type: 'object',
+                properties: {
+                  code: { type: 'string' },
+                  message: { type: 'string' },
+                  error: { type: 'string' }
+                }
+              }
+            }
+    },
+    handler: async (request, reply) => {
       const { author, target, type, message } = request.body;
   
       if (!author || !target || !message) {
@@ -16,7 +60,7 @@ module.exports = async function (fastify, opts) {
       try {
         // const database = await fastify.mysql.getConnection();
         
-        notificationTransaction({ author, target, message })
+        notificationTransaction({ author, target, message }, fastify)
         // await database.query(
         //   'INSERT INTO notifications (author, target, message) VALUES (?, ?, ?)',
         //   [author, target, message]
@@ -39,8 +83,8 @@ module.exports = async function (fastify, opts) {
         reply.status(500).send({
           type: 'ERROR',
           message: 'Internal server error'
-        });
+        })
       }
-    });
-  };
+    }})
+}
   
