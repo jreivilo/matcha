@@ -1,7 +1,7 @@
 'use strict';
 
 const argon2 = require('argon2');
-const { verifyJWT } = require('../../utils');
+const { verifyJWT } = require('../../jwt');
 
 module.exports = async function (fastify, opts) {
   fastify.route({

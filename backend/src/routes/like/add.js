@@ -1,6 +1,7 @@
 'use strict';
 
-const { verifyJWT } = require('../../utils');
+const { verifyJWT } = require('../../jwt');
+const { notificationTransaction } = require('../../notification')
 
 module.exports = async function (fastify, opts) {
   fastify.route({
@@ -103,24 +104,12 @@ module.exports = async function (fastify, opts) {
           [likedUserId]
         );
 
-        const userConnection = fastify.userConnections[userId];
-        if (userConnection && userConnection.socket) {
-          userConnection.socket.send(JSON.stringify({
-            type: 'NEW_NOTIFICATION',
-            notification: {
-              author: { username },
-              target: { liked_username},
-              type: 'liked',
-              timestamp: new Date().toISOString()
-            }
-          }))
-        } else {
-          console.log('No user connection found for user', userId);
-        }
-
+        
         // Commit transaction
         await connection.commit();
 
+        notificationTransaction(username, liked_username, 'LIKE')
+        
         reply.code(200).send({
           success: true,
           message: 'User liked successfully'
