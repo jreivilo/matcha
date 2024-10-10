@@ -3,7 +3,7 @@
 const argon2 = require('argon2');
 const { Recipient, Sender, EmailParams, MailerSend } = require("mailersend");
 const { v4: uuidv4 } = require('uuid');
-const { generateJwt } = require('../../utils');
+const { generateJwt } = require('../../jwt');
 
 module.exports = async function (fastify, opts) {
   fastify.route({
