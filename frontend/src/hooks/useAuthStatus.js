@@ -7,8 +7,6 @@ export const useAuthStatus = () => {
   useEffect(() => {
     const checkAuthStatus = () => {
       const userJson = localStorage.getItem('user');
-
-      console.log(userJson)
       if (userJson) {
         const user = JSON.parse(userJson);
         setUser(user);
@@ -20,11 +18,14 @@ export const useAuthStatus = () => {
     };
 
     checkAuthStatus();
-    
+
     window.addEventListener('storage', checkAuthStatus);
+
+    window.addEventListener('authStateChanged', checkAuthStatus)
 
     return () => {
       window.removeEventListener('storage', checkAuthStatus);
+      window.removeEventListener('authStateChanged', checkAuthStatus);
     };
   }, []);
 

@@ -33,18 +33,32 @@ export const WebSocketProvider = ({ children }) => {
 
     ws.onclose = () => {
       console.log('Disconnected from the WebSocket');
+      if (isAuthenticated && user && reconnectAttemps < MAX_RECONNECT_ATTEMPTS) {
+        setTimeout(() => {
+          setReconnectAttemps(prev => prev + 1);
+          connectWebsocket();
+        }, RECONNECT_DELAY);
+      }
     };
     
     setSocket(ws);
   }
 
   useEffect(() => {
-    connectWebsocket();
-
+    if (isAuthenticated && user) {
+      if (socket) {
+        socket.close();
+      }
+      connectWebsocket();
+    } else if (socket) {
+      socket.close();
+      setSocket(null);
+    }
+  
     return () => {
       if (socket) socket.close();
     };
-  }, []);
+  }, [isAuthenticated, user]);
 
   return (
     <WebSocketContext.Provider value={{ socket, connectWebsocket}}>

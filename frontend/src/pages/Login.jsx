@@ -29,7 +29,7 @@ const Login = () => {
       console.log(responseData);
       if (responseData.success) {
         setUser( {username: responseData.username, id: responseData.id});
-        console.log("User is set to: ", JSON.stringify(user));
+        window.dispatchEvent(new Event('authStateChanged'));
         if (isLogin)
           navigate('/member/dashboard');
         else
