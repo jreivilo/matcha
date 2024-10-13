@@ -27,7 +27,12 @@ export const useNotifications = () => {
       const data = JSON.parse(event.data);
       if (data.type === 'NEW') {
         queryClient.setQueryData(['notifications', username], (oldData) => {
-          return [...(oldData || []), data.notification];
+          return [...(oldData || []), {
+            id: data.id,
+            author: data.author,
+            message: data.message,
+            read_status: data.read_status,
+          }];
         });
       }
     };
@@ -44,14 +49,15 @@ export const useNotifications = () => {
   }, [notifications]);
 
   const markAsReadMutation = useMutation({
-    mutationFn: async ({ userId, notificationIds }) => {
-      const response = await fetch(`${APIURL}/notifications/read`, {
+    mutationFn: async ({ username, notificationIds }) => {
+      const response = await fetch(`${APIURL}/notification/read`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
-          userId,
+          username,
           notificationIds,
         }),
       });
@@ -62,6 +68,9 @@ export const useNotifications = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['notifications', username]);
+    },
+    onError: (event) => {
+      console.error('Error marking notifications as read:', event);
     },
   });
 

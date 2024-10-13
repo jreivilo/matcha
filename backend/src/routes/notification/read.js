@@ -12,9 +12,9 @@ module.exports = async function (fastify, opts) {
       tags: ['Notifications'],
       body: {
         type: 'object',
-        required: ['userId', 'notificationIds'],
+        required: ['username', 'notificationIds'],
         properties: {
-          userId: { type: 'string', description: 'User ID' },
+          username: { type: 'string', description: 'Username' },
           notificationIds: { type: 'string', description: 'Comma-separated list of notification IDs' }
         }
       },
@@ -47,12 +47,14 @@ module.exports = async function (fastify, opts) {
     },
     preHandler: verifyJWT,
     handler: async (request, reply) => {
-      const { userId, notificationIds } = request.body;
       try {
-        const splitIds = notificationIds.split(',');
-        await db.query(
-          'UPDATE notifications SET read_status = 1 WHERE id IN (?) AND user_id = ?',
-          [splitIds, userId]
+        const db = await fastify.mysql.getConnection();
+        
+        const { username, notificationIds } = request.body;
+          const splitIds = notificationIds.split(',');
+          await db.query(
+            'UPDATE notifications SET read_status = true WHERE id IN (?) AND target = ?',
+          [splitIds, username]
         );
         reply.code(200).send({
           success: true

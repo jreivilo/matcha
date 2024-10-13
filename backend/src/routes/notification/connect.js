@@ -27,16 +27,6 @@ module.exports = async function (fastify, opts) {
         fastify.userConnections.set(username, socket);
 
         try {
-          // const [unreadNotifications] = await database.query(
-          //   'SELECT * FROM notifications WHERE target = ? AND read_status = false',
-          //   [username]
-          // );
-          // if (unreadNotifications && unreadNotifications.length > 0) {
-          //   socket.send(JSON.stringify({
-          //     type: 'HISTORY',
-          //     message: JSON.stringify(unreadNotifications)
-          //   }));
-          // } else {
             socket.send(JSON.stringify({
               type: 'PONG',
               message: 'Pong'
@@ -62,7 +52,7 @@ module.exports = async function (fastify, opts) {
           if (socket.readyState === WebSocket.OPEN) {
             socket.close();
           }
-        };    
+        };
       }
     },
     onClose: (socket) => {
