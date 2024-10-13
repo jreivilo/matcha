@@ -1,3 +1,5 @@
+const WebSocket = require('ws');
+
 async function notificationTransaction({ author, target, message }, fastify) {
   try {
     const database = await fastify.mysql.getConnection();
@@ -8,6 +10,7 @@ async function notificationTransaction({ author, target, message }, fastify) {
     );
   
     if (fastify.userConnections) {
+      console.log('beep bop.. sending notification to ', target)
       const targetSocket = fastify.userConnections.get(target);
       if (targetSocket && targetSocket.readyState === WebSocket.OPEN) {
         targetSocket.send(JSON.stringify({

@@ -118,10 +118,8 @@ export const markView = async ({ profileUsername, viewer }) => {
     return fetcher(apiUrl, { username: viewer, viewed_username: profileUsername }, 'POST');
 };
 
-export const getNotificationHistory = async () => {
-    const res = await fetch(APIURL + '/notifications/history');
-    if (!res.ok) {
-      throw new Error('Failed to fetch notification history');
-    }
-    return res.json();
+export const getNotificationHistory = async (username) => {
+    const apiUrl = `${API_URL}/notification/history`;
+    const res = await fetcher(apiUrl, { target: username }, 'POST');
+    return res.notifications;
 }
