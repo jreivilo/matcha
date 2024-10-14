@@ -25,6 +25,7 @@ module.exports = async function (fastify, opts) {
         
         const username = decodedPayload.sub;
         fastify.userConnections.set(username, socket);
+        socket.username = username;
 
         try {
             socket.send(JSON.stringify({
@@ -57,7 +58,7 @@ module.exports = async function (fastify, opts) {
     },
     onClose: (socket) => {
       const username = socket.username;
-      fastify.userConnections[username] = null;
+      fastify.userConnections.delete(username);
     }
   });
 }

@@ -17,7 +17,7 @@ export const useNotifications = () => {
     queryFn: () => getNotificationHistory(username),
     enabled: !!username,
     staleTime: 5 * 60 * 1000,
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true,
   });
 
   useEffect(() => {
@@ -43,10 +43,6 @@ export const useNotifications = () => {
       socket.removeEventListener('message', handleMessage);
     };
   }, [socket, queryClient, username]);
-
-  useEffect(() => {
-    console.log('notifications', notifications);
-  }, [notifications]);
 
   const markAsReadMutation = useMutation({
     mutationFn: async ({ username, notificationIds }) => {

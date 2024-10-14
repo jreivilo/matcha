@@ -19,7 +19,7 @@ const Header = () => {
       method: 'GET',
       credentials: 'include'
     });
-    console.log(response)
+    window.location.reload();
   };
 
   let unreadCount = notifications?.filter(n => !n.read_status).length || 0;

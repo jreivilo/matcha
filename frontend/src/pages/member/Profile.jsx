@@ -10,8 +10,8 @@ import { Badge } from "@/components/ui/badge";
 import CustomLayout from '@/components/MatchaLayout';
 import { markView } from "@/api"
 import ProfileForm from '@/components/CustomProfileForm';
-import { useRedirectIfLoggedOut } from '@/hooks/useRedirectLogout'
 import { InteractionMenu } from '@/components/Interaction';
+import { useRedirectIfLoggedOut } from '@/hooks/useRedirectLogout';
 
 const ProfilePage = () => {
   const { user } = useUser();

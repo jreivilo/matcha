@@ -14,7 +14,7 @@ const WebSocketProvider = ({ children }) => {
   const [reconnectAttempts, setReconnectAttempts] = useState(0);
 
   const connectWebsocket = () => {
-    if (!isAuthenticated || !user) return;
+    if (!isAuthenticated) return;
 
     const ws = new WebSocket('ws://localhost:3000/notification/ws');
 
@@ -27,7 +27,8 @@ const WebSocketProvider = ({ children }) => {
       const data = JSON.parse(event.data);
       if (data.type === 'ERROR') {
         console.error('WebSocket error:', data.error);
-      } else if (data.type === 'PONG') {
+      }
+      else if (data.type === 'PONG') {
         console.log('Received PONG:', data.message);
       } else {
         console.log('Unknown message type:', JSON.stringify(data));
@@ -81,7 +82,7 @@ const WebSocketProvider = ({ children }) => {
     }
   
     return () => {
-      if (socket) socket.close();
+      if (socket && socket.readyState === WebSocket.OPEN) socket.close();
       stopHeartbeat();
     };
   }, [isAuthenticated, user]);
