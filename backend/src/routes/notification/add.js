@@ -1,6 +1,6 @@
 'use strict'
 
-const { notificationTransaction } = require("../../notification");
+const { notificationTransaction } = require("../../routes/notification/transaction");
 
 module.exports = async function (fastify, opts) {
     fastify.route({
