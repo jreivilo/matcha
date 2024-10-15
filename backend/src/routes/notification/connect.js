@@ -22,7 +22,7 @@ module.exports = async function (fastify, opts) {
       try {
         const decodedPayload = verifyToken(token, 'your-secret-key');
         const database = await fastify.mysql.getConnection();
-        
+
         const username = decodedPayload.sub;
         fastify.userConnections.set(username, socket);
         socket.username = username;

@@ -49,31 +49,17 @@ module.exports = async function (fastify, opts) {
     },
     handler: async (request, reply) => {
       const { author, target, type, message } = request.body;
-  
+
       if (!author || !target || !message) {
         return reply.status(400).send({
           type: 'ERROR',
           message: 'Missing required fields: author, target, message'
         });
       }
-  
+
       try {
-        // const database = await fastify.mysql.getConnection();
-        
         notificationTransaction({ author, target, message }, fastify)
-        // await database.query(
-        //   'INSERT INTO notifications (author, target, message) VALUES (?, ?, ?)',
-        //   [author, target, message]
-        // );
-  
-        // const targetSocket = fastify.userConnections.get(target);
-        // if (targetSocket && targetSocket.readyState === WebSocket.OPEN) {
-        //   targetSocket.send(JSON.stringify({
-        //     type: 'NEW',
-        //     notification: { author, target, type, message }
-        //   }));
-        // }
-  
+
         reply.send({
           type: 'SUCCESS',
           message: 'Notification created successfully'
@@ -87,4 +73,3 @@ module.exports = async function (fastify, opts) {
       }
     }})
 }
-  

@@ -81,9 +81,8 @@ module.exports = async function (fastify, opts) {
 
         // Retrieve all notifications for the target user
         const [notificationRows] = await connection.query(
-          `SELECT id, author, message, read_status, created_at 
-           FROM notifications 
-           WHERE target = ?`,
+          `SELECT id, author, message, read_status, created_at
+           FROM notifications WHERE target = ?`,
           [target]
         );
 
