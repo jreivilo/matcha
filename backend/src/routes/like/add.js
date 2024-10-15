@@ -1,7 +1,7 @@
 'use strict';
 
 const { verifyJWT } = require('../../jwt');
-const { notificationTransaction } = require('../../notification')
+const { notificationTransaction } = require('../notification/notification_transaction')
 
 module.exports = async function (fastify, opts) {
   fastify.route({
