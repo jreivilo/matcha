@@ -6,8 +6,13 @@ export const useRedirectIfLoggedOut = () => {
 
   useEffect(() => {
     const user = localStorage.getItem('user');
+
+    if (user === 'none') {
+      localStorage.removeItem('user')
+    }
     
-    if (!user || user === 'none') {
+    if (!user) { 
+      window.dispatchEvent(new Event('authStateChanged'));
       navigate('/');
     }
   }, [navigate]);

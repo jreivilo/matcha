@@ -3,7 +3,7 @@ import CustomLayout from '@/components/MatchaLayout';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 // homemade components
-import { useUser } from '@/components/UserProvider';
+import { useUser } from '@/components/providers/UserProvider';
 import { useRedirectIfLoggedOut } from '@/hooks/useRedirectLogout';
 
 const Dashboard = () => {

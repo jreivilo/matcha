@@ -1,7 +1,7 @@
 'use strict';
 
 const argon2 = require('argon2');
-const { verifyJWT } = require('../../utils');
+const { verifyJWT } = require('../../jwt');
 
 module.exports = async function (fastify, opts) {
   fastify.route({
@@ -114,7 +114,7 @@ module.exports = async function (fastify, opts) {
             coordinates: user.coordinates,
             famerating: user.famerating,
             picturecount: user.picturecount,
-			picture_path: user.picture_path,
+			      picture_path: user.picture_path,
             profile_completed: user.profile_completed,
             active: user.active,
             verified: user.verified

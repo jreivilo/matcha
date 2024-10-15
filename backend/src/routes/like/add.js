@@ -1,6 +1,7 @@
 'use strict';
 
-const { verifyJWT } = require('../../utils');
+const { verifyJWT } = require('../../jwt');
+const { notificationTransaction } = require('../notification/transaction')
 
 module.exports = async function (fastify, opts) {
   fastify.route({
@@ -103,8 +104,16 @@ module.exports = async function (fastify, opts) {
           [likedUserId]
         );
 
+
         // Commit transaction
         await connection.commit();
+
+        notificationTransaction(
+          {
+            author: username,
+            target: liked_username,
+            message: 'LIKE'},
+            fastify)
 
         reply.code(200).send({
           success: true,

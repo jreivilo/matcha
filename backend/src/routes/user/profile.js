@@ -1,6 +1,6 @@
 'use strict';
 
-const { verifyJWT } = require('../../utils');
+const { verifyJWT } = require('../../jwt');
 
 module.exports = async function (fastify, opts) {
   fastify.route({
@@ -12,9 +12,10 @@ module.exports = async function (fastify, opts) {
       tags: ['User'],
       body: {
         type: 'object',
-        required: ['username', 'gender', 'biography', 'sexuality', 'interests', 'coordinates'],
+        required: ['username', 'email', 'gender', 'sexuality', 'biography', 'interests', 'coordinates'],
         properties: {
           username: { type: 'string', description: 'Username of the user' },
+          email: { type: 'string', description: 'User email' },
           gender: { type: 'string', description: 'User gender' },
           sexuality: { type: 'string', description: 'User sexuality' },
           biography: { type: 'string', description: 'User biography' },
@@ -29,6 +30,7 @@ module.exports = async function (fastify, opts) {
           properties: {
             id: { type: 'number' },
             username: { type: 'string' },
+            email: { type: 'string' },
             gender: { type: 'string' },
             sexuality: { type: 'string' },
             biography: { type: 'string' },
@@ -48,7 +50,7 @@ module.exports = async function (fastify, opts) {
     },
     preHandler: verifyJWT,
     handler: async (request, reply) => {
-      const { username, gender, sexuality, biography, interests, coordinates } = request.body;
+      const { username, email, gender, sexuality, biography, interests, coordinates } = request.body;
       const connection = await fastify.mysql.getConnection();
 
       try {
@@ -74,8 +76,8 @@ module.exports = async function (fastify, opts) {
 
         // Update the user profile fields
         await connection.query(
-          'UPDATE user SET gender = ?, sexuality = ?, biography = ?, coordinates = ? WHERE id = ?',
-          [gender, sexuality, biography, coordinates, userId]
+          'UPDATE user SET email = ?, gender = ?, sexuality = ?, biography = ?, interests = ?, coordinates = ? WHERE username = ?',
+          [email, gender, sexuality, biography, interests, coordinates, username]
         );
 
         // Delete existing interests for the user
@@ -102,6 +104,7 @@ module.exports = async function (fastify, opts) {
         reply.code(201).send({
           id: userId,
           username,
+          email,
           gender,
           sexuality,
           biography,

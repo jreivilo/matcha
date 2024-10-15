@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { verifyJWT } = require('../../utils');
+const { verifyJWT } = require('../../jwt');
 
 module.exports = async function (fastify, opts) {
   fastify.route({

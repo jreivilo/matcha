@@ -32,6 +32,7 @@ export const fetcher = async (url, body, method, headers = {}) => {
 };
 
 export const getUserInfo = async (username, viewer) => {
+
     let userInfo = {};
 
     try {
@@ -116,3 +117,9 @@ export const markView = async ({ profileUsername, viewer }) => {
     const apiUrl = `${API_URL}/view/view`;
     return fetcher(apiUrl, { username: viewer, viewed_username: profileUsername }, 'POST');
 };
+
+export const getNotificationHistory = async (username) => {
+    const apiUrl = `${API_URL}/notification/history`;
+    const res = await fetcher(apiUrl, { target: username }, 'POST');
+    return res.notifications;
+}

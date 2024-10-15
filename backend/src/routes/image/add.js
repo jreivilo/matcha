@@ -6,7 +6,7 @@ const fileType = require('file-type'); // Ensure this package is installed
 
 const writeFileAsync = require('util').promisify(fs.writeFile);
 
-const { verifyJWT } = require('../../utils');
+const { verifyJWT } = require('../../jwt');
 
 module.exports = async function (fastify, opts) {
   fastify.route({

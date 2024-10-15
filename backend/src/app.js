@@ -4,6 +4,7 @@ const path = require('node:path')
 const AutoLoad = require('@fastify/autoload')
 
 const options = {}
+const userConnections = new Map()
 
 module.exports = async function (fastify, opts) {
   fastify.register(require('@fastify/swagger'), {})
@@ -11,18 +12,12 @@ module.exports = async function (fastify, opts) {
     routePrefix: '/docs',
     })
   fastify.register(require('@fastify/formbody'));
+  fastify.register(require('@fastify/websocket'));
   fastify.register(require('@fastify/cookie'), {
     secret: "super secret key",
     hook: 'onRequest',
     parseOptions: {}
   })
-
-  fastify.register(AutoLoad, {
-    dir: path.join(__dirname, 'plugins'),
-    options: Object.assign({}, opts)
-  })
-
-  // cors plugin
   fastify.register(require('@fastify/cors'), {
     origin: 'http://localhost:4000',
     // only accept req from localhost:4000 (our frontend). if you set it to through it reflects any origin, allowing forgery
@@ -32,10 +27,19 @@ module.exports = async function (fastify, opts) {
     optionsSuccessStatus: 200,
   });
   
+  
+  fastify.register(AutoLoad, {
+    dir: path.join(__dirname, 'plugins'),
+    options: Object.assign({}, opts)
+  })
+  
   fastify.register(AutoLoad, {
     dir: path.join(__dirname, 'routes'),
     options: Object.assign({}, opts)
   })
+
+  fastify.decorate('userConnections', userConnections);
+
 }
 
 module.exports.options = options
