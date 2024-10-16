@@ -11,11 +11,9 @@ import CustomLayout from '@/components/MatchaLayout';
 import { markView } from "@/api"
 import ProfileForm from '@/components/CustomProfileForm';
 import { InteractionMenu } from '@/components/Interaction';
-import { useRedirectIfLoggedOut } from '@/hooks/useRedirectLogout';
 
 const ProfilePage = () => {
   const { user } = useUser();
-  useRedirectIfLoggedOut();
   
   const location = useLocation();
   

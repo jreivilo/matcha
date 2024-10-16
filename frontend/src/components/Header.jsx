@@ -6,23 +6,20 @@ import { useNotifications } from '@/hooks/useNotifications';
 import NotificationCard from '@/components/NotificationCard';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { logout } from '@/lib/logout';
+import { useUser } from '@/components/providers/UserProvider';
 
 const Header = () => {
   const { isAuthenticated, _ } = useAuthStatus();
-  const user = localStorage.getItem('user')
-  const { username, id } = JSON.parse(user) || {};
+  const { user } = useUser();
+  const { username, id } = user || {};
   const { notifications, markAsRead, isLoading, error, refetch } = useNotifications();
 
-  const handleLogout = async () => {
-    localStorage.removeItem('user');
-    const response = await fetch('/user/logout', {
-      method: 'GET',
-      credentials: 'include'
-    });
-    window.location.reload();
-  };
-
   let unreadCount = notifications?.filter(n => !n.read_status).length || 0;
+
+  const handleLogout = async () => {
+    logout(user);
+  };
 
   const handleMarkAllAsRead = () => {
     if (!notifications) return;
@@ -33,7 +30,7 @@ const Header = () => {
   };
 
   return (
-    <header className="p-5 bg-white bg-opacity-10 backdrop-blur-md shadow-md">
+    <header className="p-5 bg-gradient-to-br from-background-start to-background-end">
       <div className="container mx-auto flex justify-between items-center">
         <h1 className="text-4xl font-bold text-text-light">
           <Link className="text-secondary hover:underline" to="/">Matcha</Link>

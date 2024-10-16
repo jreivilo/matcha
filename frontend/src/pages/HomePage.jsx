@@ -15,7 +15,7 @@ const HomePage = () => {
           <h2 className="text-5xl font-bold text-text-light mb-4">Find Your Perfect Blend</h2>
           <p className="text-xl text-text-light mb-8">Matcha brings together like-minded individuals, creating connections that last.</p>
           <Button size="lg" className="text-lg px-8 py-4 bg-primary text-text-light">
-            <Link to="/login">Get Started</Link>
+            <Link to="/auth/login">Get Started</Link>
           </Button>
         </section>
         <section className="grid md:grid-cols-3 gap-8">

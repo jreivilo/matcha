@@ -26,6 +26,7 @@ const WebSocketProvider = ({ children }) => {
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
       if (data.type === 'ERROR') {
+        ws.close()
         console.error('WebSocket error:', data.error);
       }
       else if (data.type === 'PONG') {
