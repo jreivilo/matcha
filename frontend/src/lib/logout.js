@@ -10,5 +10,5 @@ export const logout = async (user) => {
     throw new Error('Logout failed');
   }
   window.dispatchEvent(new Event('authStateChanged'));
-  window.location.reload();
+  window.location.reload()
 };

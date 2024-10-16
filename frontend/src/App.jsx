@@ -9,6 +9,16 @@ import ProfilePage from './pages/member/Profile';
 import Header from '@/components/Header';
 import { UserProvider } from '@/components/providers/UserProvider';
 import { WebSocketProvider } from './components/providers/WebSocketProvider';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 10,
+    },
+  },
+});
 
 function App() {
   return (
@@ -25,12 +35,15 @@ function App() {
         <Route
           path="/member/*"
           element={
+            <QueryClientProvider client={queryClient}>
+            <ReactQueryDevtools initialIsOpen={false} />
             <UserProvider>
-              <WebSocketProvider>
+            <WebSocketProvider>
                 <Header/>
                 <MemberRoutes />
-              </WebSocketProvider>
+            </WebSocketProvider>
             </UserProvider>
+            </QueryClientProvider>
           }/>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
@@ -38,11 +51,11 @@ function App() {
   );
 }
 
+
 function AuthRoutes() {
   return (
     <Routes>
       <Route path="login" element={<Login />} />
-      <Route path="fill-profile" element={<FillInfo />} />
     </Routes>
   )
 }
@@ -50,8 +63,9 @@ function AuthRoutes() {
 function MemberRoutes() {
   return (
     <Routes>
-      <Route path="dashboard" element={<Dashboard />} />
-      <Route path="profile" element={<ProfilePage />} />
+        <Route path="fill-profile" element={<FillInfo />} />
+        <Route path="dashboard" element={<Dashboard />} />
+        <Route path="profile" element={<ProfilePage />} />
     </Routes>
   )
 }
