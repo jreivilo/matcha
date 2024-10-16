@@ -1,11 +1,9 @@
 import React from 'react';
-import Header from './Header';
 
 const CustomLayout = ({ children }) => {
 
   return (
     <div className="min-h-screen min-w-screen bg-gradient-to-br from-background-start to-background-end">
-      <Header />
       <div className="container mx-auto p-5">
         {children}
       </div>

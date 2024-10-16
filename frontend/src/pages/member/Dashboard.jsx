@@ -4,11 +4,8 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 // homemade components
 import { useUser } from '@/components/providers/UserProvider';
-import { useRedirectIfLoggedOut } from '@/hooks/useRedirectLogout';
 
 const Dashboard = () => {
-  useRedirectIfLoggedOut();
-
   const navigate = useNavigate();
   const { user } = useUser();
 
