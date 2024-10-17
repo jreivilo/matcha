@@ -7,13 +7,19 @@ import PicGallery from '@/components/PicGallery';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Link } from "react-router-dom";
 import CustomLayout from '@/components/MatchaLayout';
 import { markView } from "@/api"
 import ProfileForm from '@/components/CustomProfileForm';
 import { InteractionMenu } from '@/components/Interaction';
+import { fetcher } from '@/api';
+import { useAuthStatus } from '@/hooks/useAuthStatus';
+
+const API_URL = 'http://localhost:3000';
 
 const ProfilePage = () => {
   const { user } = useUser();
+  const { isAuthentified } = useAuthStatus();
   
   const location = useLocation();
   
@@ -33,6 +39,11 @@ const ProfilePage = () => {
   const isSelf = user?.username === profileUsername;
   if (!displayUser?.viewed_by?.includes(user?.username) && !isSelf) {
     markView({ profileUsername: profileUsername, viewer: user?.username });
+  }
+
+  const handleVerification = async () => {
+    const reqUrl = `${API_URL}/user/request-verification`;
+    await fetcher(reqUrl, { username: profileUsername }, 'POST');
   }
 
   return (
@@ -65,7 +76,7 @@ const ProfilePage = () => {
               <div>
                 <strong>Interests:</strong> 
                 {displayUser?.interests?.length > 0 &&
-                  displayUser.interests.split(',').map(interest => (
+                  displayUser.interests.map(interest => (
                     <Badge key={interest} variant="secondary" className="mr-1">
                       {interest.trim()}
                     </Badge>
@@ -74,12 +85,19 @@ const ProfilePage = () => {
               </div>
             </div>
           )}
-          <div>
+          <div className='mt-4'>
             <p><strong>Fame Rating:</strong> {displayUser?.famerating ?? 'N/A'}</p>
             <p><strong>Last Online:</strong> {displayUser?.lastOnline ?? 'Unknown'}</p>
             <p><strong>Liked by:</strong> {displayUser?.liked_by ?? 'N/A'}</p>
             <p><strong>Blocked by:</strong> {displayUser?.blocked_by ?? 'N/A'}</p>
             <p><strong>Viewed by:</strong> {displayUser?.viewed_by ?? 'N/A'}</p>
+            {displayUser?.verified && <p><strong>✓ email verified</strong></p>}
+            {isAuthentified && !displayUser?.verified && (
+              <div className='mt-2'>
+                <p><strong>🚫 email unverified </strong></p>
+                <Button onClick={handleVerification} variant="outline"></Button>
+              </div>
+            )}
           </div>
 
           {isSelf ? (

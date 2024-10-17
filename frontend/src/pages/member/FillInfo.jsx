@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
-import CustomLayout from "../components/MatchaLayout";
+import CustomLayout from "../../components/MatchaLayout";
 import { useLocation, useNavigate } from "react-router-dom";
 import PicGallery from '@/components/PicGallery';
 import { useQuery} from '@tanstack/react-query';

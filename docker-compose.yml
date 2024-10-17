@@ -10,7 +10,7 @@ services:
       - DATABASE_HOST=${DB_HOST}
       - DATABASE_PORT=${DB_PORT}
       - DATABASE_SALT=${SALT}
-      - MAILERSEND_API_KEY=${MAILERSEND_API_KEY}
+      - MAIL_API_KEY=${MAIL_API_KEY}
       - DEV_MODE=${DEV_MODE}
     ports:
       - "3000:3000"
@@ -23,6 +23,11 @@ services:
       - ./backend/src:/usr/src/app/src
       - ./db/profile_image:/usr/src/app/profile_image
     restart: unless-stopped
+    extra_hosts:
+      - "api.postmarkapp.com:52.14.206.213"
+      - "api.postmarkapp.com:52.14.145.215"
+      - "api.postmarkapp.com:3.19.40.22"
+
 
   frontend:
     build: ./frontend

@@ -53,7 +53,7 @@ module.exports = async function (fastify, opts) {
       try {
         console.log('Checking if the verification ID exists and is not expired yet (24 hours');
         const [rows] = await connection.query(
-          'SELECT user_id FROM user_verification WHERE verification_id = ? AND DATEDIFF(NOW(), created_at) <= 86400',
+          'SELECT user_id FROM user_verification WHERE token = ? AND expires_at > NOW()',
           [verificationId]
         );
 
@@ -76,7 +76,7 @@ module.exports = async function (fastify, opts) {
 
         console.log('Deleting verification ID from database');
         await connection.query(
-          'DELETE FROM user_verification WHERE verification_id = ?',
+          'DELETE FROM user_verification WHERE token = ?',
           [verificationId]
         );
 

@@ -1,9 +1,9 @@
 'use strict'
 
 const argon2 = require('argon2');
-const { Recipient, Sender, EmailParams, MailerSend } = require("mailersend");
-const { v4: uuidv4 } = require('uuid');
 const { generateJwt } = require('../../jwt');
+const { initVerification } = require('../../services/user/verification');
+
 
 module.exports = async function (fastify, opts) {
   fastify.route({
@@ -88,41 +88,11 @@ module.exports = async function (fastify, opts) {
           [email, username, hashedPassword, first_name, last_name, true, false]
         )
         console.log("User inserted in db");
-    
-        // Create verification record
-        const verificationId = uuidv4();
-        await connection.query(
-          'INSERT INTO user_verification (user_id, token) VALUES (?, ?)',
-          [result.insertId, verificationId]
-        );
-        console.log("Verification record inserted in db");
 
-        // Send verification email
-        try {
-          const mailerSend = new MailerSend({
-            apiKey: process.env.MAILERSEND_API_KEY
-          });
+        const [newUsers] = await connection.query(
+          'SELECT * FROM user WHERE username = ?', [username])
 
-          const sentFrom = new Sender("MS_TIFpHj@trial-o65qngkj96wlwr12.mlsender.net", "Matcha");
-          const recipients = [new Recipient(email, `${first_name} ${last_name}`)];
-
-          const emailParams = new EmailParams()
-            .setFrom(sentFrom)
-            .setTo(recipients)
-            .setReplyTo(sentFrom)
-            .setSubject("Verify your account")
-            .setHtml(`Click <a href='http://localhost:3000/verify-account/${verificationId}'>here</a> to verify your account`)
-            .setText("This is the text content");
-          
-          await mailerSend.email.send(emailParams);
-          console.log("Email sent");
-        } catch (error) {
-          fastify.log.error(error);
-          // return reply.code(500).send({
-          //   success: false,
-          //   message: 'An error occurred while sending the verification email'
-          // });
-        }
+        initVerification({ user_id: newUsers[0].id, fastify });
 
         reply.setCookie('jwt', generateJwt(username), {
           httpOnly: true,
