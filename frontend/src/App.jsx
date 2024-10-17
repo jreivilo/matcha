@@ -51,7 +51,6 @@ function App() {
   );
 }
 
-
 function AuthRoutes() {
   return (
     <Routes>
