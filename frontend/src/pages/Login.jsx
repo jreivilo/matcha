@@ -33,7 +33,7 @@ const Login = () => {
         if (isLogin)
           navigate('/member/dashboard');
         else
-          navigate(`/auth/fill-profile?username=${encodeURIComponent(data.username)}`);
+          navigate(`/member/fill-profile?username=${encodeURIComponent(data.username)}`);
       } else if (responseData.code === 'USER_NOT_FOUND')
         setError('root.serverError', { type: 400, message: 'Username does not exist' });
       else if (responseData.code === 'INVALID_PASSWORD')
