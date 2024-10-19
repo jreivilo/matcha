@@ -56,19 +56,13 @@ module.exports = async function (fastify, opts) {
       const imageDirectory = path.join('/usr/src/app/profile_image', username);
 
       if (!fs.existsSync(imageDirectory)) {
-        reply.code(400).send({
-          code: 'NO_IMAGES_FOUND',
-          message: 'User has no images'
-        });
+        reply.code(202).send([]);
         return;
       }
 
       const userImages = fs.readdirSync(imageDirectory).filter(f => f.startsWith(username));
       if (userImages.length === 0) {
-        reply.code(400).send({
-          code: 'NO_IMAGES_FOUND',
-          message: 'User has no images'
-        });
+        reply.code(202).send([]);
         return;
       }
 

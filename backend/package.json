@@ -34,7 +34,7 @@
     "fastify-cli": "^7.0.1",
     "fastify-plugin": "^4.5.1",
     "file-type": "^16.5.4",
-    "mailersend": "^2.2.0",
+    "postmark": "^4.0.5",
     "uuidv4": "^6.2.13"
   },
   "devDependencies": {

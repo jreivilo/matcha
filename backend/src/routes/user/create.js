@@ -91,7 +91,7 @@ module.exports = async function (fastify, opts) {
 
         const [newUsers] = await connection.query(
           'SELECT * FROM user WHERE username = ?', [username])
-
+        
         initVerification({ user_id: newUsers[0].id, fastify });
 
         reply.setCookie('jwt', generateJwt(username), {
