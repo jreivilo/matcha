@@ -69,7 +69,7 @@ const Header = () => {
           )}
           {!username ? (
             <Button variant="default" className="text-text-light">
-              <Link to="/login">Login/Register</Link>
+              <Link to="/auth/login">Login/Register</Link>
             </Button>
           ) : (
             <div className="flex items-center space-x-4">

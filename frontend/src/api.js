@@ -76,6 +76,21 @@ export const getUserInfo = async (username, viewer) => {
     }
 };
 
+export const getProfileAuth = async (username) => {
+    const apiUrl = `${API_URL}/user/getinfo`;
+    const userResponse = await fetcher(apiUrl, { username }, 'POST');
+    if (userResponse.error) {
+        throw new Error(userResponse.error);
+    }
+    userInfo = { displayUser: userResponse.user };
+    return userInfo;
+};
+
+export const getPics = async (username) => {
+    const apiUrl = `${API_URL}/image/get`;
+    return fetcher(apiUrl, { username }, 'POST');
+};
+
 export const updateProfile = async ({ profileUsername, viewer, newUserData }) => {
     const apiUrl = `${API_URL}/user/profile`;
     return fetcher(apiUrl, { username: viewer, ...newUserData }, 'POST');
@@ -114,6 +129,9 @@ export const changeMainPicture = async ({ username, image }) => {
 };
 
 export const markView = async ({ profileUsername, viewer }) => {
+    if (!profileUsername || !viewer) {
+        throw new Error('Missing parameters');
+    }
     const apiUrl = `${API_URL}/view/view`;
     return fetcher(apiUrl, { username: viewer, viewed_username: profileUsername }, 'POST');
 };
