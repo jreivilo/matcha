@@ -9,7 +9,7 @@ LIKE_URL="http://localhost:3000/like/like"
 first_names=("John" "Jane" "Bob" "Alice" "Charlie" "Emily" "David" "Emma" "Chris" "Olivia" "Michael" "Sophia")
 last_names=("Smith" "Johnson" "Williams" "Jones" "Brown" "Davis" "Miller" "Wilson" "Moore" "Taylor" "Anderson" "Thomas")
 genders=("Male" "Female" "Non-Binary")
-sexualities=("Straight" "Gay" "Bisexual" "Pansexual" "Asexual")
+sexualities=("Straight" "Gay" "Bisexual")
 biographies=("I love building things and helping others." 
              "I enjoy traveling and exploring new places."
              "I'm passionate about technology and innovation."
