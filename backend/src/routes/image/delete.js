@@ -95,6 +95,11 @@ module.exports = async function (fastify, opts) {
           if (fs.existsSync(oldImagePath)) {
             fs.renameSync(oldImagePath, newImagePath);
           }
+
+		  // check if the image is the profile picture
+		  if (currentProfileImage === oldImageName) {
+			await connection.query('UPDATE user SET picture_path = ? WHERE username = ?', [newImageName, username]);
+		  }
         }
 
         const remainingImages = fs.readdirSync(imageDirectory).filter(f => f.startsWith(username)).sort();
