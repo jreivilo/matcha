@@ -30,7 +30,6 @@ const FillInfo = () => {
     queryFn: () => getUserInfo(username, username),
     enabled: !!(username.length > 0) && !!isAuthenticated,
   });
-  
   const { displayUser} = userinfo ?? {};
 
   return (
