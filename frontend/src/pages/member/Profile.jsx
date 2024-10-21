@@ -35,7 +35,7 @@ const ProfilePage = () => {
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
 
-  const { displayUser, isLiked, isBlocked } = userInfo ?? {};
+  const { displayUser } = userInfo ?? {};
   const isSelf = user?.username === profileUsername;
   if (!displayUser?.viewed_by?.includes(user?.username) && !isSelf) {
     markView({ profileUsername: profileUsername, viewer: user?.username });
@@ -48,71 +48,154 @@ const ProfilePage = () => {
 
   return (
     <CustomLayout>
-      <Card className="w-auto mx-auto">
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold text-center">
-            {profileUsername}'s Profile
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex justify-center">
-              {displayUser?.pics && !isSelf && <img src={`data:image/jpeg;base64,${displayUser?.pics[0]?.image}`} alt={profileUsername} />}
-              {isSelf && !isLoading && !error &&
-              <PicGallery profileUsername={profileUsername} mainpic={displayUser?.picture_path} pics={displayUser?.pics}
-              />}
-          </div>
-          { isEditMode ?
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        { isEditMode ? (
           <ProfileForm username={profileUsername} isInitialSetup={false} onSubmitComplete={() => setIsEditMode(false)}/>
-          : (
-            <div className="space-y-2">
-              <p><strong>First Name:</strong> {displayUser?.first_name ?? ''}</p>
-              <p><strong>Last Name:</strong> {displayUser?.last_name ?? ''}</p>
-              {isSelf && <p><strong>Email:</strong> {displayUser?.email ?? ''}</p>}
-              <p><strong>Gender:</strong> {displayUser?.gender ?? ''}</p>
-              <p><strong>Sexuality:</strong> {displayUser?.sexuality ?? ''}</p>
-              <p><strong>Biography:</strong> {displayUser?.biography ?? ''}</p>
-              <p><strong>Location:</strong> {displayUser?.coordinates ?? ''}</p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card className="h-fit">
+                <CardHeader>
+                  <CardTitle className="text-2xl font-bold">
+                    {profileUsername}'s Profile
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="mb-6">
+                  <div className="flex justify-center">
+                    {(isSelf && !isLoading && !error && displayUser?.pics) ? (
+                        <div className='space-y-4'>
+                          <PicGallery profileUsername={profileUsername} mainpic={displayUser?.picture_path} pics={displayUser?.pics}/>
+                        </div> ) : (
+                        <div className='w-48 h-48 rounded-full overflow-hidden'>
+                          <img
+                            src={`data:image/jpeg;base64,${displayUser?.pics[0]?.image}`}
+                            alt={profileUsername}
+                          />
+                        </div>
+                    )}
+                  </div>
+                  <div className="space-y-4 mt-6">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm text-gray-500">First Name</p>
+                        <p className="font-medium">{displayUser?.first_name ?? 'Not set'}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-500">Last Name</p>
+                        <p className="font-medium">{displayUser?.last_name ?? 'Not set'}</p>
+                      </div>
+                      {isSelf && (
+                        <div className="col-span-2">
+                          <p className="text-sm text-gray-500">Email</p>
+                          <p className="font-medium">{displayUser?.email ?? 'Not set'}</p>
+                        </div>
+                      )}
+                      <div>
+                        <p className="text-sm text-gray-500">Gender</p>
+                        <p className="font-medium">{displayUser?.gender ?? 'Not set'}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-500">Sexuality</p>
+                        <p className="font-medium">{displayUser?.sexuality ?? 'Not set'}</p>
+                      </div>
+                    </div>
+                </div>
+                  <div className="mt-6 flex justify-between">
+                    {isSelf ? (
+                        <Button onClick={() => setIsEditMode(true)} variant="outline">
+                          Edit Profile
+                        </Button>
+                    ) : (
+                      <InteractionMenu profileUsername={profileUsername} user={user}/>
+                    )}
+                  </div>
+                </CardContent>
+            </Card>
+            <Card className="h-fit">
+              <CardHeader>
+                <CardTitle className="text-xl font-bold">Additional Information</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold mb-2">Biography</h3>
+                  <p className="text-gray-700">{displayUser?.biography ?? 'No biography added'}</p>
+                </div>
 
-              <div>
-                <strong>Interests:</strong> 
-                {displayUser?.interests?.length > 0 &&
-                  displayUser.interests.map(interest => (
-                    <Badge key={interest} variant="secondary" className="mr-1">
-                      {interest.trim()}
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold mb-2">Interests</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {displayUser?.interests?.map(interest => (
+                      <Badge key={interest} variant="secondary">
+                        {interest.trim()}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                  <div className="p-4 rounded-lg">
+                    <p className="text-sm text-gray-500">Fame Rating</p>
+                    <p className="text-xl font-bold">{displayUser?.famerating ?? 'N/A'}</p>
+                  </div>
+                  <div className="p-4 rounded-lg">
+                    <p className="text-sm text-gray-500">Last Online</p>
+                    <p className="text-xl font-bold">{displayUser?.lastOnline ?? 'Unknown'}</p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="p-4 rounded-lg">
+                    <h3 className="font-semibold mb-2">Liked by</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {displayUser?.liked_by && displayUser.liked_by.map(user => (
+                        <Link key={user} to={`?username=${user.trim()}`}>
+                          <Badge variant="outline" className="hover:bg-gray-200">
+                            {user.trim()}
+                          </Badge>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-lg">
+                    <h3 className="font-semibold mb-2">Recent Visitors</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {displayUser?.viewed_by?.map(user => (
+                        <Link key={user} to={`?username=${user.trim()}`}>
+                          <Badge variant="outline" className="hover:bg-gray-200">
+                            {user.trim()}
+                          </Badge>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6">
+                  {displayUser?.verified ? (
+                    <Badge variant="success" className="w-full justify-center">
+                      ✓ Email Verified
                     </Badge>
-                  ))
-                }
-              </div>
-            </div>
-          )}
-          <div className='mt-4'>
-            <p><strong>Fame Rating:</strong> {displayUser?.famerating ?? 'N/A'}</p>
-            <p><strong>Last Online:</strong> {displayUser?.lastOnline ?? 'Unknown'}</p>
-            <p><strong>Liked by:</strong> {displayUser?.liked_by ?? 'N/A'}</p>
-            <p><strong>Blocked by:</strong> {displayUser?.blocked_by ?? 'N/A'}</p>
-            <p><strong>Viewed by:</strong> {displayUser?.viewed_by ?? 'N/A'}</p>
-            {displayUser?.verified && <p><strong>✓ email verified</strong></p>}
-            {isAuthentified && !displayUser?.verified && (
-              <div className='mt-2'>
-                <p><strong>🚫 email unverified </strong></p>
-                <Button onClick={handleVerification} variant="outline"></Button>
-              </div>
-            )}
+                  ) : (
+                    <div className="text-center">
+                      <Badge variant="destructive" className="mb-2 text-xl">
+                        🚫 Email Unverified
+                      </Badge>
+                      {isAuthentified &&
+                        <Button 
+                          onClick={handleVerification} 
+                          variant="outline"
+                          className="w-full"
+                        >
+                          Request Verification
+                        </Button>}
+                      </div>)
+                    }
+                </div>
+              </CardContent>
+            </Card>
           </div>
-
-          {isSelf ? (
-            <div className="flex justify-between mt-4">
-            { !isEditMode &&
-              <Button onClick={() => setIsEditMode(true)} variant="outline">
-                Edit Profile
-              </Button>
-            }
-          </div>
-          ) : (
-            <InteractionMenu profileUsername={profileUsername} user={user}/>
-          )}
-        </CardContent>
-      </Card>
+        )}
+      </div>
     </CustomLayout>
   );
 };

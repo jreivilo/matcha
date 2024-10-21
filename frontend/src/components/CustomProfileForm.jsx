@@ -30,8 +30,8 @@ const ProfileForm = ({ username, isInitialSetup = false, onSubmitComplete }) => 
   const { data: userInfo, isLoading, error } = useUserData(username, username);
 
   useEffect(() => {
-    if (userinfo) {
-      const { gender, sexuality, interests, email, biography, coordinates } = userinfo.displayUser || {};
+    if (userInfo) {
+      const { gender, sexuality, interests, email, biography, coordinates } = userInfo.displayUser || {};
       setValue("gender", gender || "");
       setValue("sexuality", sexuality || "");
       setValue("interests", interests || "");
