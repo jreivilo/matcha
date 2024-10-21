@@ -104,6 +104,26 @@ module.exports = async function (fastify, opts) {
           [likedUserId]
         );
 
+		// if both user kiled each other, add a match
+		const [match] = await connection.query(
+		  `SELECT * FROM liked WHERE user_id = ? AND liked_user_id = ?`,
+		  [likedUserId, userId]
+		);
+
+		if (match.length > 0) {
+		  const [existingMatch] = await connection.query(
+			'SELECT * FROM matches WHERE (userone = ? AND usertwo = ?) OR (userone = ? AND usertwo = ?)',
+			[userId, likedUserId, likedUserId, userId]
+		  );
+
+		  if (existingMatch.length === 0) {
+			console.log('Coucou2')
+			await connection.query(
+			  'INSERT INTO matches (userone, usertwo) VALUES (?, ?)',
+			  [userId, likedUserId]
+			);
+		  }
+		}
 
         // Commit transaction
         await connection.commit();
