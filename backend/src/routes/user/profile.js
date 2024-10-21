@@ -76,8 +76,8 @@ module.exports = async function (fastify, opts) {
 
         // Update the user profile fields
         await connection.query(
-          'UPDATE user SET email = ?, gender = ?, sexuality = ?, biography = ?, interests = ?, coordinates = ? WHERE username = ?',
-          [email, gender, sexuality, biography, interests, coordinates, username]
+          'UPDATE user SET email = ?, gender = ?, sexuality = ?, biography = ?, coordinates = ? WHERE username = ?',
+          [email, gender, sexuality, biography, coordinates, username]
         );
 
         // Delete existing interests for the user
