@@ -27,6 +27,7 @@ module.exports = async function (fastify, opts) {
             user: {
               type: 'object',
               properties: {
+                username: { type: 'string'},
                 email: { type: 'string' },
                 first_name: { type: 'string' },
                 last_name: { type: 'string' },
@@ -104,6 +105,7 @@ module.exports = async function (fastify, opts) {
         reply.code(200).send({
           exists: true,
           user: {
+            username,
             email: user.email,
             first_name: user.first_name,
             last_name: user.last_name,
