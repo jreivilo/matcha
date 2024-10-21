@@ -7,6 +7,7 @@ import Dashboard from './pages/member/Dashboard';
 import FillInfo from './pages/member/FillInfo';
 import ProfilePage from './pages/member/Profile';
 import Header from '@/components/Header';
+import Explore from './pages/member/Explore';
 import { UserProvider } from '@/components/providers/UserProvider';
 import { WebSocketProvider } from './components/providers/WebSocketProvider';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -65,6 +66,7 @@ function MemberRoutes() {
         <Route path="fill-profile" element={<FillInfo />} />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="profile" element={<ProfilePage />} />
+        <Route path="explore" element={<Explore />} />
     </Routes>
   )
 }
