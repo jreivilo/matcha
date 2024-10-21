@@ -25,31 +25,22 @@ const ProfileForm = ({ username, isInitialSetup = false, onSubmitComplete }) => 
     },
   });
   const queryClient = useQueryClient();
+  const geolocation = useGeoLocation();
   
   const { data: userInfo, isLoading, error } = useUserData(username, username);
-
-  // if (isLoading) return <p>Loading...</p>;
-  // if (error) return <p>Error fetching user data.</p>;
-
-  const geolocation = useGeoLocation();
-
+  
   useEffect(() => {
     if (userInfo) {
       const { gender, sexuality, interests, email, biography, coordinates } = userInfo.displayUser || {};
-      console.log(geolocation)
       setValue("gender", gender || "");
       setValue("sexuality", sexuality || "");
       setValue("interests", interests || "");
       setValue("email", email || "");
       setValue("biography", biography || "");
-      if (isInitialSetup && geolocation) {
-        setValue("coordinates", geolocation);
-      } else {
-        setValue("coordinates", coordinates || "");
-      }
+      setValue("coordinates", isInitialSetup ? geolocation : (coordinates || ""));
     }
-  }, [userInfo, geolocation, setValue, isInitialSetup]);
-
+  }, [userInfo, setValue, isInitialSetup]);
+  
   const updateProfileMutation = useMutation({
     mutationFn: updateProfile,
     onSuccess: () => {
@@ -78,6 +69,9 @@ const ProfileForm = ({ username, isInitialSetup = false, onSubmitComplete }) => 
       console.error("Profile update failed:", error);
     }
   };
+
+  if (isLoading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error.message}</p>;
 
   return (
 
