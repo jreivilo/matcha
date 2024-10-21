@@ -79,7 +79,8 @@ do
       \"sexuality\": \"$sexuality\",
       \"biography\": \"$biography\",
       \"interests\": \"$interest\",
-      \"coordinates\": \"$coordinate\"
+      \"coordinates\": \"$coordinate\",
+	  \"email\": \"$email\"
     }")
 
   echo "Response for $username (profile creation):"
