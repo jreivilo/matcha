@@ -22,12 +22,15 @@ list:
 
 ### Clean up commands ###
 stop-docker:
-	docker stop $$(docker ps -aq)
+	docker stop $(docker ps -aq)
 
-clear-images:
-	docker rmi $$(docker image ls -aq)
+clean: clear-containers clear-images clean-volumes
 
 clear-containers:
-	docker rm $$(docker ps -aq)
+	-@sudo docker rm $(sudo docker container ls -aq)
 
-clean: stop-docker clear-containers clear-images
+clear-images:
+	-@sudo docker rmi $(sudo docker image ls -aq)
+
+clean-volumes:
+	-@sudo docker volume rm $(sudo docker volume ls -q)
