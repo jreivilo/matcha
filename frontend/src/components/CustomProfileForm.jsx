@@ -11,6 +11,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getUserInfo } from "@/api";
 import { updateProfile } from "@/api";
 import { useGeoLocation } from "@/hooks/useGeoLocation";
+import { useUserData } from "@/hooks/useUserData";
 
 const ProfileForm = ({ username, isInitialSetup = false, onSubmitComplete }) => {
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm({
@@ -24,13 +25,9 @@ const ProfileForm = ({ username, isInitialSetup = false, onSubmitComplete }) => 
     },
   });
   const queryClient = useQueryClient();
-  const geoLocation = useGeoLocation();
-
-  const { data: userinfo } = useQuery({
-    queryKey: ['userData', username],
-    queryFn: () => getUserInfo(username),
-    enabled: !!username && !isInitialSetup,
-  });
+  const geolocation = useGeoLocation();
+  
+  const { data: userInfo, isLoading, error } = useUserData(username, username);
 
   useEffect(() => {
     if (userinfo) {
@@ -40,9 +37,9 @@ const ProfileForm = ({ username, isInitialSetup = false, onSubmitComplete }) => 
       setValue("interests", interests || "");
       setValue("email", email || "");
       setValue("biography", biography || "");
-      setValue("coordinates", coordinates || (isInitialSetup ? geoLocation : ""));
+      setValue("coordinates", isInitialSetup ? geolocation : (coordinates || ""));
     }
-  }, [userinfo, setValue, geoLocation, isInitialSetup]);
+  }, [userInfo, setValue, isInitialSetup]);
 
   const updateProfileMutation = useMutation({
     mutationFn: updateProfile,
@@ -63,7 +60,7 @@ const ProfileForm = ({ username, isInitialSetup = false, onSubmitComplete }) => 
       interests: data.interests.join(','),
       gender: data.gender,
       sexuality: data.sexuality || "Bisexual",
-      coordinates: data.coordinates,
+      coordinates: data.coordinates ? data.coordinates : geolocation,
     };
 
     try {
@@ -72,8 +69,12 @@ const ProfileForm = ({ username, isInitialSetup = false, onSubmitComplete }) => 
       console.error("Profile update failed:", error);
     }
   };
+  
+  if (isLoading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error.message}</p>;
 
   return (
+
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <GenderSelector gender={watch('gender')} setGender={(value) => setValue("gender", value)} />
       
@@ -99,7 +100,6 @@ const ProfileForm = ({ username, isInitialSetup = false, onSubmitComplete }) => 
           </div>
         </>
       )}
-
       <Button type="submit" className="w-full">
         {isInitialSetup ? "Complete Profile" : "Save Changes"}
       </Button>

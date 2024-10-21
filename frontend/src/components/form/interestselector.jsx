@@ -56,7 +56,7 @@ const InterestSelector = ({ interests, setInterests }) => {
       </div>
       <Dialog>
         <DialogTrigger className="px-4 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-600">
-          Modify
+          {(interests.length > 0) ? 'Modify' : 'Add interests'}
         </DialogTrigger>
         <DialogContent className="max-w-md">
           <DialogHeader>
