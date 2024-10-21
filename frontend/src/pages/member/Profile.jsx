@@ -46,6 +46,26 @@ const ProfilePage = () => {
     await fetcher(reqUrl, { username: profileUsername }, 'POST');
   }
 
+  const ListToBadge = ({ title, items }) => (
+    <div className="mb-6">
+      <h3 className="text-lg font-semibold mb-2">{title}</h3>
+      <div className="flex flex-wrap gap-2">
+        {items && items.map(item => (
+          <Badge key={item} variant="secondary">
+            {item.trim()}
+          </Badge>
+        ))}
+      </div>
+    </div>
+  );
+
+  const BasicBadge = ({ title, value }) => (
+    <div className="p-4 rounded-lg">
+      <p className="text-sm text-gray-500">{title}</p>
+      <p className="text-xl font-bold">{value ?? 'Not set'}</p>
+    </div>
+  );
+
   return (
     <CustomLayout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -61,7 +81,7 @@ const ProfilePage = () => {
                 </CardHeader>
                 <CardContent className="mb-6">
                   <div className="flex justify-center">
-                    {(isSelf && !isLoading && !error && displayUser?.pics) ? (
+                    {(isSelf && !isLoading && !error && displayUser?.pics.length > 0) ? (
                         <div className='space-y-4'>
                           <PicGallery profileUsername={profileUsername} mainpic={displayUser?.picture_path} pics={displayUser?.pics}/>
                         </div> ) : (
@@ -75,32 +95,13 @@ const ProfilePage = () => {
                   </div>
                   <div className="space-y-4 mt-6">
                     <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-sm text-gray-500">First Name</p>
-                        <p className="font-medium">{displayUser?.first_name ?? 'Not set'}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-500">Last Name</p>
-                        <p className="font-medium">{displayUser?.last_name ?? 'Not set'}</p>
-                      </div>
+                      <BasicBadge title="First Name" value={displayUser?.first_name ?? 'Not set'} />
+                      <BasicBadge title="Last Name" value={displayUser?.last_name ?? 'Not set'} />
                       {isSelf && (
-                        <div className="col-span-2">
-                          <p className="text-sm text-gray-500">Email</p>
-                          <p className="font-medium">{displayUser?.email ?? 'Not set'}</p>
-                        </div>
+                        <BasicBadge title="Email" value={displayUser?.email ?? 'Not set'} />
                       )}
-                      <div>
-                        <p className="text-sm text-gray-500">Gender</p>
-                        <p className="font-medium">{displayUser?.gender ?? 'Not set'}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-500">Sexuality</p>
-                        <p className="font-medium">{displayUser?.sexuality ?? 'Not set'}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-500">Location</p>
-                        <p className="font-medium">{displayUser?.coordinates ?? 'Not set'}</p>
-                      </div>
+                      <BasicBadge title="Gender" value={displayUser?.gender ?? 'Not set'} />
+                      <BasicBadge title="Sexuality" value={displayUser?.sexuality ?? 'Not set'} />
                     </div>
                 </div>
                   <div className="mt-6 flex justify-between">
@@ -116,7 +117,6 @@ const ProfilePage = () => {
             </Card>
             <Card className="h-fit">
               <CardHeader>
-                <CardTitle className="text-xl font-bold">Additional Information</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="mb-6">
@@ -124,68 +124,15 @@ const ProfilePage = () => {
                   <p className="text-gray-700">{displayUser?.biography ?? 'No biography added'}</p>
                 </div>
 
-                <div className="mb-6">
-                  <h3 className="text-lg font-semibold mb-2">Interests</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {displayUser?.interests?.map(interest => (
-                      <Badge key={interest} variant="secondary">
-                        {interest.trim()}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-
+                <ListToBadge title="Interests" items={displayUser?.interests} />"
+                <BasicBadge title="Location" value={displayUser?.coordinates ?? 'Not set'} /> 
                 <div className="grid grid-cols-2 gap-4 mb-6">
-                  <div className="p-4 rounded-lg">
-                    <p className="text-sm text-gray-500">Fame Rating</p>
-                    <p className="text-xl font-bold">{displayUser?.famerating ?? 'N/A'}</p>
-                  </div>
-                  <div className="p-4 rounded-lg">
-                    <p className="text-sm text-gray-500">Last Online</p>
-                    <p className="text-xl font-bold">{displayUser?.lastOnline ?? 'Unknown'}</p>
-                  </div>
+                  <BasicBadge title="Fame Rating" value={displayUser?.famerating ?? 'N/A'} />
+                  <BasicBadge title="Last Online" value={displayUser?.lastOnline ?? 'Unknown'} />
                 </div>
-
-                <div className="space-y-4">
-                  <div className="p-4 rounded-lg">
-                    <h3 className="font-semibold mb-2">Liked by</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {displayUser.liked_by?.map(user => (
-                        <Link key={user} to={`?username=${user.trim()}`}>
-                          <Badge variant="outline" className="hover:bg-gray-200">
-                            {user.trim()}
-                          </Badge>
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="p-4 rounded-lg">
-                    <h3 className="font-semibold mb-2">Blocked by</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {displayUser?.blocked_by?.map(user => (
-                        <Link key={user} to={`?username=${user.trim()}`}>
-                          <Badge variant="outline" className="hover:bg-gray-200">
-                            {user.trim()}
-                          </Badge>
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="p-4 rounded-lg">
-                    <h3 className="font-semibold mb-2">Recent Visitors</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {displayUser?.viewed_by?.map(user => (
-                        <Link key={user} to={`?username=${user.trim()}`}>
-                          <Badge variant="outline" className="hover:bg-gray-200">
-                            {user.trim()}
-                          </Badge>
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                </div>
+                <ListToBadge title="Liked by" items={displayUser?.liked_by} />
+                <ListToBadge title="Blocked by" items={displayUser?.blocked_by} />
+                <ListToBadge title="Recent Visitors" items={displayUser?.viewed_by} />
 
                 <div className="mt-6">
                   {displayUser?.verified ? (
