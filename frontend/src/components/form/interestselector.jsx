@@ -69,8 +69,10 @@ const InterestSelector = ({ interests, setInterests }) => {
               <h3 className="font-medium">Current Interests</h3>
               <div className="flex flex-wrap gap-2">
                 {interests.map((interest) => (
-                  <span key={interest} onClick={() => handleRemoveInterest(interest)} className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black text-white cursor-pointer">
-                    #{interest} x
+                  <span key={interest}
+                    onClick={() => handleRemoveInterest(interest)}
+                    className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black text-white cursor-pointer">
+                    #{interest} <p className='text-red-500'>x</p>
                   </span>
                 ))}
               </div>
@@ -108,6 +110,12 @@ const InterestSelector = ({ interests, setInterests }) => {
                 type="text"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleAddNewInterest(e);
+                    }
+                }}
                 placeholder="Type new interest"
                 className="flex-1 px-3 py-2 border rounded-md"
               />
