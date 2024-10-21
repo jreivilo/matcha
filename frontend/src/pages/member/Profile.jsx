@@ -150,7 +150,20 @@ const ProfilePage = () => {
                   <div className="p-4 rounded-lg">
                     <h3 className="font-semibold mb-2">Liked by</h3>
                     <div className="flex flex-wrap gap-2">
-                      {displayUser?.liked_by && displayUser.liked_by.map(user => (
+                      {displayUser.liked_by?.map(user => (
+                        <Link key={user} to={`?username=${user.trim()}`}>
+                          <Badge variant="outline" className="hover:bg-gray-200">
+                            {user.trim()}
+                          </Badge>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-lg">
+                    <h3 className="font-semibold mb-2">Blocked by</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {displayUser?.blocked_by?.map(user => (
                         <Link key={user} to={`?username=${user.trim()}`}>
                           <Badge variant="outline" className="hover:bg-gray-200">
                             {user.trim()}
