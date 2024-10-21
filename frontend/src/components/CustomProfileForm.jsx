@@ -28,10 +28,10 @@ const ProfileForm = ({ username, isInitialSetup = false, onSubmitComplete }) => 
   const geolocation = useGeoLocation();
   
   const { data: userInfo, isLoading, error } = useUserData(username, username);
-  
+
   useEffect(() => {
-    if (userInfo) {
-      const { gender, sexuality, interests, email, biography, coordinates } = userInfo.displayUser || {};
+    if (userinfo) {
+      const { gender, sexuality, interests, email, biography, coordinates } = userinfo.displayUser || {};
       setValue("gender", gender || "");
       setValue("sexuality", sexuality || "");
       setValue("interests", interests || "");
@@ -40,7 +40,7 @@ const ProfileForm = ({ username, isInitialSetup = false, onSubmitComplete }) => 
       setValue("coordinates", isInitialSetup ? geolocation : (coordinates || ""));
     }
   }, [userInfo, setValue, isInitialSetup]);
-  
+
   const updateProfileMutation = useMutation({
     mutationFn: updateProfile,
     onSuccess: () => {
@@ -69,7 +69,7 @@ const ProfileForm = ({ username, isInitialSetup = false, onSubmitComplete }) => 
       console.error("Profile update failed:", error);
     }
   };
-
+  
   if (isLoading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
 
@@ -100,9 +100,6 @@ const ProfileForm = ({ username, isInitialSetup = false, onSubmitComplete }) => 
           </div>
         </>
       )}
-
-      {errors && <p>{JSON.stringify(errors)}</p>}
-
       <Button type="submit" className="w-full">
         {isInitialSetup ? "Complete Profile" : "Save Changes"}
       </Button>
