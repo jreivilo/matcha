@@ -73,7 +73,9 @@ const Header = () => {
             </Button>
           ) : (
             <div className="flex items-center space-x-4">
-              <span className="text-text-light">{username}</span>
+              <Link to={`/member/profile?username=${username}`} className="text-text-light">
+                {username}
+              </Link>
               <Button variant="outline" className="text-text-light" onClick={handleLogout}>
                 Logout
               </Button>

@@ -35,7 +35,7 @@ const ProfilePage = () => {
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
 
-  const { displayUser, isLiked, isBlocked } = userInfo ?? {};
+  const { displayUser } = userInfo ?? {};
   const isSelf = user?.username === profileUsername;
   if (!displayUser?.viewed_by?.includes(user?.username) && !isSelf) {
     markView({ profileUsername: profileUsername, viewer: user?.username });
@@ -46,73 +46,120 @@ const ProfilePage = () => {
     await fetcher(reqUrl, { username: profileUsername }, 'POST');
   }
 
+  const ListToBadge = ({ title, items }) => (
+    <div className="mb-6">
+      <h3 className="text-lg font-semibold mb-2">{title}</h3>
+      <div className="flex flex-wrap gap-2">
+        {items && items.map(item => (
+          <Badge key={item} variant="secondary">
+            {item.trim()}
+          </Badge>
+        ))}
+      </div>
+    </div>
+  );
+
+  const BasicBadge = ({ title, value }) => (
+    <div className="p-4 rounded-lg">
+      <p className="text-sm text-gray-500">{title}</p>
+      <p className="text-xl font-bold">{value ?? 'Not set'}</p>
+    </div>
+  );
+
   return (
     <CustomLayout>
-      <Card className="w-auto mx-auto">
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold text-center">
-            {profileUsername}'s Profile
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex justify-center">
-              {displayUser?.pics && !isSelf && <img src={`data:image/jpeg;base64,${displayUser?.pics[0]?.image}`} alt={profileUsername} />}
-              {isSelf && !isLoading && !error &&
-              <PicGallery profileUsername={profileUsername} mainpic={displayUser?.picture_path} pics={displayUser?.pics}
-              />}
-          </div>
-          { isEditMode ?
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        { isEditMode ? (
           <ProfileForm username={profileUsername} isInitialSetup={false} onSubmitComplete={() => setIsEditMode(false)}/>
-          : (
-            <div className="space-y-2">
-              <p><strong>First Name:</strong> {displayUser?.first_name ?? ''}</p>
-              <p><strong>Last Name:</strong> {displayUser?.last_name ?? ''}</p>
-              {isSelf && <p><strong>Email:</strong> {displayUser?.email ?? ''}</p>}
-              <p><strong>Gender:</strong> {displayUser?.gender ?? ''}</p>
-              <p><strong>Sexuality:</strong> {displayUser?.sexuality ?? ''}</p>
-              <p><strong>Biography:</strong> {displayUser?.biography ?? ''}</p>
-              <p><strong>Location:</strong> {displayUser?.coordinates ?? ''}</p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card className="h-fit">
+                <CardHeader>
+                  <CardTitle className="text-2xl font-bold">
+                    {profileUsername}'s Profile
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="mb-6">
+                  <div className="flex justify-center">
+                    {(isSelf && !isLoading && !error && displayUser?.pics.length > 0) ? (
+                        <div className='space-y-4'>
+                          <PicGallery profileUsername={profileUsername} mainpic={displayUser?.picture_path} pics={displayUser?.pics}/>
+                        </div> ) : (
+                        <div className='w-48 h-48 rounded-full overflow-hidden'>
+                          <img
+                            src={`data:image/jpeg;base64,${displayUser?.pics[0]?.image}`}
+                            alt={profileUsername}
+                          />
+                        </div>
+                    )}
+                  </div>
+                  <div className="space-y-4 mt-6">
+                    <div className="grid grid-cols-2 gap-4">
+                      <BasicBadge title="First Name" value={displayUser?.first_name ?? 'Not set'} />
+                      <BasicBadge title="Last Name" value={displayUser?.last_name ?? 'Not set'} />
+                      {isSelf && (
+                        <BasicBadge title="Email" value={displayUser?.email ?? 'Not set'} />
+                      )}
+                      <BasicBadge title="Gender" value={displayUser?.gender ?? 'Not set'} />
+                      <BasicBadge title="Sexuality" value={displayUser?.sexuality ?? 'Not set'} />
+                    </div>
+                </div>
+                  <div className="mt-6 flex justify-between">
+                    {isSelf ? (
+                        <Button onClick={() => setIsEditMode(true)} variant="outline">
+                          Edit Profile
+                        </Button>
+                    ) : (
+                      <InteractionMenu profileUsername={profileUsername} user={user}/>
+                    )}
+                  </div>
+                </CardContent>
+            </Card>
+            <Card className="h-fit">
+              <CardHeader>
+              </CardHeader>
+              <CardContent>
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold mb-2">Biography</h3>
+                  <p className="text-gray-700">{displayUser?.biography ?? 'No biography added'}</p>
+                </div>
 
-              <div>
-                <strong>Interests:</strong> 
-                {displayUser?.interests?.length > 0 &&
-                  displayUser.interests.map(interest => (
-                    <Badge key={interest} variant="secondary" className="mr-1">
-                      {interest.trim()}
+                <ListToBadge title="Interests" items={displayUser?.interests} />"
+                <BasicBadge title="Location" value={displayUser?.coordinates ?? 'Not set'} /> 
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                  <BasicBadge title="Fame Rating" value={displayUser?.famerating ?? 'N/A'} />
+                  <BasicBadge title="Last Online" value={displayUser?.lastOnline ?? 'Unknown'} />
+                </div>
+                <ListToBadge title="Liked by" items={displayUser?.liked_by} />
+                <ListToBadge title="Blocked by" items={displayUser?.blocked_by} />
+                <ListToBadge title="Recent Visitors" items={displayUser?.viewed_by} />
+
+                <div className="mt-6">
+                  {displayUser?.verified ? (
+                    <Badge variant="success" className="w-full justify-center">
+                      ✓ Email Verified
                     </Badge>
-                  ))
-                }
-              </div>
-            </div>
-          )}
-          <div className='mt-4'>
-            <p><strong>Fame Rating:</strong> {displayUser?.famerating ?? 'N/A'}</p>
-            <p><strong>Last Online:</strong> {displayUser?.lastOnline ?? 'Unknown'}</p>
-            <p><strong>Liked by:</strong> {displayUser?.liked_by ?? 'N/A'}</p>
-            <p><strong>Blocked by:</strong> {displayUser?.blocked_by ?? 'N/A'}</p>
-            <p><strong>Viewed by:</strong> {displayUser?.viewed_by ?? 'N/A'}</p>
-            {displayUser?.verified && <p><strong>✓ email verified</strong></p>}
-            {isAuthentified && !displayUser?.verified && (
-              <div className='mt-2'>
-                <p><strong>🚫 email unverified </strong></p>
-                <Button onClick={handleVerification} variant="outline"></Button>
-              </div>
-            )}
+                  ) : (
+                    <div className="text-center">
+                      <Badge variant="destructive" className="mb-2 text-xl">
+                        🚫 Email Unverified
+                      </Badge>
+                      {isAuthentified &&
+                        <Button 
+                          onClick={handleVerification} 
+                          variant="outline"
+                          className="w-full"
+                        >
+                          Request Verification
+                        </Button>}
+                      </div>)
+                    }
+                </div>
+              </CardContent>
+            </Card>
           </div>
-
-          {isSelf ? (
-            <div className="flex justify-between mt-4">
-            { !isEditMode &&
-              <Button onClick={() => setIsEditMode(true)} variant="outline">
-                Edit Profile
-              </Button>
-            }
-          </div>
-          ) : (
-            <InteractionMenu profileUsername={profileUsername} user={user}/>
-          )}
-        </CardContent>
-      </Card>
+        )}
+      </div>
     </CustomLayout>
   );
 };

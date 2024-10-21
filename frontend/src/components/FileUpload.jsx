@@ -51,7 +51,23 @@ const FileUpload = ({ username }) => {
     setError(null);
     const file = event.target.files[0];
     if (file && file.type.startsWith('image/')) {
-      setSelectedFile(file);
+      if (file.size > 5 * 1024 * 1024) {
+        setError('File size must be less than 5MB');
+        setSelectedFile(null);
+        return;
+      }
+      const img = new Image();
+      img.src = URL.createObjectURL(file);
+      img.onload = () => {
+        if (img.width > 1200 || img.height > 1200) {
+          setError('Image size must be less than 1200x1200px or less');
+          setSelectedFile(null);
+          URL.revokeObjectURL(img.src);
+          return;
+        }
+        setSelectedFile(file);
+        URL.revokeObjectURL(img.src);
+      };
     } else {
       console.error("Invalid file type. Please select an image.");
       setSelectedFile(null);
