@@ -88,7 +88,36 @@ do
 
 done
 
-# Generate random "likes" between users
+# Generate likes among the first 20 users
+echo "Generating likes between the first 20 users..."
+
+for (( u=0; u<20; u++ ))
+do
+  liker=${created_usernames[$u]}
+
+  for (( v=0; v<20; v++ ))
+  do
+    liked=${created_usernames[$v]}
+
+    # Ensure a user doesn't like themselves
+    if [ "$liker" != "$liked" ]; then
+      echo "$liker likes $liked"
+
+      # API call to like a user
+      response_like=$(curl -s -w "\nHTTP STATUS: %{http_code}\n" -X POST $LIKE_URL \
+        -H "Content-Type: application/json" \
+        -d "{
+          \"username\": \"$liker\",
+          \"liked_username\": \"$liked\"
+        }")
+
+      echo "Response for $liker liking $liked:"
+      echo "$response_like"
+    fi
+  done
+done
+
+# Generate random "likes" between the remaining users
 num_likes=1000 # You can adjust this number as needed
 echo "Generating $num_likes random likes between users..."
 
