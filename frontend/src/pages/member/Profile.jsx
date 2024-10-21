@@ -97,6 +97,10 @@ const ProfilePage = () => {
                         <p className="text-sm text-gray-500">Sexuality</p>
                         <p className="font-medium">{displayUser?.sexuality ?? 'Not set'}</p>
                       </div>
+                      <div>
+                        <p className="text-sm text-gray-500">Location</p>
+                        <p className="font-medium">{displayUser?.coordinates ?? 'Not set'}</p>
+                      </div>
                     </div>
                 </div>
                   <div className="mt-6 flex justify-between">
