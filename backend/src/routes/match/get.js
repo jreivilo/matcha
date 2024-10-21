@@ -118,8 +118,7 @@ module.exports = async function (fastify, opts) {
           `SELECT u.username
            FROM user u
            LEFT JOIN blocked b ON (b.user_id = u.id AND b.blocked_user_id = ?)
-           WHERE ${genderFilter}
-           AND u.active = 1 
+           WHERE u.active = 1 
            AND u.id != ?
            AND b.user_id IS NULL -- Exclude blocked users
            ORDER BY (SELECT COUNT(*) FROM liked l WHERE l.liked_user_id = u.id) DESC
