@@ -4,7 +4,7 @@ const { verifyJWT } = require('../../jwt');
 
 module.exports = async function (fastify, opts) {
   fastify.route({
-    url: '/get-matches',
+    url: '/get-suggestions',
     method: ['POST'],
     schema: {
       summary: 'Get possible matches for a user',

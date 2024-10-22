@@ -25,10 +25,19 @@ const Explore = () => {
     hasLocation: false
   })
 
+  useEffect(() => {
+    if (userInfo?.displayUser?.coordinates) {
+      setFilters(prev => ({
+        ...prev,
+        hasLocation: true
+      }));
+    }
+  }, [userInfo?.displayUser?.coordinates]);
+
   const { data, isLoading, error } = useQuery({
     queryKey: ['suggestions', username],
     queryFn: async () => {
-      const res = await fetcher(`${API_URL}/match/get-matches`, { username,}, 'POST')
+      const res = await fetcher(`${API_URL}/explore/get-suggestions`, { username,}, 'POST')
       setFilters(prev => ({
         ...prev,
         hasLocation: Boolean(userInfo?.displayUser?.coordinates)
@@ -113,6 +122,24 @@ const Explore = () => {
     </CustomLayout>
   );
 };
+
+const calculateDistance = (coords1, coords2) => {
+  // Convert coords strings to arrays of numbers
+  const [lat1, lon1] = coords1.split(',').map(Number);
+  const [lat2, lon2] = coords2.split(',').map(Number);
+  
+  // Haversine formula
+  const R = 6371; // Earth's radius in km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = 
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+    Math.sin(dLon/2) * Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c;
+};
+
 
 
 export default Explore;
