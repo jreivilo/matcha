@@ -1,12 +1,8 @@
 const fastifyPlugin = require('fastify-plugin');
 const crypto = require('crypto');
+const { verifyToken } = require('../../jwt');
 
 module.exports = fastifyPlugin(async function (fastify, opts) {
-    // Register JWT plugin
-    fastify.register(require('fastify-jwt'), {
-        secret: 'super secret key', // Secret used to sign the JWT
-    });
-
     // The new /user/whoami route
     fastify.route({
         url: '/whoami',
@@ -44,8 +40,7 @@ module.exports = fastifyPlugin(async function (fastify, opts) {
         },
         handler: async (request, reply) => {
             try {
-                // Verify and decode JWT
-                const token = request.headers.authorization?.split(' ')[1]; // Assuming Bearer Token format
+                const token = request.cookies.jwt;
                 if (!token) {
                     reply.code(401).send({
                         success: false,
@@ -54,7 +49,7 @@ module.exports = fastifyPlugin(async function (fastify, opts) {
                     return;
                 }
 
-                const decoded = fastify.jwt.verify(token);
+                const decoded = await verifyToken(token);
                 const username = decoded.sub; // `sub` is the username in the JWT
 
                 reply.code(200).send({
