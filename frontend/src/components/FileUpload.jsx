@@ -59,7 +59,7 @@ const FileUpload = ({ username }) => {
       const img = new Image();
       img.src = URL.createObjectURL(file);
       img.onload = () => {
-        if (img.width > 1200 || img.height > 1200) {
+        if (img.width > 12000 || img.height > 12000) {
           setError('Image size must be less than 1200x1200px or less');
           setSelectedFile(null);
           URL.revokeObjectURL(img.src);

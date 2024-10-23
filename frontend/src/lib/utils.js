@@ -27,3 +27,9 @@ export const calculateDistance = (coords1, coords2) => {
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
   return R * c;
 };
+
+export const getPfpUrl = (picture_path, pics) => {
+  const imageNum = picture_path.split('_')[1].split('.')[0];
+  const image = pics[imageNum]
+  return `data:image/jpeg;base64,${image.image}`
+}

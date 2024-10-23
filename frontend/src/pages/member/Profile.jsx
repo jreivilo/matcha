@@ -14,6 +14,7 @@ import ProfileForm from '@/components/CustomProfileForm';
 import { InteractionMenu } from '@/components/Interaction';
 import { fetcher } from '@/api';
 import { useAuthStatus } from '@/hooks/useAuthStatus';
+import { getPfpUrl } from '@/lib/utils';
 
 const API_URL = 'http://localhost:3000';
 
@@ -81,17 +82,18 @@ const ProfilePage = () => {
                 </CardHeader>
                 <CardContent className="mb-6">
                   <div className="flex justify-center">
-                    {(isSelf && !isLoading && !error && displayUser?.pics.length > 0) ? (
+                    {(isSelf && !isLoading && !error) ? (
                         <div className='space-y-4'>
                           <PicGallery profileUsername={profileUsername} mainpic={displayUser?.picture_path} pics={displayUser?.pics}/>
-                        </div> ) : (
-                        <div className='w-48 h-48 rounded-full overflow-hidden'>
-                          <img
-                            src={`data:image/jpeg;base64,${displayUser?.pics[0]?.image}`}
+                        </div> ) : ((displayUser?.picture_path && displayUser?.pics.lengtth > 0) && (
+                          <div className='w-48 h-48 rounded-full overflow-hidden'>
+                            <img
+                            src={getPfpUrl(displayUser.picture_path, displayUser.pics)}
                             alt={profileUsername}
-                          />
-                        </div>
-                    )}
+                            />
+                          </div>
+                        )
+                      )}
                   </div>
                   <div className="space-y-4 mt-6">
                     <div className="grid grid-cols-2 gap-4">
