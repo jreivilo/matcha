@@ -1,26 +1,23 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { useUser } from '@/components/providers/UserProvider';
 import { useUserData } from '@/hooks/useUserData';
-import PicGallery from '@/components/PicGallery';
+import { fetcher, markView } from '@/api';
+import { useAuthStatus } from '@/hooks/useAuthStatus';
+import { getPfpUrl } from '@/lib/utils';
 // components
+import PicGallery from '@/components/PicGallery';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import CustomLayout from '@/components/MatchaLayout';
-import { markView } from "@/api"
 import ProfileForm from '@/components/CustomProfileForm';
 import { InteractionMenu } from '@/components/Interaction';
-import { fetcher } from '@/api';
-import { useAuthStatus } from '@/hooks/useAuthStatus';
-import { getPfpUrl } from '@/lib/utils';
 
 const API_URL = 'http://localhost:3000';
 
 const ProfilePage = () => {
-  const { user } = useUser();
-  const { isAuthentified } = useAuthStatus();
+  const { isAuthentified, user } = useAuthStatus();
   
   const location = useLocation();
   
@@ -30,17 +27,24 @@ const ProfilePage = () => {
     const params = new URLSearchParams(location.search);
     return params.get('username');
   }, [location.search]);
+  const isSelf = useMemo(() => user?.username === profileUsername, [profileUsername, user]);
   
-  const { data: userInfo, isLoading, error } = useUserData(profileUsername, user?.username);
+  const { data: userInfo, isLoading, error } = useUserData(profileUsername);
+
+  useEffect(() => {
+    if (!isSelf && userInfo?.displayUser && user?.username) {
+      const alreadyViewed = userInfo.displayUser.viewed_by?.includes(user.username);
+      if (!alreadyViewed) {
+        markView({ profileUsername, viewer: user.username });
+      }
+    }
+  }, [userInfo, user, isSelf, profileUsername]);  
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
 
-  const { displayUser } = userInfo ?? {};
-  const isSelf = user?.username === profileUsername;
-  if (!displayUser?.viewed_by?.includes(user?.username) && !isSelf) {
-    markView({ profileUsername: profileUsername, viewer: user?.username });
-  }
+  // const { displayUser } = userInfo?.displayUser ?? {};
+  const displayUser = userInfo?.displayUser;
 
   const handleVerification = async () => {
     const reqUrl = `${API_URL}/user/request-verification`;
@@ -53,7 +57,9 @@ const ProfilePage = () => {
       <div className="flex flex-wrap gap-2">
         {items && items.map(item => (
           <Badge key={item} variant="secondary">
+            <Link to={`/member/profile?username=${item}`} className="text-sm text-white hover:text-lg hover:text-black">
             {item.trim()}
+            </Link>
           </Badge>
         ))}
       </div>
@@ -85,7 +91,7 @@ const ProfilePage = () => {
                     {(isSelf && !isLoading && !error) ? (
                         <div className='space-y-4'>
                           <PicGallery profileUsername={profileUsername} mainpic={displayUser?.picture_path} pics={displayUser?.pics}/>
-                        </div> ) : ((displayUser?.picture_path && displayUser?.pics.lengtth > 0) && (
+                        </div> ) : ((displayUser?.picture_path && displayUser?.pics.length > 0) && (
                           <div className='w-48 h-48 rounded-full overflow-hidden'>
                             <img
                             src={getPfpUrl(displayUser.picture_path, displayUser.pics)}

@@ -3,13 +3,14 @@ import { useWebSocket } from '@/components/providers/WebSocketProvider';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getNotificationHistory } from '@/api';
 import { useUser } from '@/components/providers/UserProvider';
+import { useAuthStatus } from './useAuthStatus';
 
 const APIURL = "http://localhost:3000";
 
 export const useNotifications = () => {
   const queryClient = useQueryClient();
   const { socket } = useWebSocket();
-  const { user } = useUser();
+  const { isAuthenticated, user } = useAuthStatus();
   const username = user?.username;
 
   const { data: notifications, isLoading, error, refetch } = useQuery({
@@ -21,7 +22,7 @@ export const useNotifications = () => {
   });
 
   useEffect(() => {
-    if (!socket) return;
+    if (!socket || !isAuthenticated || !username) return;
 
     const handleMessage = (event) => {
       const data = JSON.parse(event.data);
@@ -42,7 +43,7 @@ export const useNotifications = () => {
     return () => {
       socket.removeEventListener('message', handleMessage);
     };
-  }, [socket, queryClient, username]);
+  }, [socket, queryClient, username, isAuthenticated]);
 
   const markAsReadMutation = useMutation({
     mutationFn: async ({ username, notificationIds }) => {

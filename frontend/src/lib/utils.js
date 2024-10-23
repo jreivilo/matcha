@@ -29,7 +29,7 @@ export const calculateDistance = (coords1, coords2) => {
 };
 
 export const getPfpUrl = (picture_path, pics) => {
-  const imageNum = picture_path.split('_')[1].split('.')[0];
-  const image = pics[imageNum]
+  const image = pics.find(pic => pic.imageName === picture_path);
+  if (!image) return null;
   return `data:image/jpeg;base64,${image.image}`
 }

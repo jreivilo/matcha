@@ -7,7 +7,7 @@ import { useUserData } from '@/hooks/useUserData';
 export const InteractionMenu = ({ profileUsername, user }) => {
     const queryClient = useQueryClient();
 
-    const { data: userInfo, isLoading, error } = useUserData(profileUsername, user?.username);
+    const { data: userInfo, isLoading, error } = useUserData(profileUsername);
 
     if (isLoading) return <div>Loading...</div>;
     if (error) return <div>Error: {error.message}</div>;

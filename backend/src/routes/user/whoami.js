@@ -1,9 +1,7 @@
-const fastifyPlugin = require('fastify-plugin');
 const crypto = require('crypto');
 const { verifyToken } = require('../../jwt');
 
-module.exports = fastifyPlugin(async function (fastify, opts) {
-    // The new /user/whoami route
+module.exports = async function (fastify, opts) {
     fastify.route({
         url: '/whoami',
         method: ['GET'],
@@ -17,7 +15,8 @@ module.exports = fastifyPlugin(async function (fastify, opts) {
                     type: 'object',
                     properties: {
                         success: { type: 'boolean' },
-                        username: { type: 'string' }
+                        username: { type: 'string' },
+                        id: { type: 'string' }
                     }
                 },
                 401: {
@@ -54,7 +53,8 @@ module.exports = fastifyPlugin(async function (fastify, opts) {
 
                 reply.code(200).send({
                     success: true,
-                    username
+                    username,
+                    id: decoded.id
                 });
             } catch (err) {
                 console.error('Error decoding JWT', err);
@@ -65,4 +65,4 @@ module.exports = fastifyPlugin(async function (fastify, opts) {
             }
         }
     });
-});
+};

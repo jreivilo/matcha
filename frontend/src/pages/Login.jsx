@@ -6,6 +6,7 @@ import { Input } from "../components/ui/input"
 import { Button } from "../components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "../components/ui/card"
 import CustomLayout from '@/components/MatchaLayout';
+import { fetcher } from '@/api';
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -15,16 +16,10 @@ const Login = () => {
 
   const onSubmitAuth = async (data) => {
     try {
-      let apiUrl = isLogin
+      const responseData = await fetcher(isLogin
         ? `http://localhost:3000/user/login`
-        : `http://localhost:3000/user/create-user`;
-      const response = await fetch(apiUrl, {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify(data),
-          credentials: 'include',
-        });
-      const responseData = await response.json();
+        : `http://localhost:3000/user/create-user`,
+        data, 'POST');
 
       console.log(responseData);
       if (responseData.success) {

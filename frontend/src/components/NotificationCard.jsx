@@ -1,9 +1,7 @@
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { getUserInfo } from '@/api';
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { get } from 'react-hook-form';
+import { useUserData } from '@/hooks/useUserData';
 
 const icons = {
   VIEW: '👀',
@@ -35,11 +33,8 @@ const getMessage = (type, username) => {
 };
 
 const NotificationCard = ({ notification }) => {
-  const { data: userInfo } = useQuery({
-    queryKey: ['author', notification.author],
-    queryFn: () => getUserInfo(notification.author),
-    enabled: !!notification.author,
-  })
+  if (!notification.author) return null;
+  const { data: userInfo } = useUserData(notification.author);
 
   if (!userInfo) {
     return null;

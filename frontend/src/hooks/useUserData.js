@@ -2,12 +2,12 @@ import { useQuery } from '@tanstack/react-query';
 import { getUserInfo } from '@/api';
 import { useAuthStatus } from './useAuthStatus';
 
-export const useUserData = (profileUsername, viewerUsername) => {
-  const { isAuthenticated } = useAuthStatus()
+export const useUserData = (profileUsername) => {
+  const { isAuthenticated, user } = useAuthStatus()
 
   return useQuery({
-    queryKey: ['userData', profileUsername, viewerUsername],
-    queryFn: () => getUserInfo(profileUsername, viewerUsername),
-    enabled: Boolean(profileUsername) && Boolean(viewerUsername) && !!isAuthenticated,
+    queryKey: ['userData', profileUsername, user?.username],
+    queryFn: () => getUserInfo(profileUsername, user?.username),
+    enabled: Boolean(profileUsername) && Boolean(user?.username) && !!isAuthenticated,
   });
 };

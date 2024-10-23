@@ -12,6 +12,7 @@ import { UserProvider } from '@/components/providers/UserProvider';
 import { WebSocketProvider } from './components/providers/WebSocketProvider';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import { useAuthStatus } from '@/hooks/useAuthStatus'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -20,6 +21,20 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+const ProtectedRoute = ({ children }) => {
+  const { isAuthenticated, loading } = useAuthStatus();
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/auth/login" replace />;
+  }
+
+  return children;
+};
 
 function App() {
   return (
@@ -40,8 +55,10 @@ function App() {
             <ReactQueryDevtools initialIsOpen={false} />
             <UserProvider>
             <WebSocketProvider>
+              <ProtectedRoute>
                 <Header/>
                 <MemberRoutes />
+              </ProtectedRoute>
             </WebSocketProvider>
             </UserProvider>
             </QueryClientProvider>
