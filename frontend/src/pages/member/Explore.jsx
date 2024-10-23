@@ -130,7 +130,6 @@ const Explore = () => {
     }
     if (filters.interest && !profile.interests?.includes(filters.interest)) return false;
     if (blocked?.blocked_by_usernames?.includes(profile.username)) return false;
-    return true;
   });
 
   const sortedSuggestions = useMemo(() => {

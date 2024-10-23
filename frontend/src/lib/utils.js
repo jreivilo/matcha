@@ -32,4 +32,4 @@ export const getPfpUrl = (picture_path, pics) => {
   const imageNum = picture_path.split('_')[1].split('.')[0];
   const image = pics[imageNum]
   return `data:image/jpeg;base64,${image.image}`
-}
+};
