@@ -7,8 +7,8 @@ import { Link } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { useUser } from '@/components/providers/UserProvider';
 import { useUserData } from '@/hooks/useUserData';
-import { calculateCommonInterests, calculateDistance } from '@/lib/utils';
-import { SortingHeader, ExploreFilters } from '@/components/ExploreUtils'
+import { calculateCommonInterests, calculateDistance, getPfpUrl } from '@/lib/utils';
+import { SortingHeader, ExploreFilters } from '@/components/ExploreUtils';
 
 const API_URL = "http://localhost:3000";
 
@@ -28,10 +28,10 @@ const ExploreProfile = ({ match, userInfo }) => (
     >
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-4">
-          {match.picture_path && (
+          {match.picture_path && match.pics?.length > 0 && (
             <div className="w-12 h-12 rounded-full overflow-hidden ring-2 ring-blue-100 transition flex-shrink-0">
               <img
-                src={match.picture_path}
+                src={getPfpUrl(match.picture_path, match.pics)}
                 alt={match.first_name}
                 className="w-full h-full object-cover"
               />
@@ -106,7 +106,7 @@ const Explore = () => {
 
   const { data: blocked, isLoading: blockedLoading } = useQuery({
     queryKey: ['blocked'],
-    queryFn: async () => fetcher(`${API_URL}/block/blocked-by`),
+    queryFn: async () => fetcher(`${API_URL}/block/blocked-by`, { username }, 'POST'),
     enabled: !!username
   })
   
