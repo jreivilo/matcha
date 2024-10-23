@@ -82,7 +82,6 @@ export const ExploreFilters = ({ filters, setFilters, uniqueInterests }) => {
     return (
         <div className="space-y-6">
             <div className="flex flex-wrap items-center gap-4">
-                {/* Age Range */}
                 <div className="flex items-center gap-2 bg-black/5 p-2 rounded-lg">
                     <label className="text-sm font-medium">Age:</label>
                     <div className="flex items-center gap-2">
@@ -104,19 +103,17 @@ export const ExploreFilters = ({ filters, setFilters, uniqueInterests }) => {
                     </div>
                 </div>
 
-                {activeFilters.hasLocation && (
-                    <div className="flex items-center gap-2 bg-black/5 p-2 rounded-lg">
-                        <label className="text-sm font-medium">Distance:</label>
-                        <Input
-                            type="number"
-                            className="w-20 h-8 text-center"
-                            placeholder="km"
-                            value={activeFilters.maxDistance || ''}
-                            onChange={(e) => handleFilterChange('maxDistance', e.target.value)}
-                        />
-                        <span className="text-sm">km</span>
-                    </div>
-                )}
+                <div className="flex items-center gap-2 bg-black/5 p-2 rounded-lg">
+                    <label className="text-sm font-medium">Distance:</label>
+                    <Input
+                        type="number"
+                        className="w-20 h-8 text-center"
+                        placeholder="km"
+                        value={activeFilters.maxDistance || ''}
+                        onChange={(e) => handleFilterChange('maxDistance', e.target.value)}
+                    />
+                    <span className="text-sm">km</span>
+                </div>
 
 
                 <Dialog>

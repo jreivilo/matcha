@@ -20,7 +20,7 @@ const additionalFilters = {
 };
 
 const ExploreProfile = ({ match, userInfo }) => (
-  <div key={match.username} className="border-b last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition">
+  <div key={match.user_id} className="border-b last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition">
     <Link 
       key={match.email}
       to={`/member/profile?username=${match.username}`}
@@ -125,7 +125,7 @@ const Explore = () => {
   const filteredSuggestions = suggestions?.matches?.filter(profile => {
     if (filters.minAge && profile.age < filters.minAge) return false;
     if (filters.maxAge && profile.age > filters.maxAge) return false;
-    if (filters.hasLocation && filters.maxDistance && userInfo?.displayUser?.coordinates && profile.coordinates) {
+    if (filters.maxDistance && userInfo?.displayUser?.coordinates && profile.coordinates) {
       return calculateDistance(userInfo.displayUser.coordinates, profile.coordinates) <= filters.maxDistance;
     }
     if (filters.interest && !profile.interests?.includes(filters.interest)) return false;
@@ -197,7 +197,7 @@ const Explore = () => {
           <CardContent>
             <div className="space-y-4">
               {sortedSuggestions?.map((match) => (
-                <ExploreProfile key={match.user_id} match={match} />
+                <ExploreProfile key={match.username} match={match} userInfo={userInfo}/>
               ))}
             </div>
           </CardContent>
