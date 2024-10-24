@@ -8,7 +8,7 @@ module.exports = async function (fastify, opts) {
     method: ['POST'],
     schema: {
       summary: 'Unlike a user',
-      description: 'Unlike a specific user and update the famerating',
+      description: 'Unlike a specific user, update the famerating, and remove the match if exists',
       tags: ['Like'],
       body: {
         type: 'object',
@@ -20,7 +20,7 @@ module.exports = async function (fastify, opts) {
       },
       response: {
         200: {
-          description: 'User unliked successfully',
+          description: 'User unliked successfully, and match removed if existed',
           type: 'object',
           properties: {
             success: { type: 'boolean' },
@@ -89,12 +89,26 @@ module.exports = async function (fastify, opts) {
           [likedUserId]
         );
 
+        // Check if a match exists between the two users
+        const [matchRows] = await connection.query(
+          `SELECT * FROM matches WHERE (userone = ? AND usertwo = ?) OR (userone = ? AND usertwo = ?)`,
+          [userId, likedUserId, likedUserId, userId]
+        );
+
+        // If a match exists, delete it
+        if (matchRows.length > 0) {
+          await connection.query(
+            `DELETE FROM matches WHERE (userone = ? AND usertwo = ?) OR (userone = ? AND usertwo = ?)`,
+            [userId, likedUserId, likedUserId, userId]
+          );
+        }
+
         // Commit transaction
         await connection.commit();
 
         reply.code(200).send({
           success: true,
-          message: 'User unliked successfully'
+          message: 'User unliked successfully, and match removed if existed'
         });
       } catch (error) {
         // Rollback transaction in case of error
@@ -110,4 +124,4 @@ module.exports = async function (fastify, opts) {
       }
     }
   });
-}
+};
