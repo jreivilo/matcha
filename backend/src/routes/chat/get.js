@@ -5,7 +5,7 @@ const { verifyJWT } = require('../../jwt');
 module.exports = async function (fastify, opts) {
   fastify.route({
     url: '/messages',
-    method: ['GET'],
+    method: ['POST'],
     schema: {
       summary: 'Get messages between users',
       description: 'Retrieve all messages exchanged between a sender and a receiver',

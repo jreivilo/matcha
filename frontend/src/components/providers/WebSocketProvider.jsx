@@ -8,19 +8,20 @@ const RECONNECT_DELAY = 5000;
 const MAX_RECONNECT_ATTEMPTS = 5;
 
 const WebSocketProvider = ({ children }) => {
-  const [socket, setSocket] = useState(null);
   const { isAuthenticated, user } = useAuthStatus();
+  const socketRef = useRef(null);
   const heartbeatInterval = useRef(null);
   const [reconnectAttempts, setReconnectAttempts] = useState(0);
 
   const connectWebsocket = () => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated || socketRef.current) return;
 
     const ws = new WebSocket('ws://localhost:3000/notification/ws');
 
     ws.onopen = () => {
       console.log('Connected to the WebSocket');
       startHeartbeat(ws);
+      setReconnectAttempts(0);
     };
 
     ws.onmessage = (event) => {
@@ -43,15 +44,16 @@ const WebSocketProvider = ({ children }) => {
     ws.onclose = () => {
       console.log('Disconnected from the WebSocket')
       stopHeartbeat();
-      if (isAuthenticated && user && reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+      socketRef.current = null;
+      if (isAuthenticated && reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
         setTimeout(() => {
           setReconnectAttempts(prev => prev + 1);
           connectWebsocket();
         }, RECONNECT_DELAY);
       }
     };
-    
-    setSocket(ws);
+
+    socketRef.current = ws;
   }
 
   const startHeartbeat = (ws) => {
@@ -71,25 +73,21 @@ const WebSocketProvider = ({ children }) => {
 
   useEffect(() => {
     if (isAuthenticated && user) {
-      if (socket) {
-        socket.close();
-      }
-      setReconnectAttempts(0);
       connectWebsocket();
-    } else if (socket) {
-      socket.close();
+    } else if (socketRef.current) {
+      socketRef.current.close();
       stopHeartbeat();
-      setSocket(null);
+      socketRef.current = null;
     }
   
     return () => {
-      if (socket && socket.readyState === WebSocket.OPEN) socket.close();
+      if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) { socketRef.current.close() };
       stopHeartbeat();
     };
   }, [isAuthenticated, user]);
 
   return (
-    <WebSocketContext.Provider value={{ socket, connectWebsocket}}>
+    <WebSocketContext.Provider value={{ socket: socketRef.current }}>
       {children}
     </WebSocketContext.Provider>
   );

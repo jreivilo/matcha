@@ -67,6 +67,7 @@ function MemberRoutes() {
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="profile" element={<ProfilePage />} />
         <Route path="explore" element={<Explore />} />
+        <Route path="chat" element={<ChatPanel/>} />
     </Routes>
   )
 }

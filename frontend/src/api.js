@@ -141,3 +141,14 @@ export const getNotificationHistory = async (username) => {
     const res = await fetcher(apiUrl, { target: username }, 'POST');
     return res.notifications;
 }
+
+export const getChatHistory = async (user1, user2) => {
+    const url = `${API_URL}/chat/messages`;
+    return fetcher(url, { sender: user1, receiver: user2 }, 'POST')
+}
+
+export const getMatches = async (username) => {
+    const url = `${API_URL}/match/get-user-matches`;
+    const res = await fetcher(url, { username }, 'POST')
+    return res.matches
+}
