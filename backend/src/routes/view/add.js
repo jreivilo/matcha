@@ -1,6 +1,7 @@
 'use strict';
 
 const { verifyJWT } = require('../../jwt');
+const { notificationTransaction } = require('../notification/transaction')
 
 module.exports = async function (fastify, opts) {
   fastify.route({
@@ -89,6 +90,12 @@ module.exports = async function (fastify, opts) {
             `UPDATE viewed SET created_at = CURRENT_TIMESTAMP WHERE user_id = ? AND viewed_user_id = ?`,
             [userId, viewedUserId]
           );
+          notificationTransaction(
+            {
+              author: username,
+              target: liked_username,
+              message: 'VIEW'},
+              fastify)
           reply.code(200).send({
             success: true,
             message: 'Profile view updated successfully'

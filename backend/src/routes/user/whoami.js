@@ -50,11 +50,13 @@ module.exports = async function (fastify, opts) {
 
                 const decoded = await verifyToken(token);
                 const username = decoded.sub; // `sub` is the username in the JWT
+                const id = decoded.id;
+                console.log(username, id)
 
                 reply.code(200).send({
                     success: true,
                     username,
-                    id: decoded.id
+                    id,
                 });
             } catch (err) {
                 console.error('Error decoding JWT', err);

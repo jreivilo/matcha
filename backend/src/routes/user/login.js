@@ -69,7 +69,7 @@ module.exports = async function (fastify, opts) {
 			return;
 			}
 
-			reply.setCookie('jwt', generateJwt(user[0].username), {
+			reply.setCookie('jwt', generateJwt(user[0].username, user[0].id), {
 				httpOnly: true,
 				secure: true,
 				sameSite: 'None',

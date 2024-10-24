@@ -1,18 +1,17 @@
+import { fetcher } from '@/api';
 
 export const logout = async (user, queryClient) => {
-
-  if (user) {
-    localStorage.removeItem('user')
+  try {
+    const response = await fetcher(`http://localhost:3000/user/logout`, {}, 'GET');
+    if (!response) {
+      throw new Error('Logout failed');
+    }
+    document.cookie = "jwt=; Max-Age=0; path=/;";
+    queryClient.invalidateQueries(['authStatus']);
+    queryClient.clear()
+    window.dispatchEvent(new Event('authStateChanged'));
+    window.location.reload();
+  } catch (error) {
+    console.error('Logout failed:', error);
   }
-  const response = await fetch('/user/logout', {
-    method: 'GET',
-    credentials: 'include'
-  });
-  queryClient.clear()
-  document.cookie = "jwt=; Max-Age=0; path=/;";
-  if (!response.ok) {
-    throw new Error('Logout failed');
-  }
-  window.dispatchEvent(new Event('authStateChanged'));
-  window.location.reload();
 };

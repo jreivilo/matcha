@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, useRef} from 'react';
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { useAuthStatus } from '@/hooks/useAuthStatus';
 
 const WebSocketContext = createContext(null);
@@ -8,55 +8,56 @@ const RECONNECT_DELAY = 5000;
 const MAX_RECONNECT_ATTEMPTS = 5;
 
 const WebSocketProvider = ({ children }) => {
-  const [socket, setSocket] = useState(null);
   const { isAuthenticated, user } = useAuthStatus();
+  const socketRef = useRef(null);
   const heartbeatInterval = useRef(null);
   const [reconnectAttempts, setReconnectAttempts] = useState(0);
 
-  const connectWebsocket = () => {
-    if (!isAuthenticated) return;
+  const connectWebSocket = () => {
+    if (!isAuthenticated || socketRef.current) return; // Prevent duplicate connections
 
     const ws = new WebSocket('ws://localhost:3000/notification/ws');
 
     ws.onopen = () => {
       console.log('Connected to the WebSocket');
       startHeartbeat(ws);
+      setReconnectAttempts(0); // Reset reconnect attempts on successful connection
     };
 
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
       if (data.type === 'ERROR') {
-        ws.close()
         console.error('WebSocket error:', data.error);
-      }
-      else if (data.type === 'PONG') {
+        ws.close();
+      } else if (data.type === 'PONG') {
         console.log('Received PONG:', data.message);
       } else {
-        console.log('Unknown message type:', JSON.stringify(data));
+        // console.log('Unknown message type:', JSON.stringify(data));
       }
     };
 
     ws.onerror = (event) => {
-      console.error(event);
+      console.error('WebSocket error:', event);
     };
 
     ws.onclose = () => {
-      console.log('Disconnected from the WebSocket')
+      console.log('Disconnected from the WebSocket');
       stopHeartbeat();
-      if (isAuthenticated && user && reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+      socketRef.current = null;
+      if (isAuthenticated && reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
         setTimeout(() => {
-          setReconnectAttempts(prev => prev + 1);
-          connectWebsocket();
+          setReconnectAttempts((prev) => prev + 1);
+          connectWebSocket();
         }, RECONNECT_DELAY);
       }
     };
-    
-    setSocket(ws);
-  }
+
+    socketRef.current = ws;
+  };
 
   const startHeartbeat = (ws) => {
     heartbeatInterval.current = setInterval(() => {
-      if (ws?.readyState === WebSocket.OPEN) {
+      if (ws.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify({ type: 'PING' }));
       }
     }, HEARTBEAT_INTERVAL);
@@ -71,36 +72,34 @@ const WebSocketProvider = ({ children }) => {
 
   useEffect(() => {
     if (isAuthenticated && user) {
-      if (socket) {
-        socket.close();
-      }
-      setReconnectAttempts(0);
-      connectWebsocket();
-    } else if (socket) {
-      socket.close();
+      connectWebSocket();
+    } else if (socketRef.current) {
+      socketRef.current.close();
       stopHeartbeat();
-      setSocket(null);
+      socketRef.current = null;
     }
-  
+
     return () => {
-      if (socket && socket.readyState === WebSocket.OPEN) socket.close();
+      if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+        socketRef.current.close();
+      }
       stopHeartbeat();
     };
   }, [isAuthenticated, user]);
 
   return (
-    <WebSocketContext.Provider value={{ socket, connectWebsocket}}>
+    <WebSocketContext.Provider value={{ socket: socketRef.current }}>
       {children}
     </WebSocketContext.Provider>
   );
 };
 
 function useWebSocket() {
-  const context = useContext(WebSocketContext)
+  const context = useContext(WebSocketContext);
   if (!context) {
-    throw new Error('useWebSocket must be used within a websocket context')
+    throw new Error('useWebSocket must be used within a WebSocketContext');
   }
-  return context
+  return context;
 }
 
 export { WebSocketProvider, useWebSocket };

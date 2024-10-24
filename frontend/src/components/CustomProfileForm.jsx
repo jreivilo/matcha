@@ -10,7 +10,7 @@ import InterestSelector from "@/components/form/interestselector";
 import { updateProfile } from "@/api";
 import { useGeoLocation } from "@/hooks/useGeoLocation";
 import { useUserData } from "@/hooks/useUserData";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
 
 
 const ProfileForm = ({ username, isInitialSetup = false, onSubmitComplete }) => {

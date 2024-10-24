@@ -1,43 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { fetcher } from '@/api';
 
 const API_URL = 'http://localhost:3000';
 
 export const useAuthStatus = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { data, error, isLoading } = useQuery({
+    queryKey: ['authStatus'],
+    queryFn: () => fetcher(`${API_URL}/user/whoami`, {}, 'GET'),
+    staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: false,
+  });
 
-  useEffect(() => {
-    const checkAuthStatus = async () => {
-      try {
-        const res = await fetcher(`${API_URL}/user/whoami`, {}, 'GET');
-        if (res.success === 'true') {
-          setUser({
-            username: res.username,
-            id: 5
-          });
-          setIsAuthenticated(true);
-        } else {
-          setUser(null);
-          setIsAuthenticated(false);
-        }
-      } catch (error) {
-        console.error('Error checking auth status:', error);
-        setIsAuthenticated(false);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const isAuthenticated = data?.success === true;
+  const user = isAuthenticated ? { username: data.username, id: data.id } : null;
 
-    checkAuthStatus();
-
-    window.addEventListener('authStateChanged', checkAuthStatus);
-
-    return () => {
-      window.removeEventListener('authStateChanged', checkAuthStatus);
-    };
-  }, []);
-
-  return { isAuthenticated, user, loading };
+  return { isAuthenticated, user, loading: isLoading, error };
 };

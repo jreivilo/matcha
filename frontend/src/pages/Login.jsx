@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { useUser } from '../components/providers/UserProvider';
 import { Input } from "../components/ui/input"
 import { Button } from "../components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "../components/ui/card"
@@ -12,7 +11,6 @@ const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
   const navigate = useNavigate();
   const { register, handleSubmit, setError, formState: { errors } } = useForm();
-  const { user, setUser } = useUser();
 
   const onSubmitAuth = async (data) => {
     try {
@@ -23,7 +21,6 @@ const Login = () => {
 
       console.log(responseData);
       if (responseData.success) {
-        setUser( {username: responseData.username, id: responseData.id});
         window.dispatchEvent(new Event('authStateChanged'));
         if (isLogin)
           navigate('/member/dashboard');

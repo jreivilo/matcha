@@ -44,23 +44,19 @@ function App() {
         <Route
           path="/auth/*"
           element={
-            <UserProvider>
-              <AuthRoutes />
-            </UserProvider>
+            <AuthRoutes />
         }/>
         <Route
           path="/member/*"
           element={
             <QueryClientProvider client={queryClient}>
             <ReactQueryDevtools initialIsOpen={false} />
-            <UserProvider>
-            <WebSocketProvider>
-              <ProtectedRoute>
+            <ProtectedRoute>
+              <WebSocketProvider>
                 <Header/>
                 <MemberRoutes />
-              </ProtectedRoute>
-            </WebSocketProvider>
-            </UserProvider>
+              </WebSocketProvider>
+            </ProtectedRoute>
             </QueryClientProvider>
           }/>
         <Route path="*" element={<Navigate to="/" replace />} />
