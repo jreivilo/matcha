@@ -147,9 +147,7 @@ module.exports = async function (fastify, opts) {
             method: 'POST',
             url: '/user/getinfo',
             payload: { username: match.username },
-            headers: {
-              'Set-Cookie': `jwt=${token}; HttpOnly; Path=/`
-            }
+            credentials: true,
           });
 
           const userInfo = JSON.parse(getInfoResponse.payload);
