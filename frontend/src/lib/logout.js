@@ -7,10 +7,10 @@ export const logout = async (user, queryClient) => {
       throw new Error('Logout failed');
     }
     document.cookie = "jwt=; Max-Age=0; path=/;";
-    queryClient.invalidateQueries(['authStatus']);
     queryClient.clear()
-    window.dispatchEvent(new Event('authStateChanged'));
-    window.location.reload();
+    // window.dispatchEvent(new Event('authStateChanged'));
+    window.location.href = 'http://localhost:4000/';
+    // window.location.reload();
   } catch (error) {
     console.error('Logout failed:', error);
   }

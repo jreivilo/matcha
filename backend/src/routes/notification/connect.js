@@ -15,6 +15,7 @@ module.exports = async function (fastify, opts) {
           type: 'ERROR',
           error: 'Unauthorized'
         }));
+        console.log("token missing")
         socket.close();
         return;
       }

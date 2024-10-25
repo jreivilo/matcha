@@ -9,7 +9,7 @@ module.exports = async function (fastify, opts) {
     schema: {
       summary: 'Get possible matches for a user',
       description: 'Get 50 possible matches based on the user\'s sexuality, gender, active status, and sorted by number of likes',
-      tags: ['Match'],
+      tags: ['Explore'],
       body: {
         type: 'object',
         required: ['username'],
@@ -72,6 +72,7 @@ module.exports = async function (fastify, opts) {
     },
     preHandler: verifyJWT,
     handler: async (request, reply) => {
+      const token = request.cookies.jwt;
       const { username } = request.body;
       const connection = await fastify.mysql.getConnection();
 
@@ -145,10 +146,14 @@ module.exports = async function (fastify, opts) {
           const getInfoResponse = await fastify.inject({
             method: 'POST',
             url: '/user/getinfo',
-            payload: { username: match.username }
+            payload: { username: match.username },
+            headers: {
+              'Set-Cookie': `jwt=${token}; HttpOnly; Path=/`
+            }
           });
 
           const userInfo = JSON.parse(getInfoResponse.payload);
+          console.log(userInfo)
           if (userInfo.exists) {
             detailedMatches.push(userInfo.user);
           }

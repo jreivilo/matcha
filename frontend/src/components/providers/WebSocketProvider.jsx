@@ -14,14 +14,14 @@ const WebSocketProvider = ({ children }) => {
   const [reconnectAttempts, setReconnectAttempts] = useState(0);
 
   const connectWebSocket = () => {
-    if (!isAuthenticated || socketRef.current) return; // Prevent duplicate connections
+    if (!isAuthenticated || socketRef.current) return;
 
     const ws = new WebSocket('ws://localhost:3000/notification/ws');
 
     ws.onopen = () => {
       console.log('Connected to the WebSocket');
       startHeartbeat(ws);
-      setReconnectAttempts(0); // Reset reconnect attempts on successful connection
+      setReconnectAttempts(0);
     };
 
     ws.onmessage = (event) => {
@@ -32,7 +32,7 @@ const WebSocketProvider = ({ children }) => {
       } else if (data.type === 'PONG') {
         console.log('Received PONG:', data.message);
       } else {
-        // console.log('Unknown message type:', JSON.stringify(data));
+        console.log('Received message:', data);
       }
     };
 

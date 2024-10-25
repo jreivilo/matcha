@@ -18,8 +18,6 @@ const Login = () => {
         ? `http://localhost:3000/user/login`
         : `http://localhost:3000/user/create-user`,
         data, 'POST');
-
-      console.log(responseData);
       if (responseData.success) {
         window.dispatchEvent(new Event('authStateChanged'));
         if (isLogin)

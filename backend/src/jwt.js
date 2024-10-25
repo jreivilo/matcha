@@ -70,15 +70,6 @@ function verifyToken(token, secretKey) {
     return decodedPayload;
 }
 
-// Example verification
-try {
-    const decodedPayload = verifyJWT(token, secretKey);
-    console.log("Verified payload:", decodedPayload);
-} catch (err) {
-    console.error("Token verification failed:", err.message);
-}
-
-
 module.exports = {
     generateJwt, verifyJWT, verifyToken
 };

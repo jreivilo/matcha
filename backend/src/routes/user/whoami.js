@@ -19,7 +19,7 @@ module.exports = async function (fastify, opts) {
                         id: { type: 'string' }
                     }
                 },
-                401: {
+                201: {
                     description: 'Unauthorized',
                     type: 'object',
                     properties: {
@@ -41,7 +41,7 @@ module.exports = async function (fastify, opts) {
             try {
                 const token = request.cookies.jwt;
                 if (!token) {
-                    reply.code(401).send({
+                    reply.code(201).send({
                         success: false,
                         message: 'Missing or invalid token'
                     });
@@ -60,7 +60,7 @@ module.exports = async function (fastify, opts) {
                 });
             } catch (err) {
                 console.error('Error decoding JWT', err);
-                reply.code(401).send({
+                reply.code(201).send({
                     success: false,
                     message: 'Invalid token or expired token'
                 });
