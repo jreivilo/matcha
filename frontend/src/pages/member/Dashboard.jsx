@@ -3,12 +3,11 @@ import CustomLayout from '@/components/MatchaLayout';
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 // homemade components
-import { useUser } from '@/components/providers/UserProvider';
+import { useAuthStatus } from '@/hooks/useAuthStatus';
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const { user } = useUser();
-
+  const { user} = useAuthStatus();
 
   const goToProfile = () => {
       navigate(`/member/profile?username=${encodeURIComponent(user.username)}`);

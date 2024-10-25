@@ -7,11 +7,11 @@ import { Label } from "@/components/ui/label";
 import GenderSelector from "@/components/form/genderselector";
 import SexualitySelector from "@/components/form/sexualityselector";
 import InterestSelector from "@/components/form/interestselector";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getUserInfo } from "@/api";
 import { updateProfile } from "@/api";
 import { useGeoLocation } from "@/hooks/useGeoLocation";
 import { useUserData } from "@/hooks/useUserData";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
+
 
 const ProfileForm = ({ username, isInitialSetup = false, onSubmitComplete }) => {
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm({
@@ -27,7 +27,7 @@ const ProfileForm = ({ username, isInitialSetup = false, onSubmitComplete }) => 
   const queryClient = useQueryClient();
   const geolocation = useGeoLocation();
   
-  const { data: userInfo, isLoading, error } = useUserData(username, username);
+  const { data: userInfo, isLoading, error } = useUserData(username);
 
   useEffect(() => {
     if (userInfo) {

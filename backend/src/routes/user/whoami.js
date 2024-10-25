@@ -1,9 +1,7 @@
-const fastifyPlugin = require('fastify-plugin');
 const crypto = require('crypto');
 const { verifyToken } = require('../../jwt');
 
-module.exports = fastifyPlugin(async function (fastify, opts) {
-    // The new /user/whoami route
+module.exports = async function (fastify, opts) {
     fastify.route({
         url: '/whoami',
         method: ['GET'],
@@ -17,10 +15,11 @@ module.exports = fastifyPlugin(async function (fastify, opts) {
                     type: 'object',
                     properties: {
                         success: { type: 'boolean' },
-                        username: { type: 'string' }
+                        username: { type: 'string' },
+                        id: { type: 'string' }
                     }
                 },
-                401: {
+                201: {
                     description: 'Unauthorized',
                     type: 'object',
                     properties: {
@@ -42,7 +41,7 @@ module.exports = fastifyPlugin(async function (fastify, opts) {
             try {
                 const token = request.cookies.jwt;
                 if (!token) {
-                    reply.code(401).send({
+                    reply.code(201).send({
                         success: false,
                         message: 'Missing or invalid token'
                     });
@@ -51,18 +50,21 @@ module.exports = fastifyPlugin(async function (fastify, opts) {
 
                 const decoded = await verifyToken(token);
                 const username = decoded.sub; // `sub` is the username in the JWT
+                const id = decoded.id;
+                console.log(username, id)
 
                 reply.code(200).send({
                     success: true,
-                    username
+                    username,
+                    id,
                 });
             } catch (err) {
                 console.error('Error decoding JWT', err);
-                reply.code(401).send({
+                reply.code(201).send({
                     success: false,
                     message: 'Invalid token or expired token'
                 });
             }
         }
     });
-});
+};

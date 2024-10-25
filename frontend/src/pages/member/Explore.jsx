@@ -5,8 +5,8 @@ import CustomLayout from '@/components/MatchaLayout';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Link } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
-import { useUser } from '@/components/providers/UserProvider';
 import { useUserData } from '@/hooks/useUserData';
+import { useAuthStatus } from '@/hooks/useAuthStatus';
 import { calculateCommonInterests, calculateDistance, getPfpUrl } from '@/lib/utils';
 import { SortingHeader, ExploreFilters } from '@/components/ExploreUtils';
 
@@ -82,8 +82,8 @@ const ExploreProfile = ({ match, userInfo }) => (
 )
 
 const Explore = () => {
-  const { user } = useUser();
-  const username = user?.username
+  const { isAuthenticated, user } = useAuthStatus();
+  const username = user?.username;
 
   const [sortField, setSortField] = useState('famerating');
   const [sortDirection, setSortDirection] = useState('desc');
@@ -93,15 +93,14 @@ const Explore = () => {
     maxAge: '',
     maxDistance: '',
     interest: '',
-    hasLocation: false
   })
 
-  const { data: userInfo, isLoading: userInfoLoading } = useUserData(username, username);
+  const { data: userInfo, isLoading: userInfoLoading } = useUserData(username);
 
   const { data: suggestions, isLoading : suggestionsLoading, error } = useQuery({
     queryKey: ['suggestions', username],
     queryFn: async () => fetcher(`${API_URL}/explore/get-suggestions`, { username,}, 'POST'),
-    enabled: !!username,
+    enabled: !!username && !!isAuthenticated,
   });
 
   const { data: blocked, isLoading: blockedLoading } = useQuery({
@@ -109,12 +108,6 @@ const Explore = () => {
     queryFn: async () => fetcher(`${API_URL}/block/blocked-by`, { username }, 'POST'),
     enabled: !!username
   })
-  
-  useEffect(() => {
-    if (userInfo?.displayUser?.coordinates) {
-      setFilters(prev => ({...prev, hasLocation: true}));
-    }
-  }, [userInfo]);
 
   const uniqueInterests = (() => {
     if (!suggestions?.matches) return [];

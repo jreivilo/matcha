@@ -1,33 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { fetcher } from '@/api';
+
+const API_URL = 'http://localhost:3000';
 
 export const useAuthStatus = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState(null);
+  const { data, error, isLoading } = useQuery({
+    queryKey: ['authStatus'],
+    queryFn: () => fetcher(`${API_URL}/user/whoami`, {}, 'GET'),
+    staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: false,
+  });
 
-  useEffect(() => {
-    const checkAuthStatus = () => {
-      const userJson = localStorage.getItem('user');
-      if (userJson) {
-        const user = JSON.parse(userJson);
-        setUser(user);
-        setIsAuthenticated(true);
-      } else {
-        setUser(null);
-        setIsAuthenticated(false);
-      }
-    };
+  const isAuthenticated = data?.success === true;
+  const user = isAuthenticated ? { username: data.username, id: data.id } : null;
 
-    checkAuthStatus();
-
-    window.addEventListener('storage', checkAuthStatus);
-
-    window.addEventListener('authStateChanged', checkAuthStatus)
-
-    return () => {
-      window.removeEventListener('storage', checkAuthStatus);
-      window.removeEventListener('authStateChanged', checkAuthStatus);
-    };
-  }, []);
-
-  return { isAuthenticated, user };
+  return { isAuthenticated, user, loading: isLoading, error };
 };

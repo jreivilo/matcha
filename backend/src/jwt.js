@@ -7,11 +7,12 @@ const tobase64 = (str) => {
 		.replace(/\//g, '_');;
 }
 
-const generateJwt = (username) => {
+const generateJwt = (username, id) => {
 	const header = { alg: 'HS256', typ: 'JWT' };
 	const payload = {
 		iss: 'matcha',
 		sub: username,
+        id: id,
 		iat: Math.floor(Date.now() / 1000),
 		exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24 * 7)
 	};
@@ -68,15 +69,6 @@ function verifyToken(token, secretKey) {
 
     return decodedPayload;
 }
-
-// Example verification
-try {
-    const decodedPayload = verifyJWT(token, secretKey);
-    console.log("Verified payload:", decodedPayload);
-} catch (err) {
-    console.error("Token verification failed:", err.message);
-}
-
 
 module.exports = {
     generateJwt, verifyJWT, verifyToken

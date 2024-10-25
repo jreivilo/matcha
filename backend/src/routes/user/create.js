@@ -96,7 +96,7 @@ module.exports = async function (fastify, opts) {
           initVerification({ user_id: newUsers[0].id, fastify });
         }
 
-        reply.setCookie('jwt', generateJwt(username), {
+        reply.setCookie('jwt', generateJwt(username, result.insertId), {
           httpOnly: true,
           secure: true,
           sameSite: 'strict',

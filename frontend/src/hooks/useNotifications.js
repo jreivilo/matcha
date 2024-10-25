@@ -1,15 +1,15 @@
 import { useEffect } from 'react';
 import { useWebSocket } from '@/components/providers/WebSocketProvider';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getNotificationHistory } from '@/api';
-import { useUser } from '@/components/providers/UserProvider';
+import { getNotificationHistory, fetcher } from '@/api';
+import { useAuthStatus } from './useAuthStatus';
 
 const APIURL = "http://localhost:3000";
 
 export const useNotifications = () => {
   const queryClient = useQueryClient();
   const { socket } = useWebSocket();
-  const { user } = useUser();
+  const { isAuthenticated, user } = useAuthStatus();
   const username = user?.username;
 
   const { data: notifications, isLoading, error, refetch } = useQuery({
@@ -21,7 +21,7 @@ export const useNotifications = () => {
   });
 
   useEffect(() => {
-    if (!socket) return;
+    if (!socket || !isAuthenticated || !username) return;
 
     const handleMessage = (event) => {
       const data = JSON.parse(event.data);
@@ -42,25 +42,15 @@ export const useNotifications = () => {
     return () => {
       socket.removeEventListener('message', handleMessage);
     };
-  }, [socket, queryClient, username]);
+  }, [socket, queryClient, username, isAuthenticated]);
 
   const markAsReadMutation = useMutation({
     mutationFn: async ({ username, notificationIds }) => {
-      const response = await fetch(`${APIURL}/notification/read`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          username,
-          notificationIds,
-        }),
-      });
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
+      const response = await fetcher(`${APIURL}/notification/read`, { username, notificationIds }, 'PUT');
+      if (response.code) {
+        throw new Error('Error marking notifications as read', code);
       }
-      return response.json();
+      return response;
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['notifications', username]);
