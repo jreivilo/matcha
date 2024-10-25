@@ -4,6 +4,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 // homemade components
 import { useAuthStatus } from '@/hooks/useAuthStatus';
+import ChatPanel from '@/components/Chat'
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -29,6 +30,10 @@ const Dashboard = () => {
           <button className='bg-primary text-text-light font-bold rounded-lg px-4 py-2 hover:bg-primary-light'>
             <Link to="/member/explore">Explore</Link>
           </button>
+        </section>
+        <section>
+          <h2 className='text-5xl font-bold text-text-light mb-4'>Conversations</h2>
+          <Link to="/member/chat">Get chatting</Link>
         </section>
       </div>
     </CustomLayout>

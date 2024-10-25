@@ -122,23 +122,34 @@ module.exports = async function (fastify, opts) {
 			  'INSERT INTO matches (userone, usertwo) VALUES (?, ?)',
 			  [userId, likedUserId]
 			);
+
+      notificationTransaction({
+          author: username,
+          target: liked_username,
+          message: 'MATCH'
+        }, fastify)
+      notificationTransaction({
+            author: liked_username,
+            target: username,
+            message: 'MATCH'
+          }, fastify)
 		  }
-		}
+		} else {
+    // Commit transaction
+      await connection.commit();
 
-        // Commit transaction
-        await connection.commit();
+      notificationTransaction({
+          author: username,
+          target: liked_username,
+          message: 'LIKE'},
+          fastify)
 
-        notificationTransaction(
-          {
-            author: username,
-            target: liked_username,
-            message: 'LIKE'},
-            fastify)
+      reply.code(200).send({
+        success: true,
+        message: 'User liked successfully'
+      });
+    }
 
-        reply.code(200).send({
-          success: true,
-          message: 'User liked successfully'
-        });
       } catch (error) {
         // Rollback transaction in case of error
         await connection.rollback();
