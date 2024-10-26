@@ -53,9 +53,10 @@ module.exports = async function (fastify, opts) {
             const connection = await fastify.mysql.getConnection();
 
             try {
-                // Begin transaction
+                // Begin transaction8
                 await connection.beginTransaction();
 
+                console.log(sender, receiver, message)
                 // Get sender and receiver IDs based on the username
                 const [senderResult] = await connection.query('SELECT id FROM user WHERE username = ?', [sender]);
                 const [receiverResult] = await connection.query('SELECT id FROM user WHERE username = ?', [receiver]);
@@ -77,7 +78,7 @@ module.exports = async function (fastify, opts) {
                 await connection.commit();
 
                 // Send success response
-                reply.send({
+                reply.code(200).send({
                     success: true,
                     message: 'Chat added successfully'
                 });

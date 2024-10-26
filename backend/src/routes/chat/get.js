@@ -10,7 +10,7 @@ module.exports = async function (fastify, opts) {
       summary: 'Get messages between users',
       description: 'Retrieve all messages exchanged between a sender and a receiver',
       tags: ['Chat'],
-      querystring: {
+      body: {  // Changed from querystring to body
         type: 'object',
         required: ['sender', 'receiver'],
         properties: {
@@ -60,7 +60,7 @@ module.exports = async function (fastify, opts) {
     },
     preHandler: verifyJWT,
     handler: async (request, reply) => {
-      const { sender, receiver } = request.query;
+      const { sender, receiver } = request.body; // Changed from request.query to request.body
       const connection = await fastify.mysql.getConnection();
 
       try {
@@ -79,9 +79,9 @@ module.exports = async function (fastify, opts) {
         );
 
         if (senderRows.length === 0 || receiverRows.length === 0) {
-          reply.code(400).send({
-            code: 'INVALID_USER',
-            message: 'Sender or receiver does not exist'
+          reply.code(200).send({
+            success: true,
+            messages: []
           });
           return;
         }
@@ -92,22 +92,21 @@ module.exports = async function (fastify, opts) {
         // Retrieve messages between sender and receiver
         const [messages] = await connection.query(
           `SELECT message, date
-		   FROM chat
-		   WHERE (sender = ? AND receiver = ?) OR (sender = ? AND receiver = ?)
-		   ORDER BY date ASC`,
-		  [senderId, receiverId, receiverId, senderId]
-		);
+           FROM chat
+           WHERE (sender = ? AND receiver = ?) OR (sender = ? AND receiver = ?)
+           ORDER BY date ASC`,
+          [senderId, receiverId, receiverId, senderId]
+        );
 
         const formattedMessages = messages.map((message) => {
-			return {
-				message_id: message.id,
-				sender_username: sender,
-				receiver_username: receiver,
-				text: message.message,
-				timestamp: message.date
-			};
-		});
-
+          return {
+            message_id: message.id,
+            sender_username: sender,
+            receiver_username: receiver,
+            text: message.message,
+            timestamp: message.date
+          };
+        });
 
         // Commit transaction
         await connection.commit();

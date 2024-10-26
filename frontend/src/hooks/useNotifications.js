@@ -17,7 +17,7 @@ export const useNotifications = () => {
     queryFn: () => getNotificationHistory(username),
     enabled: !!username,
     staleTime: 5 * 60 * 1000,
-    refetchOnWindowFocus: true,
+    refetchOnWindowFocus: false,
   });
 
   useEffect(() => {

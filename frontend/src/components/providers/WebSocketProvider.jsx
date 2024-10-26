@@ -13,7 +13,7 @@ const WebSocketProvider = ({ children }) => {
   const heartbeatInterval = useRef(null);
   const [reconnectAttempts, setReconnectAttempts] = useState(0);
 
-  const connectWebsocket = () => {
+  const connectWebSocket = () => {
     if (!isAuthenticated || socketRef.current) return;
 
     const ws = new WebSocket('ws://localhost:3000/notification/ws');

@@ -8,6 +8,7 @@ import FillInfo from './pages/member/FillInfo';
 import ProfilePage from './pages/member/Profile';
 import Header from '@/components/Header';
 import Explore from './pages/member/Explore';
+import ChatPanel from './pages/member/Chat';
 import { WebSocketProvider } from './components/providers/WebSocketProvider';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'

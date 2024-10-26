@@ -4,14 +4,16 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 // homemade components
 import { useAuthStatus } from '@/hooks/useAuthStatus';
-import ChatPanel from '@/components/Chat'
+import ChatPanel from '@/pages/member/Chat'
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const { user} = useAuthStatus();
+  const { user, isLoading } = useAuthStatus();
+
+  if (isLoading) return <div>Loading...</div>;
 
   const goToProfile = () => {
-      navigate(`/member/profile?username=${encodeURIComponent(user.username)}`);
+      navigate(`/member/profile?username=${encodeURIComponent(user?.username)}`);
   }
 
   return (
