@@ -1,7 +1,5 @@
-import { useEffect } from 'react';
 import { useWebSocket } from '@/components/providers/WebSocketProvider';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getChatHistory, sendMessage } from '@/api';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStatus } from './useAuthStatus';
 
 const APIURL = "http://localhost:3000";
