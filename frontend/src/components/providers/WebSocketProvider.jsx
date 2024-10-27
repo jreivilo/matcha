@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { useAuthStatus } from '@/hooks/useAuthStatus';
+import { useQueryClient } from '@tanstack/react-query';
 
 const WebSocketContext = createContext(null);
 
@@ -12,6 +13,7 @@ const WebSocketProvider = ({ children }) => {
   const socketRef = useRef(null);
   const heartbeatInterval = useRef(null);
   const [reconnectAttempts, setReconnectAttempts] = useState(0);
+  const queryClient = useQueryClient();
 
   const connectWebSocket = () => {
     if (!isAuthenticated || socketRef.current) return;
@@ -31,8 +33,13 @@ const WebSocketProvider = ({ children }) => {
         ws.close();
       } else if (data.type === 'PONG') {
         console.log('Received PONG:', data.message);
+      } else if (data.type ==='NEW' && data.message === 'MSG') {
+        if (data.message = 'MSG') {
+          console.log("invalidating", data.author)
+          queryClient.invalidateQueries(['chatHistory', data.author])
+        }
       } else {
-        console.log('Received message:', data);
+          console.log('Received message:', data);
       }
     };
 

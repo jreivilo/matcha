@@ -10,7 +10,7 @@ import { useQueryClient } from '@tanstack/react-query';
 
 const Header = () => {
   const queryClient = useQueryClient();
-  const { isAuthenticated, user } = useAuthStatus();
+  const { user } = useAuthStatus();
   const { username } = user || {};
   const { notifications, markAsRead, isLoading, error, refetch } = useNotifications();
 
@@ -41,7 +41,7 @@ const Header = () => {
           <Button variant="outline" className="text-text-light" >
             <Link to="/member/dashboard">Dashboard</Link>
           </Button>
-          <NotificationFeed />
+          <NotificationFeed unreadCount={unreadCount} notifications={notifications} handleMarkAllAsRead={handleMarkAllAsRead} />
           {!username ? (
             <Button variant="default" className="text-text-light">
               <Link to="/auth/login">Login/Register</Link>

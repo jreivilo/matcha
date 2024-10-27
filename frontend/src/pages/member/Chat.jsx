@@ -117,7 +117,6 @@ const ChatPanel = () => {
 	}
     return (
         <CustomLayout>
-            {/* <div className="flex justify-center items-center"> */}
             <div className="mb-10">
                 <SilentMatches silentMatches={silentMatches} handleNewChat={handleNewChat} />
                 <div className="w-full h-full min-h-[900px] bg-black text-white shadow-lg rounded-md flex">

@@ -1,7 +1,7 @@
 import NotificationCard from '@/components/notif/NotificationCard';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button'
 
 const NotificationFeed = ({ unreadCount, notifications, handleMarkAllAsRead}) => (
     <DropdownMenu>

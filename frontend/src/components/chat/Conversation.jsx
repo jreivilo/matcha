@@ -3,6 +3,41 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { getChatHistory, sendMessage } from '@/api';
 import { getPfpUrl } from '@/lib/utils';
 
+const Messages = ({ chatLog, messageEndRef, user }) => {
+    const isMe = (message) => {
+        const result = message.sender_username === user?.username;
+        return result;
+    };
+
+    return (
+        <div className="flex-1 p-4 overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-700 scrollbar-track-neutral-900" id="chat-messages">
+            <div className="space-y-4">
+                {chatLog?.map((message, idx) => (
+                    <div
+                        key={idx}
+                        className={`flex ${(isMe(message)) ? 'justify-end' : 'justify-start'}`}
+                    >
+                        <div className={`
+                            max-w-[75%] px-4 py-2 rounded-2xl
+                            ${(isMe(message))
+                                ? 'bg-blue-600 rounded-br-sm' 
+                                : 'bg-neutral-700 rounded-bl-sm'}
+                        `}>
+                            <p className="text-sm mb-1">{message.text}</p>
+                            <div className="text-[10px] text-neutral-300 text-right">
+                                {new Date(message.timestamp).toLocaleTimeString([], { 
+                                    hour: '2-digit', 
+                                    minute: '2-digit' 
+                                })}
+                            </div>
+                        </div>
+                    </div>
+                ))}
+                <div ref={messageEndRef} />
+            </div>
+        </div>
+)}
+
 const ConversationBox = ({ user, selectedChat }) => {
     const interlocutor = selectedChat?.matchProfile;
     const messagesEndRef = useRef(null);
@@ -10,7 +45,8 @@ const ConversationBox = ({ user, selectedChat }) => {
     const { data: chatLog, isLoading, error, refetch } = useQuery({
         queryKey: ['chatHistory', interlocutor?.username],
         queryFn: () => getChatHistory({ sender: user?.username, receiver: interlocutor?.username }),
-        enabled: !!interlocutor?.username && !!user?.username
+        enabled: !!interlocutor?.username && !!user?.username,
+        staleTime: 1000 * 5, // 1 minute
     });
 
     useEffect(() => {
@@ -73,32 +109,7 @@ const ConversationBox = ({ user, selectedChat }) => {
                 )}
             </div>
 
-            <div className="flex-1 p-4 overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-700 scrollbar-track-neutral-900" id="chat-messages">
-                <div className="space-y-4">
-                    {chatLog?.map((message, idx) => (
-                        <div
-                            key={idx}
-                            className={`flex ${message.sender_username === user?.username ? 'justify-end' : 'justify-start'}`}
-                        >
-                            <div className={`
-                                max-w-[75%] px-4 py-2 rounded-2xl
-                                ${message.sender_username === user?.username 
-                                    ? 'bg-blue-600 rounded-br-sm' 
-                                    : 'bg-neutral-700 rounded-bl-sm'}
-                            `}>
-                                <p className="text-sm mb-1">{message.text}</p>
-                                <div className="text-[10px] text-neutral-300 text-right">
-                                    {new Date(message.timestamp).toLocaleTimeString([], { 
-                                        hour: '2-digit', 
-                                        minute: '2-digit' 
-                                    })}
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                    <div ref={messagesEndRef} />
-                </div>
-            </div>
+            <Messages chatLog={chatLog} messageEndRef={messagesEndRef} user={user} />
 
             <div className="bg-neutral-800 border-t border-neutral-700">
                 <form onSubmit={handleSendMessage} className="h-[80px] bg-neutral-800 flex items-center p-4">
