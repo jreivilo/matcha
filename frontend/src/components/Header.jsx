@@ -7,7 +7,6 @@ import { useNotifications } from '@/hooks/useNotifications';
 
 import { logout } from '@/lib/logout';
 import { useQueryClient } from '@tanstack/react-query';
-import { useQueryClient } from '@tanstack/react-query';
 
 const Header = () => {
   const queryClient = useQueryClient();

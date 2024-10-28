@@ -30,7 +30,7 @@ module.exports = async function (fastify, opts) {
           }
         },
         400: {
-          description: 'Invalid input or no matches found',
+          description: 'Invalid input',
           type: 'object',
           properties: {
             code: { type: 'string' },
@@ -80,7 +80,7 @@ module.exports = async function (fastify, opts) {
 
         // Check if there are any matches
         if (matchRows.length === 0) {
-          reply.code(400).send({
+          reply.code(201).send({
             code: 'NO_MATCHES',
             message: 'No matches found'
           });

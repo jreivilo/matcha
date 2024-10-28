@@ -1,7 +1,5 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
-import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { useAuthStatus } from '@/hooks/useAuthStatus';
-import { useQueryClient } from '@tanstack/react-query';
 
 const WebSocketContext = createContext(null);
 
@@ -12,13 +10,9 @@ const MAX_RECONNECT_ATTEMPTS = 5;
 const WebSocketProvider = ({ children }) => {
   const { isAuthenticated, user } = useAuthStatus();
   const socketRef = useRef(null);
-  const socketRef = useRef(null);
   const heartbeatInterval = useRef(null);
   const [reconnectAttempts, setReconnectAttempts] = useState(0);
-  const queryClient = useQueryClient();
 
-  const connectWebSocket = () => {
-    if (!isAuthenticated || socketRef.current) return;
   const connectWebSocket = () => {
     if (!isAuthenticated || socketRef.current) return;
 
@@ -28,7 +22,6 @@ const WebSocketProvider = ({ children }) => {
       console.log('Connected to the WebSocket');
       startHeartbeat(ws);
       setReconnectAttempts(0);
-      setReconnectAttempts(0);
     };
 
     ws.onmessage = (event) => {
@@ -37,35 +30,22 @@ const WebSocketProvider = ({ children }) => {
         console.error('WebSocket error:', data.error);
         ws.close();
       } else if (data.type === 'PONG') {
-        ws.close();
-      } else if (data.type === 'PONG') {
         console.log('Received PONG:', data.message);
-      } else if (data.type ==='NEW' && data.message === 'MSG') {
-        if (data.message = 'MSG') {
-          console.log("invalidating", data.author)
-          queryClient.invalidateQueries(['chatHistory', data.author])
-        }
       } else {
-          console.log('Received message:', data);
+        console.log('Received message:', data);
       }
     };
 
     ws.onerror = (event) => {
       console.error('WebSocket error:', event);
-      console.error('WebSocket error:', event);
     };
 
     ws.onclose = () => {
       console.log('Disconnected from the WebSocket');
-      console.log('Disconnected from the WebSocket');
       stopHeartbeat();
       socketRef.current = null;
       if (isAuthenticated && reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
-      socketRef.current = null;
-      if (isAuthenticated && reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
         setTimeout(() => {
-          setReconnectAttempts((prev) => prev + 1);
-          connectWebSocket();
           setReconnectAttempts((prev) => prev + 1);
           connectWebSocket();
         }, RECONNECT_DELAY);
@@ -75,12 +55,8 @@ const WebSocketProvider = ({ children }) => {
     socketRef.current = ws;
   };
 
-    socketRef.current = ws;
-  };
-
   const startHeartbeat = (ws) => {
     heartbeatInterval.current = setInterval(() => {
-      if (ws.readyState === WebSocket.OPEN) {
       if (ws.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify({ type: 'PING' }));
       }
@@ -99,19 +75,11 @@ const WebSocketProvider = ({ children }) => {
       connectWebSocket();
     } else if (socketRef.current) {
       socketRef.current.close();
-      connectWebSocket();
-    } else if (socketRef.current) {
-      socketRef.current.close();
       stopHeartbeat();
-      socketRef.current = null;
       socketRef.current = null;
     }
 
-
     return () => {
-      if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
-        socketRef.current.close();
-      }
       if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
         socketRef.current.close();
       }
@@ -121,7 +89,6 @@ const WebSocketProvider = ({ children }) => {
 
   return (
     <WebSocketContext.Provider value={{ socket: socketRef.current }}>
-    <WebSocketContext.Provider value={{ socket: socketRef.current }}>
       {children}
     </WebSocketContext.Provider>
   );
@@ -129,14 +96,10 @@ const WebSocketProvider = ({ children }) => {
 
 function useWebSocket() {
   const context = useContext(WebSocketContext);
-  const context = useContext(WebSocketContext);
   if (!context) {
     throw new Error('useWebSocket must be used within a WebSocketContext');
-    throw new Error('useWebSocket must be used within a WebSocketContext');
   }
-  return context;
   return context;
 }
 
 export { WebSocketProvider, useWebSocket };
-

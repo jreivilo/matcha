@@ -108,7 +108,6 @@ const ChatPanel = () => {
     }, [matches, user?.username, queryClient])
 
     if (matchLoading || authLoading) return <p>Loading...</p>
-    if (matchError) return <p>Error loading matches: {matchError.message}</p>
 
 	const handleNewChat = ({matchProfile}) => {
 		setSelectedChat({ matchProfile, chatLog: [] })
@@ -117,6 +116,7 @@ const ChatPanel = () => {
 	}
     return (
         <CustomLayout>
+            {(matchError && matchError.message === '["matches"] data is undefined') && <p>Start matching to access the chat!</p>}
             <div className="mb-10">
                 <SilentMatches silentMatches={silentMatches} handleNewChat={handleNewChat} />
                 <div className="w-full h-full min-h-[900px] bg-black text-white shadow-lg rounded-md flex">
