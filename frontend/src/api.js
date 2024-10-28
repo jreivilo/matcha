@@ -141,3 +141,21 @@ export const getNotificationHistory = async (username) => {
     const res = await fetcher(apiUrl, { target: username }, 'POST');
     return res.notifications;
 }
+
+export const getChatHistory = async ({ sender, receiver}) => { 
+    if (!sender || !receiver) throw new Error('Missing parameters');
+    const url = `${API_URL}/chat/messages`;
+    const res = await fetcher(url, { sender, receiver }, 'POST')
+    return res.messages
+}
+
+export const getMatches = async (username) => {
+    const url = `${API_URL}/match/get-user-matches`;
+    const res = await fetcher(url, { username }, 'POST')
+    return res.matches
+}
+
+export const sendMessage = async ({ sender, receiver, message }) => {
+    const url = `${API_URL}/chat/add`;
+    return fetcher(url, { sender, receiver, message }, 'POST')
+}

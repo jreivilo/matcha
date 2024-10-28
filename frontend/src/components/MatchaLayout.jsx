@@ -7,7 +7,7 @@ const CustomLayout = ({ children }) => {
       <div className="container mx-auto p-5">
         {children}
       </div>
-      <footer className="footer--pin mt-20 bg-white bg-opacity-10 backdrop-blur-md py-10">
+      <footer className="footer--pin mt-5 bg-white bg-opacity-10 backdrop-blur-md py-2 text-center text-text-light">
         <div className="container mx-auto text-center text-text-light">
           <p>&copy; 2024 Matcha Dating. All rights reserved.</p>
         </div>

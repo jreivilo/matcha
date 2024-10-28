@@ -1,0 +1,27 @@
+#webcrumbs > div {
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* Ensure the chat takes full available height */
+}
+
+.ConversationBox-wrapper {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow-y: auto; /* Scroll when there are too many messages */
+}
+
+.ConversationBox-wrapper .messages-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+}
+
+.ConversationBox-wrapper .input-container {
+    display: flex;
+    padding: 0.5rem;
+    border-top: 1px solid #333;
+    /* bg-neutral-800;
+    border-t;
+    border-neutral-700 */
+}

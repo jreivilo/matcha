@@ -5,12 +5,12 @@ const { verifyJWT } = require('../../jwt');
 module.exports = async function (fastify, opts) {
   fastify.route({
     url: '/messages',
-    method: ['GET'],
+    method: ['POST'],
     schema: {
       summary: 'Get messages between users',
       description: 'Retrieve all messages exchanged between a sender and a receiver',
       tags: ['Chat'],
-      querystring: {
+      body: {  // Changed from querystring to body
         type: 'object',
         required: ['sender', 'receiver'],
         properties: {
@@ -60,74 +60,70 @@ module.exports = async function (fastify, opts) {
     },
     preHandler: verifyJWT,
     handler: async (request, reply) => {
-      const { sender, receiver } = request.query;
+      const { sender, receiver } = request.body;
       const connection = await fastify.mysql.getConnection();
-
+  
       try {
-        // Begin transaction
-        await connection.beginTransaction();
-
-        // Find user IDs based on the usernames
-        const [senderRows] = await connection.query(
-          `SELECT id FROM user WHERE username = ?`,
-          [sender]
-        );
-
-        const [receiverRows] = await connection.query(
-          `SELECT id FROM user WHERE username = ?`,
-          [receiver]
-        );
-
-        if (senderRows.length === 0 || receiverRows.length === 0) {
-          reply.code(400).send({
-            code: 'INVALID_USER',
-            message: 'Sender or receiver does not exist'
+          await connection.beginTransaction();
+  
+          // Find user IDs
+          const [senderRows] = await connection.query(
+              `SELECT id FROM user WHERE username = ?`,
+              [sender]
+          );
+          const [receiverRows] = await connection.query(
+              `SELECT id FROM user WHERE username = ?`,
+              [receiver]
+          );
+  
+          if (senderRows.length === 0 || receiverRows.length === 0) {
+              reply.code(200).send({
+                  success: true,
+                  messages: []
+              });
+              return;
+          }
+  
+          const senderId = senderRows[0].id;
+          const receiverId = receiverRows[0].id;
+  
+          // Retrieve messages with both sender and receiver information
+          const [messages] = await connection.query(
+              `SELECT id, message, date, sender AS sender_id, receiver AS receiver_id
+               FROM chat
+               WHERE (sender = ? AND receiver = ?) OR (sender = ? AND receiver = ?)
+               ORDER BY date ASC`,
+              [senderId, receiverId, receiverId, senderId]
+          );
+  
+          // Format messages based on actual sender and receiver IDs
+          const formattedMessages = messages.map((message) => {
+              const isSender = message.sender_id === senderId;
+              return {
+                  message_id: message.id,
+                  sender_username: isSender ? sender : receiver,
+                  receiver_username: isSender ? receiver : sender,
+                  text: message.message,
+                  timestamp: message.date
+              };
           });
-          return;
-        }
-
-        const senderId = senderRows[0].id;
-        const receiverId = receiverRows[0].id;
-
-        // Retrieve messages between sender and receiver
-        const [messages] = await connection.query(
-          `SELECT message, date
-		   FROM chat
-		   WHERE (sender = ? AND receiver = ?) OR (sender = ? AND receiver = ?)
-		   ORDER BY date ASC`,
-		  [senderId, receiverId, receiverId, senderId]
-		);
-
-        const formattedMessages = messages.map((message) => {
-			return {
-				message_id: message.id,
-				sender_username: sender,
-				receiver_username: receiver,
-				text: message.message,
-				timestamp: message.date
-			};
-		});
-
-
-        // Commit transaction
-        await connection.commit();
-
-        reply.code(200).send({
-          success: true,
-          messages: formattedMessages
-        });
+  
+          await connection.commit();
+  
+          reply.code(200).send({
+              success: true,
+              messages: formattedMessages
+          });
       } catch (error) {
-        // Rollback transaction in case of error
-        await connection.rollback();
-
-        reply.code(500).send({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'An error occurred while retrieving messages',
-          error: error.message
-        });
+          await connection.rollback();
+          reply.code(500).send({
+              code: 'INTERNAL_SERVER_ERROR',
+              message: 'An error occurred while retrieving messages',
+              error: error.message
+          });
       } finally {
-        connection.release();
+          connection.release();
       }
-    }
+    },
   });
-}
+};

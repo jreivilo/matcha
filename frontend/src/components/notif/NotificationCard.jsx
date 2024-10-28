@@ -9,6 +9,7 @@ const icons = {
   BLOCK: '🚫',
   MESSAGE: '💬',
   MATCH: '🤝',
+  MSG: '📨',
 };
 
 const getPfp = (userInfo) => {
@@ -26,7 +27,7 @@ const getMessage = (type, username) => {
     case 'VIEW': return `${username} viewed your profile`;
     case 'LIKE': return `${username} liked you`;
     case 'BLOCK': return `${username} blocked you`;
-    case 'MESSAGE': return `${username} sent you a message`;
+    case 'MSG': return `${username} sent you a message`;
     case 'MATCH': return `You matched with ${username}`;
     default: return 'Unknown notification type';
   }

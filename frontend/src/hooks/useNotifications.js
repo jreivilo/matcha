@@ -17,7 +17,7 @@ export const useNotifications = () => {
     queryFn: () => getNotificationHistory(username),
     enabled: !!username,
     staleTime: 5 * 60 * 1000,
-    refetchOnWindowFocus: true,
+    refetchOnWindowFocus: false,
   });
 
   useEffect(() => {
@@ -48,7 +48,7 @@ export const useNotifications = () => {
     mutationFn: async ({ username, notificationIds }) => {
       const response = await fetcher(`${APIURL}/notification/read`, { username, notificationIds }, 'PUT');
       if (response.code) {
-        throw new Error('Error marking notifications as read', code);
+        throw new Error('Error marking notifications as read', response.code);
       }
       return response;
     },

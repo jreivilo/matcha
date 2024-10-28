@@ -1,23 +1,23 @@
 import React from 'react';
 import { Button } from './ui/button';
+import NotificationFeed from '@/components/notif/NotificationFeed';
 import { Link } from 'react-router-dom';
 import { useAuthStatus } from '@/hooks/useAuthStatus';
 import { useNotifications } from '@/hooks/useNotifications';
-import NotificationCard from '@/components/NotificationCard';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { ScrollArea } from "@/components/ui/scroll-area";
+
 import { logout } from '@/lib/logout';
 import { useQueryClient } from '@tanstack/react-query';
 
 const Header = () => {
   const queryClient = useQueryClient();
-  const { isAuthenticated, user } = useAuthStatus();
+  const { user } = useAuthStatus();
   const { username } = user || {};
   const { notifications, markAsRead, isLoading, error, refetch } = useNotifications();
 
   let unreadCount = notifications?.filter(n => !n.read_status).length || 0;
 
   const handleLogout = async () => {
+    logout(user, queryClient);
     logout(user, queryClient);
   };
 
@@ -32,38 +32,6 @@ const Header = () => {
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
 
-  const NotificationFeed = () => (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="relative">
-          Notifications
-          {unreadCount > 0 && (
-            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-              {unreadCount}
-            </span>
-          )}
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-80 bg-gray-800 text-white">
-        <div className="flex justify-between items-center mb-2 p-2">
-          <h3 className="font-semibold">Notifications</h3>
-          <Button variant="ghost" size="sm" onClick={handleMarkAllAsRead}>
-            Mark All as Read
-          </Button>
-        </div>
-        <ScrollArea className="h-[300px]">
-          {notifications && notifications.length > 0 ? (
-            notifications.map((notification) => (
-              <NotificationCard key={notification.id} notification={notification} />
-            ))
-          ) : (
-            <p className="text-center text-gray-400">No notifications</p>
-          )}
-        </ScrollArea>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  )
-
   return (
     <header className="p-5 bg-gradient-to-br from-background-start to-background-end">
       <div className="container mx-auto flex justify-between items-center">
@@ -71,7 +39,10 @@ const Header = () => {
           <Link className="text-secondary hover:underline" to="/">Matcha</Link>
         </h1>
         <nav className="flex items-center space-x-4">
-          {isAuthenticated && <NotificationFeed />}
+          <Button variant="outline" className="text-text-light" >
+            <Link to="/member/dashboard">Dashboard</Link>
+          </Button>
+          <NotificationFeed unreadCount={unreadCount} notifications={notifications} handleMarkAllAsRead={handleMarkAllAsRead} />
           {!username ? (
             <Button variant="default" className="text-text-light">
               <Link to="/auth/login">Login/Register</Link>
