@@ -123,8 +123,7 @@ module.exports = async function (fastify, opts) {
            WHERE u.active = 1 
            AND u.id != ?
            AND b.user_id IS NULL -- Exclude blocked users
-           ORDER BY (SELECT COUNT(*) FROM liked l WHERE l.liked_user_id = u.id) DESC
-           LIMIT 50`,
+           ORDER BY (SELECT COUNT(*) FROM liked l WHERE l.liked_user_id = u.id) DESC`,
           [userId, userId]
         );
 
@@ -147,7 +146,9 @@ module.exports = async function (fastify, opts) {
             method: 'POST',
             url: '/user/getinfo',
             payload: { username: match.username },
-            credentials: true,
+			headers: {
+				cookie: `jwt=${token}` // Pass the JWT cookie here
+			  }
           });
 
           const userInfo = JSON.parse(getInfoResponse.payload);
