@@ -1,36 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import CustomLayout from "../../components/MatchaLayout";
 import { useLocation, useNavigate } from "react-router-dom";
 import PicGallery from '@/components/PicGallery';
-import { useQuery} from '@tanstack/react-query';
-import { getUserInfo } from '@/api';
 import ProfileForm from '@/components/CustomProfileForm';
 import { useAuthStatus } from '@/hooks/useAuthStatus'
+import { useUserData } from '@/hooks/useUserData'
 
 const FillInfo = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [username, setUsername] = useState('');
-  const { isAuthenticated } = useAuthStatus()
+  const { isAuthenticated, user } = useAuthStatus()
+  const { data: userinfo } = useUserData(user?.username);
   
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const usernameParam = params.get('username');
-    if (usernameParam) {
-      setUsername(usernameParam);
-    } else {
-      navigate('/member/dashboard');
-    }
-  }, [location, navigate]);
-
-  // get user info
-  const { data : userinfo } = useQuery({
-    queryKey: ['userData', username, username],
-    queryFn: () => getUserInfo(username, username),
-    enabled: !!(username.length > 0) && !!isAuthenticated,
-  });
   const { displayUser} = userinfo ?? {};
+  const username = displayUser?.username;
 
   return (
     <CustomLayout >

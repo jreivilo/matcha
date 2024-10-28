@@ -63,8 +63,13 @@ const ChatPanel = () => {
     const [talkingMatches, setTalkingMatches] = useState([])
     const [silentMatches, setSilentMatches] = useState([])
 	const [selectedChat, setSelectedChat] = useState(null)
+    const [noMatches, setNoMatches] = useState(false)
 
     useEffect(() => {
+        if (matches === 'none') {
+            setNoMatches(true);
+            return;
+        }
         if (!matches) return
 
         const fetchProfilesAndChats = async () => {
@@ -116,22 +121,25 @@ const ChatPanel = () => {
 	}
     return (
         <CustomLayout>
-            {(matchError && matchError.message === '["matches"] data is undefined') && <p>Start matching to access the chat!</p>}
             <div className="mb-10">
-                <SilentMatches silentMatches={silentMatches} handleNewChat={handleNewChat} />
-                <div className="w-full h-full min-h-[900px] bg-black text-white shadow-lg rounded-md flex">
-                    <TalkingMatches 
-                        talkingMatches={talkingMatches} 
-                        selectedChat={selectedChat} 
-                        setSelectedChat={setSelectedChat} 
-                        className="w-1/3 min-h-full overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-700" 
-                    />
-                    <ConversationBox 
-                        selectedChat={selectedChat} 
-                        user={user} 
-                        className="w-2/3 flex flex-col" 
-                    />
-                </div>
+            {noMatches ? (<p>Get matching before you can start chatting!</p>) : (
+                <>
+                    <SilentMatches silentMatches={silentMatches} handleNewChat={handleNewChat} />
+                    <div className="w-full h-full min-h-[900px] bg-black text-white shadow-lg rounded-md flex">
+                        <TalkingMatches 
+                            talkingMatches={talkingMatches} 
+                            selectedChat={selectedChat} 
+                            setSelectedChat={setSelectedChat} 
+                            className="w-1/3 min-h-full overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-700" 
+                        />
+                        <ConversationBox 
+                            selectedChat={selectedChat} 
+                            user={user} 
+                            className="w-2/3 flex flex-col" 
+                        />
+                    </div>
+                </>
+            )}
             </div>
         </CustomLayout>
     )

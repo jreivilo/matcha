@@ -82,7 +82,8 @@ module.exports = async function (fastify, opts) {
         if (matchRows.length === 0) {
           reply.code(201).send({
             code: 'NO_MATCHES',
-            message: 'No matches found'
+            message: 'No matches found',
+            matches: 'none'
           });
           return;
         }
