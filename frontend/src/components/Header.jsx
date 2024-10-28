@@ -7,6 +7,7 @@ import { useNotifications } from '@/hooks/useNotifications';
 
 import { logout } from '@/lib/logout';
 import { useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 
 const Header = () => {
   const queryClient = useQueryClient();
@@ -17,6 +18,7 @@ const Header = () => {
   let unreadCount = notifications?.filter(n => !n.read_status).length || 0;
 
   const handleLogout = async () => {
+    logout(user, queryClient);
     logout(user, queryClient);
   };
 
