@@ -15,6 +15,7 @@ COPY . .
 
 # Install app dependencies
 RUN npm install
+RUN npm install react-dropzone
 
 # Expose a port to communicate with the React app
 EXPOSE 4000

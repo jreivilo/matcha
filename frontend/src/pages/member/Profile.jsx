@@ -90,7 +90,7 @@ const ProfilePage = () => {
                   <div className="flex justify-center">
                     {(isSelf && !isLoading && !error) ? (
                         <div className='space-y-4'>
-                          <PicGallery profileUsername={profileUsername} mainpic={displayUser?.picture_path} pics={displayUser?.pics}/>
+                          <PicGallery username={profileUsername} mainpic={displayUser?.picture_path}/>
                         </div> ) : ((displayUser?.picture_path && displayUser?.pics.length > 0) && (
                           <div className='w-48 h-48 rounded-full overflow-hidden'>
                             <img
