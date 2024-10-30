@@ -10,11 +10,9 @@ const getImageNumber = (imageName) => parseInt(imageName.match(/_(\d+)\.png$/)[1
 
 const PicGallery = ({username, mainpic}) => {
   const queryClient = useQueryClient();
-  // const { user } = useAuthStatus();
-  // const username = user?.username;
-  const [main, setMain] = useState(mainpic);
+  const [main, setMain] = useState(mainpic || null);
 
-  const { data: pics, isLoading } = useQuery({
+  const { data: pics, isLoading, error } = useQuery({
     queryKey: ['pics', username],
     queryFn: () => getUserPics(username),
     enabled: !!username,
@@ -28,8 +26,7 @@ const PicGallery = ({username, mainpic}) => {
   const deletePicMutation = useMutation({
     mutationFn: deleteProfilePicture,
     onMutate: async ({ imageName }) => {
-      await queryClient.cancelQueries(['pics', username]);
-    
+      await queryClient.cancelQueries(['pics', username]);    
       const previousPics = queryClient.getQueryData(['pics', username]);
     
       const optimisticPics = previousPics.filter(pic => pic.imageName !== imageName);
@@ -45,61 +42,46 @@ const PicGallery = ({username, mainpic}) => {
       } else if (getImageNumber(main) > getImageNumber(imageName)) {
         newMain = `${username}_${getImageNumber(main) - 1}.png`;
       }
+      const previousMain = main;
       setMain(newMain);
       queryClient.setQueryData(['pics', username], reindexedPics);
-    
-      return { previousPics, previousMain: main };
+      return { previousPics, previousMain };
     },
     onError: (err, variables, context) => {
       queryClient.setQueryData(['pics', username], context.previousPics);
       setMain(context.previousMain);
     },
-    onSettled: () => {
-      // queryClient.invalidateQueries(['pics', username], { refetchInactive: false });
-    },
+    retry: 4
   });
 
-  // Optimistic update for setting main picture
   const changeMainPicMutation = useMutation({
     mutationFn: changeMainPicture,
     onMutate: async ({ image }) => {
       await queryClient.cancelQueries(['pics', username]);
-      const previousPics = queryClient.getQueryData(['pics', username]);
-      
-      queryClient.setQueryData(['pics', username], old => 
-        old.map(pic => ({
-          ...pic,
-          isMain: pic.imageName === image,
-        }))
-      );
-      
-      return { previousPics };
+      const previousMain = main;
+      setMain(image);
+      return { previousMain };
     },
     onError: (err, variables, context) => {
       queryClient.setQueryData(['pics', username], context.previousPics);
+      setMain(context.previousMain);
+      console.error('Error changing main picture:', err);
+      setError("Failed to set main picture. Please try again.");
     },
+    retry: 4
   });
 
-  // Handlers
   const handleDeletePic = useCallback((imageName) => {
     const imageNumber = parseInt(imageName.match(/_(\d+)\.png$/)[1], 10);
     deletePicMutation.mutate({ username, imageName, imageNumber })
   }, [deletePicMutation]);
 
   const handleSetMainPic = useCallback((imageName) => {
-    setMain(imageName);
     changeMainPicMutation.mutate({ username, image: imageName });
   }, [changeMainPicMutation]);
 
-  // Initialize main picture only once
-  // useEffect(() => {
-  //   if (reducedData?.displayUser?.picture_path && !main) {
-  //     setMain(reducedData.displayUser.picture_path);
-  //   }
-  // }, [reducedData, main]);
-
-  // if (isLoadingData) return <div>Loading...</div>;
-  // if (error) return <div>Error: {error.message}</div>;
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
 
   return (
     <CustomLayout>
@@ -118,7 +100,7 @@ const PicGallery = ({username, mainpic}) => {
           ))}
         </div>
       )}
-      <FileUpload username={username} />
+      <FileUpload username={username} setMain={setMain} />
     </CustomLayout>
   );
 };

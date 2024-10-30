@@ -13,7 +13,7 @@ const encodeImageAsBase64 = (file) => {
   });
 };
 
-const FileUpload = ({ username }) => {
+const FileUpload = ({ username, setMain }) => {
   const queryClient = useQueryClient();
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploading, setUploading] = useState(false);
@@ -54,6 +54,7 @@ const FileUpload = ({ username }) => {
       setSelectedFile(null);
     },
     enabled: Boolean(username),
+    retry: 4
   });
 
   const validateFile = useCallback((file) => {
@@ -75,9 +76,10 @@ const FileUpload = ({ username }) => {
     if (validateFile(file)) {
       const img = new Image();
       img.src = URL.createObjectURL(file);
-      img.onload = () => {
+      img.onload = async () => {
         if (img.width < 12000 && img.height < 12000) {
-          setSelectedFile(file);
+          const imageString = await encodeImageAsBase64(file);
+          setSelectedFile(imageString);
         } else {
           setError("Image dimensions must be 1200x1200px or less");
         }
@@ -90,8 +92,8 @@ const FileUpload = ({ username }) => {
     if (!selectedFile) return;
     setUploading(true);
     try {
-      const imageString = await encodeImageAsBase64(selectedFile);
-      picsMutation.mutate({ username, file: imageString });
+      // const imageString = await encodeImageAsBase64(selectedFile);
+      picsMutation.mutate({ username, file: selectedFile });
     } catch (error) {
       console.error("File encoding error:", error);
     } finally {
