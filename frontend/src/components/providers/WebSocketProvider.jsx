@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { useAuthStatus } from '@/hooks/useAuthStatus';
+import { useQueryClient } from '@tanstack/react-query'
 
 const WebSocketContext = createContext(null);
 
@@ -8,6 +9,7 @@ const RECONNECT_DELAY = 5000;
 const MAX_RECONNECT_ATTEMPTS = 5;
 
 const WebSocketProvider = ({ children }) => {
+  const queryClient = useQueryClient();
   const { isAuthenticated, user } = useAuthStatus();
   const socketRef = useRef(null);
   const heartbeatInterval = useRef(null);

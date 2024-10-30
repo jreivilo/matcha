@@ -4,6 +4,8 @@ import NotificationFeed from '@/components/notif/NotificationFeed';
 import { Link } from 'react-router-dom';
 import { useAuthStatus } from '@/hooks/useAuthStatus';
 import { useNotifications } from '@/hooks/useNotifications';
+// import { useAuthStatus } from '@/components/providers/AuthProvider';
+// import { useNotifications } from '@/components/providers/NotificationsProvider';
 
 import { logout } from '@/lib/logout';
 import { useQueryClient } from '@tanstack/react-query';

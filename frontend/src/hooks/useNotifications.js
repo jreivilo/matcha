@@ -26,8 +26,14 @@ export const useNotifications = () => {
     if (!socket || !isAuthenticated || !username) return;
 
     const handleMessage = (event) => {
+      console.log("Adding WebSocket message listener.");
       const data = JSON.parse(event.data);
       if (data.type === 'NEW') {
+        if (data.message === "MESSAGE") {
+          console.log("new msg: ", data)
+          queryClient.refetchQueries({
+            queryKey: ['chatHistory', data.author]})
+        }
         queryClient.setQueryData(['notifications', username], (oldData) => {
           return [...(oldData || []), {
             id: data.id,
@@ -36,6 +42,8 @@ export const useNotifications = () => {
             read_status: data.read_status,
           }];
         });
+      } else {
+        console.log(data)
       }
     };
 

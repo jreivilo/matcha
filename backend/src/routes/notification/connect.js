@@ -27,19 +27,18 @@ module.exports = async function (fastify, opts) {
         fastify.userConnections.set(username, socket);
         socket.username = username;
 
-        try {
-            socket.send(JSON.stringify({
-              type: 'PONG',
-              message: 'Pong'
-            }));
-        } catch (error) {
-          fastify.log.error('Error fetching unread notifications:', error.message);
-        }
+        socket.send(JSON.stringify({
+            type: 'PONG',
+            message: 'Pong'
+        }));
 
         socket.on('message', (msg) => {
           const data = JSON.parse(msg);
           if (data.type === 'PING') {
             socket.send(JSON.stringify({ type: 'PONG', message: 'Pong' }));
+          }
+          else {
+            socket.send(JSON.stringify({ type: 'PONG', message: "what?"}))
           }
         });
 
@@ -49,7 +48,7 @@ module.exports = async function (fastify, opts) {
           type: 'ERROR',
           error: 'Authentication Error'
         }));
-        socket.close();
+        // socket.close();
         return () => {
           if (socket.readyState === WebSocket.OPEN) {
             socket.close();
@@ -60,6 +59,8 @@ module.exports = async function (fastify, opts) {
     onClose: (socket) => {
       const username = socket.username;
       fastify.userConnections.delete(username);
+      console.log('Socket closed:', fastify.userConnections);
     }
   });
 }
+

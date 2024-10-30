@@ -13,6 +13,7 @@ async function notificationTransaction({ author, target, message }, fastify) {
       'SELECT id FROM notifications WHERE author = ? AND target = ? ORDER BY created_at DESC LIMIT 1',
       [author, target]
     );
+    console.log("bloop")
 
     if (fastify.userConnections) {
       const targetSocket = fastify.userConnections.get(target);
