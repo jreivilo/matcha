@@ -43,11 +43,15 @@ const FileUpload = ({ username }) => {
     onError: (error, variables, context) => {
       queryClient.setQueryData(['pics', username], context.previousPics);
       console.error('Error uploading picture:', error);
+      setSelectedFile(null);
     },
     onSuccess: (data) => {
       if (data.imageNumber === 1) {
         setMain(data.imageName);
       }
+    },
+    onSettled: () => {
+      setSelectedFile(null);
     },
     enabled: Boolean(username),
   });

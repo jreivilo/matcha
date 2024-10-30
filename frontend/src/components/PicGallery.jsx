@@ -6,6 +6,8 @@ import { deleteProfilePicture, changeMainPicture, getUserPics, getProfileAuth } 
 import { PicItem } from '@/components/PicItem';
 // import { useAuthStatus } from '@/hooks/useAuthStatus';
 
+const getImageNumber = (imageName) => parseInt(imageName.match(/_(\d+)\.png$/)[1], 10);
+
 const PicGallery = ({username, mainpic}) => {
   const queryClient = useQueryClient();
   // const { user } = useAuthStatus();
@@ -25,30 +27,27 @@ const PicGallery = ({username, mainpic}) => {
   // Optimistic update for deleting a picture
   const deletePicMutation = useMutation({
     mutationFn: deleteProfilePicture,
-    onMutate: async ({ imageName, imageIndex }) => {
+    onMutate: async ({ imageName }) => {
       await queryClient.cancelQueries(['pics', username]);
-      
+    
       const previousPics = queryClient.getQueryData(['pics', username]);
-
-      const optimisticPics = previousPics
-        .filter(pic => pic.imageName !== imageName)
-        .map(pic => {
-          const currentIndex = parseInt(pic.imageName.match(/_(\d+)\.png$/)[1], 10);
-          if (currentIndex > imageIndex) {
-            return { ...pic, imageName: `${username}_${currentIndex - 1}.png` };
-          }
-          return pic;
-        });
-
+    
+      const optimisticPics = previousPics.filter(pic => pic.imageName !== imageName);
+    
+      const reindexedPics = optimisticPics.map((pic, index) => ({
+        ...pic,
+        imageName: `${username}_${index + 1}.png`, // Re-index to maintain sequential naming
+      }));
+    
       let newMain = main;
       if (main === imageName) {
-        newMain = optimisticPics[0]?.imageName || null;
-      } else if (parseInt(main.match(/_(\d+)\.png$/)[1], 10) > imageIndex) {
-        newMain = `${username}_${parseInt(main.match(/_(\d+)\.png$/)[1], 10) - 1}.png`;
+        newMain = reindexedPics[0]?.imageName || null;
+      } else if (getImageNumber(main) > getImageNumber(imageName)) {
+        newMain = `${username}_${getImageNumber(main) - 1}.png`;
       }
       setMain(newMain);
-      queryClient.setQueryData(['pics', username], optimisticPics);
-
+      queryClient.setQueryData(['pics', username], reindexedPics);
+    
       return { previousPics, previousMain: main };
     },
     onError: (err, variables, context) => {
