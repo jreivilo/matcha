@@ -18,6 +18,8 @@ export const useNotifications = () => {
     enabled: !!username,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
+    delay: 1200,
+    retryDelay: 1000,
   });
 
   useEffect(() => {

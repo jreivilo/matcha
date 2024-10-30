@@ -86,9 +86,10 @@ export const getProfileAuth = async (username) => {
     return userInfo;
 };
 
-export const getPics = async (username) => {
-    const apiUrl = `${API_URL}/image/get`;
-    return fetcher(apiUrl, { username }, 'POST');
+export const getUserPics = async (username) => {
+    const response = await fetcher(`${API_URL}/image/get`, { username}, 'POST');
+    if (response.error) throw new Error(response.error);
+    return response.code ? [] : response;
 };
 
 export const updateProfile = async ({ profileUsername, viewer, newUserData }) => {
@@ -117,9 +118,8 @@ export const uploadProfilePicture = async ({ username, file }) => {
     return fetcher(apiUrl, { username, file }, 'POST');
 };
 
-export const deleteProfilePicture = async ({ username, imageName }) => {
+export const deleteProfilePicture = async ({ username, imageNumber }) => {
     const apiUrl = `${API_URL}/image/delete`;
-    const imageNumber = imageName.split('_')[1].split('.')[0];
     return fetcher(apiUrl, { username, imageNumber }, 'DELETE');
 };
 
