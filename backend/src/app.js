@@ -13,6 +13,13 @@ module.exports = async function (fastify, opts) {
     })
   fastify.register(require('@fastify/formbody'));
   fastify.register(require('@fastify/websocket'));
+  fastify.register(require('fastify-socket.io'), {
+    cors: {
+      origin: 'http://localhost:4000',
+      methods: ["GET", "POST"],
+      credentials: true
+    }
+  });
   fastify.register(require('@fastify/cookie'), {
     secret: "super secret key",
     hook: 'onRequest',
@@ -20,7 +27,6 @@ module.exports = async function (fastify, opts) {
   })
   fastify.register(require('@fastify/cors'), {
     origin: 'http://localhost:4000',
-    // only accept req from localhost:4000 (our frontend). if you set it to through it reflects any origin, allowing forgery
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Access-Control-Allow-Origin'],
     credentials: true,
@@ -39,7 +45,6 @@ module.exports = async function (fastify, opts) {
   })
 
   fastify.decorate('userConnections', userConnections);
-
 }
 
 module.exports.options = options

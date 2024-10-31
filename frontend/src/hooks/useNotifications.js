@@ -1,50 +1,48 @@
 import { useEffect } from 'react';
-import { useWebSocket } from '@/components/providers/WebSocketProvider';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getNotificationHistory, fetcher } from '@/api';
 import { useAuthStatus } from './useAuthStatus';
-
+import useWebSocket, { ReadyState } from 'react-use-websocket';
 const APIURL = "http://localhost:3000";
+const WS_URL = 'ws://localhost:3000/notification/ws';
 
 export const useNotifications = () => {
   const queryClient = useQueryClient();
-  const { socket } = useWebSocket();
   const { isAuthenticated, user } = useAuthStatus();
   const username = user?.username;
+
+  const { lastMessage, readyState, sendJsonMessage } = useWebSocket(WS_URL, {
+    onOpen: () => console.log('WebSocket connected'),
+    onClose: () => console.log('WebSocket disconnected'),
+    onMessage: async (message) => {
+      console.log("oneMessage: ",message)
+      if (!message) return;
+      
+      const data = JSON.parse(message.data)
+      if (data.type === 'NEW') {
+        if (data.message === 'MSG') {
+          queryClient.invalidateQueries(['chatHistory', data.author]);
+        }
+        queryClient.invalidateQueries(['notifications', username]);
+      }
+    },
+    share: true,
+    filter: () => true,
+    retryOnError: true,
+    shouldReconnect: () => true,
+    reconnectInterval: 3000,
+    credentials: true,
+  });
+
 
   const { data: notifications, isLoading, error, refetch } = useQuery({
     queryKey: ['notifications', username],
     queryFn: () => getNotificationHistory(username),
     enabled: !!username,
-    staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
-    delay: 1200,
-    retryDelay: 1000,
+    retry: 4,
+    delay: 1000,
   });
-
-  useEffect(() => {
-    if (!socket || !isAuthenticated || !username) return;
-
-    const handleMessage = (event) => {
-      const data = JSON.parse(event.data);
-      if (data.type === 'NEW') {
-        queryClient.setQueryData(['notifications', username], (oldData) => {
-          return [...(oldData || []), {
-            id: data.id,
-            author: data.author,
-            message: data.message,
-            read_status: data.read_status,
-          }];
-        });
-      }
-    };
-
-    socket.addEventListener('message', handleMessage);
-
-    return () => {
-      socket.removeEventListener('message', handleMessage);
-    };
-  }, [socket, queryClient, username, isAuthenticated]);
 
   const markAsReadMutation = useMutation({
     mutationFn: async ({ username, notificationIds }) => {
@@ -63,6 +61,7 @@ export const useNotifications = () => {
   });
 
   return {
+    readyState,
     notifications: notifications || [],
     markAsRead: markAsReadMutation.mutate,
     isLoading: isLoading || markAsReadMutation.isLoading,
