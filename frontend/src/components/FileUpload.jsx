@@ -13,10 +13,9 @@ const encodeImageAsBase64 = (file) => {
   });
 };
 
-const FileUpload = ({ username, setMain }) => {
+const FileUpload = ({ username, setMain, setUploading, uploading }) => {
   const queryClient = useQueryClient();
   const [selectedFile, setSelectedFile] = useState(null);
-  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(null);
 
   const picsMutation = useMutation({
@@ -51,10 +50,11 @@ const FileUpload = ({ username, setMain }) => {
       }
     },
     onSettled: () => {
-      setSelectedFile(null);
+      setSelectedFile(null)
     },
     enabled: Boolean(username),
-    retry: 4
+    retry: 4,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 
   const validateFile = useCallback((file) => {
@@ -97,7 +97,7 @@ const FileUpload = ({ username, setMain }) => {
     } catch (error) {
       console.error("File encoding error:", error);
     } finally {
-      setUploading(false);
+      setUploading(false)
     }
   }, [selectedFile, username, picsMutation]);
 

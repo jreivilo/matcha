@@ -6,6 +6,7 @@ const AutoLoad = require('@fastify/autoload')
 const options = {}
 const userConnections = new Map()
 
+
 module.exports = async function (fastify, opts) {
   fastify.register(require('@fastify/swagger'), {})
   fastify.register(require('@fastify/swagger-ui'), {
@@ -32,7 +33,6 @@ module.exports = async function (fastify, opts) {
     credentials: true,
     optionsSuccessStatus: 200,
   });
-  
   
   fastify.register(AutoLoad, {
     dir: path.join(__dirname, 'plugins'),

@@ -9,7 +9,9 @@ export const useAuthStatus = () => {
     queryFn: () => fetcher(`${API_URL}/user/whoami`, {}, 'GET'),
     staleTime: 1000 * 60 * 5,
     refetchOnWindowFocus: false,
-    retry: 2
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    delay: 1000,
   });
 
   const isAuthenticated = data?.success === true;

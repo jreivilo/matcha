@@ -11,6 +11,7 @@ const getImageNumber = (imageName) => parseInt(imageName.match(/_(\d+)\.png$/)[1
 const PicGallery = ({username, mainpic}) => {
   const queryClient = useQueryClient();
   const [main, setMain] = useState(mainpic || null);
+  const [uploading, setUploading] = useState(false);
 
   const { data: pics, isLoading, error } = useQuery({
     queryKey: ['pics', username],
@@ -51,7 +52,13 @@ const PicGallery = ({username, mainpic}) => {
       queryClient.setQueryData(['pics', username], context.previousPics);
       setMain(context.previousMain);
     },
-    retry: 4
+    retry: 4,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    delay: 1000,
+    onSettled: () => {
+      // queryClient.invalidateQueries('pics', username);
+      setUploading(false)
+    }
   });
 
   const changeMainPicMutation = useMutation({
@@ -68,24 +75,29 @@ const PicGallery = ({username, mainpic}) => {
       console.error('Error changing main picture:', err);
       setError("Failed to set main picture. Please try again.");
     },
-    retry: 4
+    onSettled: () => setUploading(false),
+    retry: 4,
   });
 
   const handleDeletePic = useCallback((imageName) => {
+    setUploading(true);
     const imageNumber = parseInt(imageName.match(/_(\d+)\.png$/)[1], 10);
     deletePicMutation.mutate({ username, imageName, imageNumber })
   }, [deletePicMutation]);
 
   const handleSetMainPic = useCallback((imageName) => {
+    if (uploading === true) return;
+    setUploading(true);
+    queryClient.invalidateQueries(['pics', username]);
     changeMainPicMutation.mutate({ username, image: imageName });
-  }, [changeMainPicMutation]);
+  }, [changeMainPicMutation, uploading]);
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
 
   return (
     <CustomLayout>
-      {isLoading ? (
+      {(isLoading || uploading) ? (
         <div className="h-48 w-full rounded-lg bg-gray-200 animate-pulse">Loading</div>
       ) : (
         <div className="flex flex-row flex-wrap justify-center gap-4">
@@ -100,7 +112,7 @@ const PicGallery = ({username, mainpic}) => {
           ))}
         </div>
       )}
-      <FileUpload username={username} setMain={setMain} />
+      <FileUpload username={username} setMain={setMain} setUploading={setUploading} uploading={uploading} />
     </CustomLayout>
   );
 };

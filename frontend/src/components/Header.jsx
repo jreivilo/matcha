@@ -4,8 +4,6 @@ import NotificationFeed from '@/components/notif/NotificationFeed';
 import { Link } from 'react-router-dom';
 import { useAuthStatus } from '@/hooks/useAuthStatus';
 import { useNotifications } from '@/hooks/useNotifications';
-// import { useAuthStatus } from '@/components/providers/AuthProvider';
-// import { useNotifications } from '@/components/providers/NotificationsProvider';
 
 import { logout } from '@/lib/logout';
 import { useQueryClient } from '@tanstack/react-query';
@@ -14,7 +12,7 @@ const Header = () => {
   const queryClient = useQueryClient();
   const { user } = useAuthStatus();
   const { username } = user || {};
-  const { notifications, markAsRead, isLoading, error, refetch } = useNotifications();
+  const { readyState, notifications, markAsRead, isLoading, error, refetch } = useNotifications();
 
   let unreadCount = notifications?.filter(n => !n.read_status).length || 0;
 
@@ -29,7 +27,14 @@ const Header = () => {
     if (unreadIds.length) {
       markAsRead({ username, notificationIds: unreadIds.join(',') });
     }
+
   };
+  const connectionStatus = {
+    [readyState.CONNECTING]: 'Connecting',
+    [readyState.OPEN]: 'Open',
+    [readyState.CLOSED]: 'Closed',
+    [readyState.UNINSTANTIATED]: 'Uninstantiated',
+  }[readyState];
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
@@ -37,6 +42,7 @@ const Header = () => {
   return (
     <header className="p-5 bg-gradient-to-br from-background-start to-background-end">
       <div className="container mx-auto flex justify-between items-center">
+        <span className="text-black">{connectionStatus}</span>
         <h1 className="text-4xl font-bold text-text-light">
           <Link className="text-secondary hover:underline" to="/">Matcha</Link>
         </h1>
