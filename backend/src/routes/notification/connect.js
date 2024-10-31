@@ -1,6 +1,6 @@
 'use strict';
 
-const { verifyToken } = require('../../jwt');
+const { verifyToken, verifyJWT } = require('../../jwt');
 
 module.exports = async function (fastify, opts) {
   fastify.route({
@@ -13,7 +13,7 @@ module.exports = async function (fastify, opts) {
       if (!token) {
         socket.send(JSON.stringify({
           type: 'ERROR',
-          error: 'Unauthorized'
+          error: 'token missing, try again'
         }));
         console.log("token missing")
         socket.close();
@@ -22,39 +22,30 @@ module.exports = async function (fastify, opts) {
 
       try {
         const decodedPayload = verifyToken(token, 'your-secret-key');
-
+        if (!decodedPayload) throw new Error('Invalid token');
         const username = decodedPayload.sub;
+      
         fastify.userConnections.set(username, socket);
         socket.username = username;
 
-        socket.send(JSON.stringify({
-            type: 'PONG',
-            message: 'Pong'
-        }));
-
-        socket.on('message', (msg) => {
-          const data = JSON.parse(msg);
-          if (data.type === 'PING') {
-            socket.send(JSON.stringify({ type: 'PONG', message: 'Pong' }));
-          }
-          else {
-            socket.send(JSON.stringify({ type: 'PONG', message: "what?"}))
-          }
-        });
-
       } catch (error) {
-        console.log('Other error', error)
         socket.send(JSON.stringify({
           type: 'ERROR',
-          error: 'Authentication Error'
+          error: 'Authentication failed, please re-authenticate'
         }));
-        // socket.close();
-        return () => {
-          if (socket.readyState === WebSocket.OPEN) {
-            socket.close();
-          }
-        };
-      }
+        console.log("Authentication error:", error.message);
+        socket.close();
+      }      
+        
+      socket.on('message', (msg) => {
+        const data = JSON.parse(msg);
+        if (data.type === 'PING') {
+          socket.send(JSON.stringify({ type: 'PONG', message: 'Pong' }));
+        }
+        else {
+          socket.send(JSON.stringify({ type: 'PONG', message: "what?"}))
+        }
+      });
     },
     onClose: (socket) => {
       const username = socket.username;

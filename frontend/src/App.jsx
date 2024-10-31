@@ -9,7 +9,7 @@ import ProfilePage from './pages/member/Profile';
 import Header from '@/components/Header';
 import Explore from './pages/member/Explore';
 import ChatPanel from './pages/member/Chat';
-import { WebSocketProvider } from './components/providers/WebSocketProvider';
+// import { WebSocketProvider } from './components/providers/WebSocketProvider';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { useAuthStatus } from '@/hooks/useAuthStatus'
@@ -52,10 +52,8 @@ function App() {
             <QueryClientProvider client={queryClient}>
             <ReactQueryDevtools initialIsOpen={false} />
             <ProtectedRoute>
-              <WebSocketProvider>
                 <Header/>
                 <MemberRoutes />
-              </WebSocketProvider>
             </ProtectedRoute>
             </QueryClientProvider>
           }/>
