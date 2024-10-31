@@ -13,13 +13,6 @@ module.exports = async function (fastify, opts) {
     })
   fastify.register(require('@fastify/formbody'));
   fastify.register(require('@fastify/websocket'));
-  fastify.register(require('fastify-socket.io'), {
-    cors: {
-      origin: 'http://localhost:4000',
-      methods: ["GET", "POST"],
-      credentials: true
-    }
-  });
   fastify.register(require('@fastify/cookie'), {
     secret: "super secret key",
     hook: 'onRequest',
