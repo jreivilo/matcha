@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { getChatHistory, getMatches, getUserInfo, sendMessage } from '@/api'
-import { useAuthStatus } from '@/hooks/useAuthStatus'
+import { useAuthStatus } from '@/components/AuthProvider'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import CustomLayout from '../../components/MatchaLayout'
 import { getPfpUrl } from '@/lib/utils'

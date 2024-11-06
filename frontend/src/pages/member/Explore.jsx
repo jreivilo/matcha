@@ -6,7 +6,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Link } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { useUserData } from '@/hooks/useUserData';
-import { useAuthStatus } from '@/hooks/useAuthStatus';
+import { useAuthStatus } from '@/components/AuthProvider';
 import { calculateCommonInterests, calculateDistance, getPfpUrl } from '@/lib/utils';
 import { SortingHeader, ExploreFilters } from '@/components/ExploreUtils';
 

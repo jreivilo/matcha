@@ -4,81 +4,57 @@ import FileUpload from '@/components/FileUpload';
 import CustomLayout from '@/components/MatchaLayout';
 import { deleteProfilePicture, changeMainPicture, getUserPics, getProfileAuth } from '@/api';
 import { PicItem } from '@/components/PicItem';
-// import { useAuthStatus } from '@/hooks/useAuthStatus';
+import { usePics} from '@/components/PicProvider';
 
 const getImageNumber = (imageName) => parseInt(imageName.match(/_(\d+)\.png$/)[1], 10);
 
-const PicGallery = ({username, mainpic}) => {
+const PicGallery = ({ username }) => {
   const queryClient = useQueryClient();
-  const [main, setMain] = useState(mainpic || null);
 
   const { data: pics, isLoading, error } = useQuery({
     queryKey: ['pics', username],
     queryFn: () => getUserPics(username),
     enabled: !!username,
     onError: (err) => console.log('pics error', err),
-    onSettled: () => {
-      setMain(mainpic);
-    }
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    refetchOnFocus: false,
   });
 
-  // Optimistic update for deleting a picture
   const deletePicMutation = useMutation({
     mutationFn: deleteProfilePicture,
-    onMutate: async ({ imageName }) => {
-      await queryClient.cancelQueries(['pics', username]);    
-      const previousPics = queryClient.getQueryData(['pics', username]);
-    
-      const optimisticPics = previousPics.filter(pic => pic.imageName !== imageName);
-    
-      const reindexedPics = optimisticPics.map((pic, index) => ({
-        ...pic,
-        imageName: `${username}_${index + 1}.png`, // Re-index to maintain sequential naming
-      }));
-    
-      let newMain = main;
-      if (main === imageName) {
-        newMain = reindexedPics[0]?.imageName || null;
-      } else if (getImageNumber(main) > getImageNumber(imageName)) {
-        newMain = `${username}_${getImageNumber(main) - 1}.png`;
-      }
-      const previousMain = main;
-      setMain(newMain);
-      queryClient.setQueryData(['pics', username], reindexedPics);
-      return { previousPics, previousMain };
-    },
     onError: (err, variables, context) => {
       queryClient.setQueryData(['pics', username], context.previousPics);
-      setMain(context.previousMain);
     },
-    retry: 4
+    onSettled: async () => {
+      queryClient.cancelQueries({ queryKey: ['pics', username] });
+    },
+    retry: 4,
   });
 
-  const changeMainPicMutation = useMutation({
+  const setMainPicMutation = useMutation({
     mutationFn: changeMainPicture,
-    onMutate: async ({ image }) => {
-      await queryClient.cancelQueries(['pics', username]);
-      const previousMain = main;
-      setMain(image);
-      return { previousMain };
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['pics', username],
+        exact: true,
+        refetchActive: false
+      });
     },
-    onError: (err, variables, context) => {
-      queryClient.setQueryData(['pics', username], context.previousPics);
-      setMain(context.previousMain);
-      console.error('Error changing main picture:', err);
-      setError("Failed to set main picture. Please try again.");
-    },
-    retry: 4
-  });
+    retry: 4,
+    enabled: Boolean(pics)
+  })
 
   const handleDeletePic = useCallback((imageName) => {
-    const imageNumber = parseInt(imageName.match(/_(\d+)\.png$/)[1], 10);
+    const imageNumber = getImageNumber(imageName);
     deletePicMutation.mutate({ username, imageName, imageNumber })
   }, [deletePicMutation]);
 
-  const handleSetMainPic = useCallback((imageName) => {
-    changeMainPicMutation.mutate({ username, image: imageName });
-  }, [changeMainPicMutation]);
+  const handleSetMainPic = useCallback((image) => {
+    if (image.isMain) return;
+    setMainPicMutation.mutate({ username, image: image.imageName });
+  }, [setMainPicMutation]);
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
@@ -94,13 +70,12 @@ const PicGallery = ({username, mainpic}) => {
               key={pic.imageName} 
               pic={pic} 
               onDelete={handleDeletePic} 
-              onSetMain={() => handleSetMainPic(pic.imageName)}
-              isMainPicture={pic.imageName === main}
+              onSetMain={handleSetMainPic}
             />
           ))}
         </div>
       )}
-      <FileUpload username={username} setMain={setMain} />
+      <FileUpload username={username}/>
     </CustomLayout>
   );
 };

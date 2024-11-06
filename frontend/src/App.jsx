@@ -1,5 +1,5 @@
 import './App.css'
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import HomePage from './pages/HomePage'
 import Login from './pages/Login';
@@ -12,7 +12,8 @@ import ChatPanel from './pages/member/Chat';
 // import { WebSocketProvider } from './components/providers/WebSocketProvider';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import { useAuthStatus } from '@/hooks/useAuthStatus'
+import { useAuthStatus, AuthProvider } from '@/components/AuthProvider'
+import { PicProvider } from '@/components/PicProvider';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -30,11 +31,12 @@ const ProtectedRoute = ({ children }) => {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/auth/login" replace />;
+    return <Navigate to="/auth/login" />;
   }
 
   return children;
 };
+
 
 function App() {
   return (
@@ -51,10 +53,12 @@ function App() {
           element={
             <QueryClientProvider client={queryClient}>
             <ReactQueryDevtools initialIsOpen={false} />
-            <ProtectedRoute>
-                <Header/>
+            <AuthProvider>
+              <ProtectedRoute>
+                <Header />
                 <MemberRoutes />
-            </ProtectedRoute>
+              </ProtectedRoute>
+            </AuthProvider>
             </QueryClientProvider>
           }/>
         <Route path="*" element={<Navigate to="/" replace />} />
@@ -76,7 +80,12 @@ function MemberRoutes() {
     <Routes>
         <Route path="fill-profile" element={<FillInfo />} />
         <Route path="dashboard" element={<Dashboard />} />
-        <Route path="profile" element={<ProfilePage />} />
+        <Route path="profile" element={
+          <PicProvider>
+            <ProfilePage />
+          </PicProvider>
+        }
+        />
         <Route path="explore" element={<Explore />} />
         <Route path="chat" element={<ChatPanel/>} />
     </Routes>

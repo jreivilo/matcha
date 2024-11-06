@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { getUserInfo } from '@/api';
-import { useAuthStatus } from './useAuthStatus';
+import { useAuthStatus } from '@/components/AuthProvider';
 
 export const useUserData = (profileUsername) => {
   const { isAuthenticated, user } = useAuthStatus()

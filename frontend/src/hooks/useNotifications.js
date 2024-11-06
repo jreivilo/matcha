@@ -1,14 +1,14 @@
 import { useEffect } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getNotificationHistory, fetcher } from '@/api';
-import { useAuthStatus } from './useAuthStatus';
+import { useAuthStatus } from '@/components/AuthProvider';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 const APIURL = "http://localhost:3000";
 const WS_URL = 'ws://localhost:3000/notification/ws';
 
 export const useNotifications = () => {
   const queryClient = useQueryClient();
-  const { isAuthenticated, user } = useAuthStatus();
+  const { user } = useAuthStatus();
   const username = user?.username;
 
   const { lastMessage, readyState, sendJsonMessage } = useWebSocket(WS_URL, {

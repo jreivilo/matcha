@@ -27,7 +27,8 @@ module.exports = async function (fastify, opts) {
             type: 'object',
             properties: {
               imageName: { type: 'string' },
-              image: { type: 'string', description: 'Base64 encoded image' }
+              image: { type: 'string', description: 'Base64 encoded image' },
+              isMain: { type: 'boolean', description: 'Whether the image is the main image' }
             }
           }
         },
@@ -44,6 +45,7 @@ module.exports = async function (fastify, opts) {
     preHandler: verifyJWT,
     handler: async (request, reply) => {
       const { username } = request.body; // Changed to request.body
+      const connection = await fastify.mysql.getConnection();
 
       if (!username) {
         reply.code(400).send({
@@ -74,6 +76,36 @@ module.exports = async function (fastify, opts) {
           image: imageBuffer.toString('base64')
         };
       });
+
+      try {
+        await connection.beginTransaction();
+
+        // Get the current profile image from the database
+        const [rows] = await connection.query('SELECT picture_path FROM user WHERE username = ?', [username]);
+        const currentProfileImage = rows[0]?.picture_path;
+
+        // Update the main image in the database
+        if (currentProfileImage) {
+          const mainImage = imageList.find(image => image.imageName === currentProfileImage);
+          if (mainImage) {
+            mainImage.isMain = true;
+          }
+        }
+
+        // Commit the transaction
+        await connection.commit();
+      } catch (error) {
+        // Rollback the transaction in case of an error
+        await connection.rollback();
+
+        reply.code(500).send({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'An error occurred while retrieving the images',
+          error: error.message
+        });
+      } finally {
+        connection.release();
+      }
 
       reply.code(200).send(imageList);
     }

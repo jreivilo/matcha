@@ -4,7 +4,7 @@ import CustomLayout from "../../components/MatchaLayout";
 import { useLocation, useNavigate } from "react-router-dom";
 import PicGallery from '@/components/PicGallery';
 import ProfileForm from '@/components/CustomProfileForm';
-import { useAuthStatus } from '@/hooks/useAuthStatus'
+import { useAuthStatus } from '@/components/AuthProvider'
 import { useUserData } from '@/hooks/useUserData'
 
 const FillInfo = () => {

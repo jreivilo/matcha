@@ -1,6 +1,6 @@
 import { fetcher } from '@/api';
 
-export const logout = async (user, queryClient) => {
+export const logout = async (queryClient) => {
   try {
     const response = await fetcher(`http://localhost:3000/user/logout`, {}, 'GET');
     if (!response) {
@@ -8,9 +8,8 @@ export const logout = async (user, queryClient) => {
     }
     document.cookie = "jwt=; Max-Age=0; path=/;";
     queryClient.clear()
-    // window.dispatchEvent(new Event('authStateChanged'));
+    window.dispatchEvent(new Event('authStateChanged'));
     window.location.href = 'http://localhost:4000/';
-    // window.location.reload();
   } catch (error) {
     console.error('Logout failed:', error);
   }

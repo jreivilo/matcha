@@ -13,7 +13,7 @@ const encodeImageAsBase64 = (file) => {
   });
 };
 
-const FileUpload = ({ username, setMain }) => {
+const FileUpload = ({ username }) => {
   const queryClient = useQueryClient();
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploading, setUploading] = useState(false);
@@ -21,40 +21,16 @@ const FileUpload = ({ username, setMain }) => {
 
   const picsMutation = useMutation({
     mutationFn: uploadProfilePicture,
-    onMutate: async ({username, file}) => {
-      await queryClient.cancelQueries(['pics', username]);
-      const previousPics = queryClient.getQueryData(['pics', username]) || [];
-      if (previousPics.length >= 5) {
-        console.warn('Maximum number of images reached.');
-        return;
-      }
-      const newImageNumber = previousPics.length + 1;
-      const newImageName = `${username}_${newImageNumber}.png`;
-      const optimisticPics = [
-        ...previousPics,
-        { imageName: newImageName, image: file }
-      ];
-      if (newImageNumber === 1) {
-        setMain(newImageName);
-      }
-      queryClient.setQueryData(['pics', username], optimisticPics);
-      return { previousPics };
-    },
     onError: (error, variables, context) => {
       queryClient.setQueryData(['pics', username], context.previousPics);
       console.error('Error uploading picture:', error);
       setSelectedFile(null);
     },
-    onSuccess: (data) => {
-      if (data.imageNumber === 1) {
-        setMain(data.imageName);
-      }
-    },
-    onSettled: () => {
+    onSettled: async () => {
       setSelectedFile(null);
+      queryClient.invalidateQueries({ queryKey: ['pics', username]});
     },
-    enabled: Boolean(username),
-    retry: 4
+    retry: 4,
   });
 
   const validateFile = useCallback((file) => {
@@ -92,7 +68,6 @@ const FileUpload = ({ username, setMain }) => {
     if (!selectedFile) return;
     setUploading(true);
     try {
-      // const imageString = await encodeImageAsBase64(selectedFile);
       picsMutation.mutate({ username, file: selectedFile });
     } catch (error) {
       console.error("File encoding error:", error);

@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useUserData } from '@/hooks/useUserData';
 import { fetcher, markView } from '@/api';
-import { useAuthStatus } from '@/hooks/useAuthStatus';
+import { useAuthStatus } from '@/components/AuthProvider';
 import { getPfpUrl } from '@/lib/utils';
 // components
 import PicGallery from '@/components/PicGallery';

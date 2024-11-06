@@ -2,10 +2,8 @@ import React from 'react';
 import { Button } from './ui/button';
 import NotificationFeed from '@/components/notif/NotificationFeed';
 import { Link } from 'react-router-dom';
-import { useAuthStatus } from '@/hooks/useAuthStatus';
+import { useAuthStatus } from '@/components/AuthProvider';
 import { useNotifications } from '@/hooks/useNotifications';
-// import { useAuthStatus } from '@/components/providers/AuthProvider';
-// import { useNotifications } from '@/components/providers/NotificationsProvider';
 
 import { logout } from '@/lib/logout';
 import { useQueryClient } from '@tanstack/react-query';
@@ -18,9 +16,8 @@ const Header = () => {
 
   let unreadCount = notifications?.filter(n => !n.read_status).length || 0;
 
-  const handleLogout = async () => {
-    logout(user, queryClient);
-    logout(user, queryClient);
+  const handleLogout = () => {
+    logout(queryClient);
   };
 
   const handleMarkAllAsRead = () => {
