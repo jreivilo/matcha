@@ -1,8 +1,9 @@
+
 import React, { useState, useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
-import { uploadProfilePicture } from '@/api';
 import { useDropzone } from 'react-dropzone'
+import { usePics } from '@/components/PicProvider';
 
 const encodeImageAsBase64 = (file) => {
   return new Promise((resolve, reject) => {
@@ -14,24 +15,24 @@ const encodeImageAsBase64 = (file) => {
 };
 
 const FileUpload = ({ username }) => {
-  const queryClient = useQueryClient();
+  const { uploadPic, inProgress, error: picError } = usePics();
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(null);
 
-  const picsMutation = useMutation({
-    mutationFn: uploadProfilePicture,
-    onError: (error, variables, context) => {
-      queryClient.setQueryData(['pics', username], context.previousPics);
-      console.error('Error uploading picture:', error);
-      setSelectedFile(null);
-    },
-    onSettled: async () => {
-      setSelectedFile(null);
-      queryClient.invalidateQueries({ queryKey: ['pics', username]});
-    },
-    retry: 4,
-  });
+  // const picsMutation = useMutation({
+  //   mutationFn: uploadProfilePicture,
+  //   onError: (error, variables, context) => {
+  //     queryClient.setQueryData(['pics', username], context.previousPics);
+  //     console.error('Error uploading picture:', error);
+  //     setSelectedFile(null);
+  //   },
+  //   onSettled: async () => {
+  //     setSelectedFile(null);
+  //     queryClient.invalidateQueries({ queryKey: ['pics', username]});
+  //   },
+  //   retry: 4,
+  // });
 
   const validateFile = useCallback((file) => {
     if (!file.type.startsWith('image/')) {
@@ -68,13 +69,14 @@ const FileUpload = ({ username }) => {
     if (!selectedFile) return;
     setUploading(true);
     try {
-      picsMutation.mutate({ username, file: selectedFile });
+      uploadPic(selectedFile, username)
+      // picsMutation.mutate({ username, file: selectedFile });
     } catch (error) {
       console.error("File encoding error:", error);
     } finally {
       setUploading(false);
     }
-  }, [selectedFile, username, picsMutation]);
+  }, [selectedFile, username, uploadPic]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -103,12 +105,12 @@ const FileUpload = ({ username }) => {
       {selectedFile && (
         <Button 
           onClick={handleUpload} 
-          disabled={uploading || picsMutation.isLoading}
+          disabled={uploading || inProgress}
         >
           {uploading ? 'Uploading...' : 'Upload file'}
         </Button>
       )}
-      {picsMutation.isError && (
+      {error && (
         <p className="text-red-500">Upload failed. Please try again.</p>
       )}
     </div>

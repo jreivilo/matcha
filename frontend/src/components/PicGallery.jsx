@@ -10,53 +10,55 @@ const getImageNumber = (imageName) => parseInt(imageName.match(/_(\d+)\.png$/)[1
 
 const PicGallery = ({ username }) => {
   const queryClient = useQueryClient();
+  const { pics, error, isLoading, inProgress, deletePic, setMainPic, uploadPic } = usePics();
 
-  const { data: pics, isLoading, error } = useQuery({
-    queryKey: ['pics', username],
-    queryFn: () => getUserPics(username),
-    enabled: !!username,
-    onError: (err) => console.log('pics error', err),
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
-    refetchOnFocus: false,
-  });
+  // const { data: pics, isLoading, error } = useQuery({
+  //   queryKey: ['pics', username],
+  //   queryFn: () => getUserPics(username),
+  //   enabled: !!username,
+  //   onError: (err) => console.log('pics error', err),
+  //   refetchOnWindowFocus: false,
+  //   refetchOnMount: false,
+  //   refetchOnReconnect: false,
+  //   refetchOnFocus: false,
+  // });
 
-  const deletePicMutation = useMutation({
-    mutationFn: deleteProfilePicture,
-    onError: (err, variables, context) => {
-      queryClient.setQueryData(['pics', username], context.previousPics);
-    },
-    onSettled: async () => {
-      queryClient.cancelQueries({ queryKey: ['pics', username] });
-    },
-    retry: 4,
-  });
+  // const deletePicMutation = useMutation({
+  //   mutationFn: deleteProfilePicture,
+  //   onError: (err, variables, context) => {
+  //     queryClient.setQueryData(['pics', username], context.previousPics);
+  //   },
+  //   onSettled: async () => {
+  //     queryClient.cancelQueries({ queryKey: ['pics', username] });
+  //   },
+  //   retry: 4,
+  // });
 
-  const setMainPicMutation = useMutation({
-    mutationFn: changeMainPicture,
-    onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['pics', username],
-        exact: true,
-        refetchActive: false
-      });
-    },
-    retry: 4,
-    enabled: Boolean(pics)
-  })
+  // const setMainPicMutation = useMutation({
+  //   mutationFn: changeMainPicture,
+  //   onSettled: () => {
+  //     queryClient.invalidateQueries({
+  //       queryKey: ['pics', username],
+  //       exact: true,
+  //       refetchActive: false
+  //     });
+  //   },
+  //   retry: 4,
+  //   enabled: Boolean(pics)
+  // })
 
   const handleDeletePic = useCallback((imageName) => {
     const imageNumber = getImageNumber(imageName);
-    deletePicMutation.mutate({ username, imageName, imageNumber })
-  }, [deletePicMutation]);
+    deletePic(username, imageNumber)
+  }, [deletePic]);
 
   const handleSetMainPic = useCallback((image) => {
     if (image.isMain) return;
-    setMainPicMutation.mutate({ username, image: image.imageName });
-  }, [setMainPicMutation]);
+    // setMainPicMutation.mutate({ username, image: image.imageName });
+    setMainPic(username, image.imageName)
+  }, [setMainPic]);
 
-  if (isLoading) return <div>Loading...</div>;
+  if (inProgress) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
 
   return (
