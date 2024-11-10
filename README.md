@@ -30,4 +30,4 @@ $ ./init_basic_user.sh
 - click import on the upper left, upload the init.sql file from the repo (at db/init.sql)
 - click execute and you're done
 
-tes
+test
