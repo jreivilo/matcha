@@ -82,17 +82,19 @@ module.exports = async function (fastify, opts) {
         // Retrieve all notifications for the target user
         const [notificationRows] = await connection.query(
           `SELECT id, author, message, read_status, created_at
-           FROM notifications WHERE target = ?`,
+           FROM notifications WHERE target = ? AND read_status = 0
+           ORDER BY created_at DESC`,
           [target]
         );
 
-        const notifications = notificationRows.map(row => ({
+        const notifications = notificationRows.length > 0 ? notificationRows.map(row => ({
           id: row.id,
           author: row.author,
           message: row.message,
           read_status: row.read_status,
           created_at: row.created_at
-        }));
+        }))
+        : [];
 
         reply.code(200).send({
           success: true,
