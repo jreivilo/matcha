@@ -10,7 +10,7 @@ import { useAuthStatus } from '@/hooks/useAuthStatus';
 import { calculateCommonInterests, calculateDistance, getPfpUrl } from '@/lib/utils';
 import { SortingHeader, ExploreFilters } from '@/components/ExploreUtils';
 
-const API_URL = "http://localhost:3000";
+const API_URL = import.meta.env.VITE_API_URL;
 
 const additionalFilters = {
   onlineOnly: false,

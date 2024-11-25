@@ -2,11 +2,17 @@
 build:
 	docker-compose build
 
+build-prod:
+	docker-compose -f docker-compose-prod.yml build
+
 build-no-cache:
 	docker-compose build --no-cache
 
 up:
 	docker-compose up --build
+
+up-prod:
+	docker-compose -f docker-compose-prod.yml up --build
 
 updetached:
 	docker-compose up --build -d

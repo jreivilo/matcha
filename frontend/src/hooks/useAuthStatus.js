@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { fetcher } from '@/api';
 
-const API_URL = 'http://localhost:3000';
+const API_URL = import.meta.env.VITE_API_URL;
 
 export const useAuthStatus = () => {
   const { data, error, isLoading } = useQuery({
