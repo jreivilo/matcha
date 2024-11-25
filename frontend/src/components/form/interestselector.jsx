@@ -4,6 +4,8 @@ import { useState } from "react";
 import { fetcher } from "@/api";
 import { Dialog, DialogContent, DialogHeader, DialogTrigger, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 
+const API_URL = '/api';
+
 const InterestSelector = ({ interests, setInterests }) => {
   const [inputValue, setInputValue] = useState('');
   const [filter, setFilter] = useState('');
@@ -11,7 +13,7 @@ const InterestSelector = ({ interests, setInterests }) => {
   const { data: uniqueInterests, isLoading, isError } = useQuery({
     queryKey: ['uniqueInterests'],
     queryFn: async () => {
-      const data = await fetcher('http://localhost:3000/interest/unique-interests', {}, 'GET');
+      const data = await fetcher(`${API_URL}/interest/unique-interests`, {}, 'GET');
       return data.unique_interests;
     },
     onError: (error) => {

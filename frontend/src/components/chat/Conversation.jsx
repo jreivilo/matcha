@@ -2,6 +2,9 @@ import React, { useEffect, useRef } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { getChatHistory, sendMessage } from '@/api';
 import { getPfpUrl } from '@/lib/utils';
+import { useNavigate } from 'react-router-dom';
+
+const API_URL = '/api';
 
 const Messages = ({ chatLog, messageEndRef, user }) => {
     const isMe = (message) => {
@@ -41,6 +44,11 @@ const Messages = ({ chatLog, messageEndRef, user }) => {
 const ConversationBox = ({ user, selectedChat }) => {
     const interlocutor = selectedChat?.matchProfile;
     const messagesEndRef = useRef(null);
+    const navigate = useNavigate();
+
+    const goToProfile = (username) => {
+        navigate(`/member/profile?username=${username}`);
+    }
 
     const { data: chatLog, isLoading, error, refetch } = useQuery({
         queryKey: ['chatHistory', interlocutor?.username],
@@ -97,9 +105,9 @@ const ConversationBox = ({ user, selectedChat }) => {
                         />
                         <div>
                             <h3 className="font-semibold">
-                                <a href={`http://localhost:4000/member/profile?username=${interlocutor?.username}`}>
+                                <p onClick={() => goToProfile(interlocutor?.username)}>
                                     {interlocutor?.username}
-                                </a>
+                                </p>
                             </h3>
                             <span className="text-xs text-neutral-400">Online</span>
                         </div>

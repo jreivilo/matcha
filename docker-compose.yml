@@ -10,6 +10,7 @@ services:
       - DATABASE_HOST=${DB_HOST}
       - DATABASE_PORT=${DB_PORT}
       - DATABASE_SALT=${SALT}
+      - FRONTEND_URL=${FRONTEND_URL}
       - MAIL_API_KEY=${MAIL_API_KEY}
       - DEV_MODE=${DEV_MODE}
     ports:

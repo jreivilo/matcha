@@ -7,7 +7,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import CustomLayout from '@/components/MatchaLayout';
 import { fetcher } from '@/api';
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = '/api';
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);

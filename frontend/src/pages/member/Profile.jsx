@@ -14,7 +14,7 @@ import CustomLayout from '@/components/MatchaLayout';
 import ProfileForm from '@/components/CustomProfileForm';
 import { InteractionMenu } from '@/components/Interaction';
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = '/api';
 
 const ProfilePage = () => {
   const { isAuthentified, user } = useAuthStatus();
