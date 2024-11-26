@@ -1,3 +1,4 @@
+
 services:
   backend:
     build: ./backend
@@ -9,6 +10,7 @@ services:
       - DATABASE_HOST=${DB_HOST}
       - DATABASE_PORT=${DB_PORT}
       - DATABASE_SALT=${SALT}
+      - FRONTEND_URL=${FRONTEND_URL}
       - MAIL_API_KEY=${MAIL_API_KEY}
       - DEV_MODE=${DEV_MODE}
     ports:
@@ -27,32 +29,25 @@ services:
       - "api.postmarkapp.com:52.14.145.215"
       - "api.postmarkapp.com:3.19.40.22"
 
-  nginx:
-    image: nginx:latest
-    container_name: matcha-nginx
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./frontend/dist:/usr/share/nginx/html:ro
+
+  frontend:
+    build: ./frontend
+    container_name: matcha-frontend
+    environment:
+      - PORT=${FRONTEND_PORT}
+      - REACT_APP_BACKEND_URL=${BACKEND_URL}
+      - VITE_BACKEND_URL=${BACKEND_URL}
+      - CHOKIDAR_USEPOLLING=true
     ports:
-      - "8042:80"
+      - "4000:4000"
     depends_on:
       - backend
     networks:
       - matcha-networks
-    restart: unless-stopped
-
-  frontend-build:
-    image: node:18
-    container_name: matcha-frontend-build
-    working_dir: /usr/src/app
     volumes:
-      - ./frontend:/usr/src/app
-      - ./frontend/dist:/usr/src/app/dist
-    command: ["npm", "run", "build"]
-    networks:
-      - matcha-networks
-
-  db: 
+      - ./frontend/src:/usr/src/app/src
+    restart: unless-stopped
+  db:
     build: ./db/
     container_name: matcha-db
     environment:
@@ -87,9 +82,10 @@ services:
       db:
         condition: service_healthy
 
+
 networks:
   matcha-networks:
     driver: bridge
 
 volumes:
-  frontend-dist:
+  db-data:

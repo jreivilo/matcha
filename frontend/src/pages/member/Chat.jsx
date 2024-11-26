@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
 import { getChatHistory, getMatches, getUserInfo, sendMessage } from '@/api'
 import { useAuthStatus } from '@/hooks/useAuthStatus'
 import { useQuery, useQueryClient } from '@tanstack/react-query'

@@ -1,4 +1,5 @@
 import { fetcher } from '@/api';
+const API_URL = '/api';
 
 export const logout = async (user, queryClient) => {
   try {

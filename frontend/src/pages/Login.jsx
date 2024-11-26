@@ -7,6 +7,8 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import CustomLayout from '@/components/MatchaLayout';
 import { fetcher } from '@/api';
 
+const API_URL = '/api';
+
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
   const navigate = useNavigate();
@@ -15,8 +17,8 @@ const Login = () => {
   const onSubmitAuth = async (data) => {
     try {
       const responseData = await fetcher(isLogin
-        ? `http://localhost:3000/user/login`
-        : `http://localhost:3000/user/create-user`,
+        ? `${API_URL}/user/login`
+        : `${API_URL}/user/create-user`,
         data, 'POST');
       if (responseData.success) {
         window.dispatchEvent(new Event('authStateChanged'));
