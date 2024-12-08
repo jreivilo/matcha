@@ -35,8 +35,7 @@ services:
     container_name: matcha-frontend
     environment:
       - PORT=${FRONTEND_PORT}
-      - REACT_APP_BACKEND_URL=${BACKEND_URL}
-      - VITE_BACKEND_URL=${BACKEND_URL}
+      - VITE_BACKEND_URL=${DEV_BACKEND_URL}
       - CHOKIDAR_USEPOLLING=true
     ports:
       - "4000:4000"

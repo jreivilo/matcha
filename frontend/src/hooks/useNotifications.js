@@ -1,9 +1,7 @@
-import { useEffect } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getNotificationHistory, fetcher } from '@/api';
 import { useAuthStatus } from './useAuthStatus';
-import useWebSocket, { ReadyState } from 'react-use-websocket';
-const APIURL = '/api';
+import useWebSocket from 'react-use-websocket';
 const WS_URL = 'ws://localhost:3000/notification/ws';
 
 export const useNotifications = () => {
@@ -46,7 +44,7 @@ export const useNotifications = () => {
 
   const markAsReadMutation = useMutation({
     mutationFn: async ({ username, notificationIds }) => {
-      const response = await fetcher(`${APIURL}/notification/read`, { username, notificationIds }, 'PUT');
+      const response = await fetcher(`/notification/read`, { username, notificationIds }, 'PUT');
       if (response.code) {
         throw new Error('Error marking notifications as read', response.code);
       }

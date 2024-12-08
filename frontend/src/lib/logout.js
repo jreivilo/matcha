@@ -9,7 +9,6 @@ export const logout = async (user, queryClient) => {
     }
     document.cookie = "jwt=; Max-Age=0; path=/;";
     queryClient.clear()
-    // window.dispatchEvent(new Event('authStateChanged'));
     window.location.href = "/";
   } catch (error) {
     console.error('Logout failed:', error);

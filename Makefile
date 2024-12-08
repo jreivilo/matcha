@@ -14,6 +14,15 @@ updetached:
 down:
 	docker-compose down
 
+build-dev:
+	docker-compose -f docker-compose-dev.yml build
+
+up-dev:
+	docker-compose -f docker-compose-dev.yml up --build
+
+down-dev:
+	docker-compose -f docker-compose-dev.yml down
+
 stop:
 	docker-compose stop
 

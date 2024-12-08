@@ -20,7 +20,6 @@ const Header = () => {
 
   const handleLogout = async () => {
     logout(user, queryClient);
-    logout(user, queryClient);
   };
 
   const handleMarkAllAsRead = () => {
