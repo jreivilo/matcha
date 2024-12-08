@@ -47,7 +47,7 @@ const ProfilePage = () => {
   const displayUser = userInfo?.displayUser;
 
   const handleVerification = async () => {
-    const reqUrl = `${API_URL}/user/request-verification`;
+    const reqUrl = '/user/request-verification';
     await fetcher(reqUrl, { username: profileUsername }, 'POST');
   }
 

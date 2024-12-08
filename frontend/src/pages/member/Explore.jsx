@@ -99,13 +99,13 @@ const Explore = () => {
 
   const { data: suggestions, isLoading : suggestionsLoading, error } = useQuery({
     queryKey: ['suggestions', username],
-    queryFn: async () => fetcher(`${API_URL}/explore/get-suggestions`, { username,}, 'POST'),
+    queryFn: async () => fetcher('/explore/get-suggestions', { username,}, 'POST'),
     enabled: !!username && !!isAuthenticated,
   });
 
   const { data: blocked, isLoading: blockedLoading } = useQuery({
     queryKey: ['blocked'],
-    queryFn: async () => fetcher(`${API_URL}/block/blocked-by`, { username }, 'POST'),
+    queryFn: async () => fetcher('/block/blocked-by', { username }, 'POST'),
     enabled: !!username
   })
 

@@ -13,7 +13,7 @@ const InterestSelector = ({ interests, setInterests }) => {
   const { data: uniqueInterests, isLoading, isError } = useQuery({
     queryKey: ['uniqueInterests'],
     queryFn: async () => {
-      const data = await fetcher(`${API_URL}/interest/unique-interests`, {}, 'GET');
+      const data = await fetcher('/interest/unique-interests', {}, 'GET');
       return data.unique_interests;
     },
     onError: (error) => {

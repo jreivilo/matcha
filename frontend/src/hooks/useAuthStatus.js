@@ -1,12 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { fetcher } from '@/api';
 
-const API_URL = '/api';
-
 export const useAuthStatus = () => {
   const { data, error, isLoading } = useQuery({
     queryKey: ['authStatus'],
-    queryFn: () => fetcher(`${API_URL}/user/whoami`, {}, 'GET'),
+    queryFn: () => fetcher('user/whoami', {}, 'GET'),
     staleTime: 1000 * 60 * 5,
     refetchOnWindowFocus: false,
     retry: 2
